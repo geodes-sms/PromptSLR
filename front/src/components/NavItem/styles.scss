@@ -1,0 +1,19 @@
+$selected_color: #816bdd;
+
+.navItem {
+  cursor: pointer;
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  scroll-behavior: smooth;
+
+  transition: color 0.1s, font-weight 0.1s;
+
+  &--selected {
+    color: $selected_color;
+    font-weight: bold;
+    border-bottom: 3px solid $selected_color;
+  }
+}
