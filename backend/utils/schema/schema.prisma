@@ -1,0 +1,102 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.db"
+}
+
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+model Users {
+  UserID       Int       @id @default(autoincrement())
+  Username     String    @unique
+  Email        String    @unique
+  PasswordHash String
+  CreatedAt    DateTime
+  UpdatedAt    DateTime?
+}
+
+model Projects {
+  ProjectID        String           @id @default(uuid())
+  Name             String
+  TopicTitle       String?
+  TopicDescription String?
+  LLMs             LLMs[]
+  Datasets         Datasets[]
+  Configurations   Configurations[]
+  LLMDecisions     LLMDecisions[]
+}
+
+model LLMs {
+  LLMID              Int              @id @default(autoincrement())
+  ProjectID          String
+  Name               String
+  URL                String?
+  APIKey             String?
+  DefaultTemperature Float?
+  DefaultMaxTokens   Int?
+  Project            Projects         @relation(fields: [ProjectID], references: [ProjectID])
+  LLMHyperparams     LLMHyperparams[]
+  LLMDecisions       LLMDecisions[]
+}
+
+model LLMHyperparams {
+  HyperparamID Int    @id @default(autoincrement())
+  LLMID        Int
+  Key          String
+  Value        String
+  LLM          LLMs   @relation(fields: [LLMID], references: [LLMID])
+}
+
+model Datasets {
+  DatasetID String     @id @default(uuid())
+  ProjectID String
+  Name      String
+  Project   Projects   @relation(fields: [ProjectID], references: [ProjectID])
+  Articles  Articles[]
+}
+
+model Configurations {
+  ConfigurationID             Int      @id @default(autoincrement())
+  ProjectID                   String
+  ConfigJson                  String
+  Project                     Projects @relation(fields: [ProjectID], references: [ProjectID])
+}
+
+model Articles {
+  Key               String         @id
+  Title             String
+  Abstract          String?
+  Keywords          String?
+  Authors           String?
+  Venue             String?
+  References        String?
+  Bibtex            String?
+  ScreenedDecision  String
+  FinalDecision     String?
+  Mode              String?
+  InclusionCriteria String?
+  ExclusionCriteria String?
+  ReviewerCount     Int?
+  DatasetID         String
+  Dataset           Datasets       @relation(fields: [DatasetID], references: [DatasetID])
+  LLMDecisions      LLMDecisions[]
+}
+
+model LLMDecisions {
+  DecisionID Int      @id @default(autoincrement())
+  LLMID      Int
+  ArticleKey String
+  ProjectID  String
+  Decision   String
+  Error      Boolean
+  Retries    Int
+  RawOutput  String?
+  Reason     String?
+  Confidence Float?
+  LLM        LLMs     @relation(fields: [LLMID], references: [LLMID])
+  Article    Articles @relation(fields: [ArticleKey], references: [Key])
+  Project    Projects @relation(fields: [ProjectID], references: [ProjectID])
+}
