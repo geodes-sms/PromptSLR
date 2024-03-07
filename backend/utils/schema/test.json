@@ -1,0 +1,64 @@
+{
+    "project": {
+        "id": "unique-UUID",
+        "name": "myproject",
+        "topic": {
+            "title": "RL4SE",
+            "description": "reinforcement learning for software engineering"
+        }
+    },
+    "llm": {
+        "name": "chatgpt",
+        "url": "optional-url",
+        "apikey": "optional",
+        "hyperparams": {
+            "default": {
+                "temprature": 0.2,
+                "maxTokens": 512
+            },
+            "additional": [
+                {
+                    "key": "value"
+                }
+            ]
+        }
+    },
+    "dataset": {
+        "name": "rl4se"
+    },
+    "configurations": {
+        "features": [
+            "title",
+            "abstract",
+            "keywords",
+            "authors",
+            "venue",
+            "references",
+            "bibtex"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 2,
+            "negative": 4
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "any"
+                ],
+                "criteria": []
+            },
+            "exclusion": {
+                "condition": [
+                    "all"
+                ],
+                "criteria": []
+            }
+        },
+        "output": {
+            "classes": 3,
+            "reason": true,
+            "confidence": false
+        }
+    }
+}

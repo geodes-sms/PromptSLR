@@ -1,0 +1,215 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "project": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The project UUID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The project name"
+                },
+                "topic": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "The title of the SLR topic"
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "The description of the SLR topic"
+                        }
+                    },
+                    "required": [
+                        "title"
+                    ]
+                }
+            }
+        },
+        "llm": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the LLM"
+                },
+                "url": {
+                    "type": "string",
+                    "description": "URL endpoint of the LLM"
+                },
+                "apikey": {
+                    "type": "string",
+                    "description": "API key for the LLM"
+                },
+                "hyperparams": {
+                    "type": "object",
+                    "description": "Hyperparameters for the LLM",
+                    "properties": {
+                        "default": {
+                            "type": "object",
+                            "description": "Default hyperparameters for the LLM",
+                            "properties": {
+                                "temprature": {
+                                    "type": "number",
+                                    "description": "The temprature hyperparameter",
+                                    "maximum": 1,
+                                    "minimum": 0
+                                },
+                                "maxTokens": {
+                                    "type": "number",
+                                    "description": "The maxTokens hyperparameter",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": [
+                                "temprature",
+                                "maxTokens"
+                            ]
+                        },
+                        "additional": {
+                            "type": "array",
+                            "description": "Additional hyperparameters for the LLM"
+                        }
+                    }
+                }
+            }
+        },
+        "dataset": {
+            "type": "object",
+            "description": "The datasets used to train the LLM",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The dataset name"
+                }
+            }
+        },
+        "configurations": {
+            "type": "object",
+            "description": "The configurations used to train the LLM",
+            "properties": {
+                "features": {
+                    "type": "array",
+                    "description": "The features to be injected in the prompt",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "title",
+                            "abstract",
+                            "keywords",
+                            "authors",
+                            "venue",
+                            "references",
+                            "bibtex"
+                        ]
+                    }
+                },
+                "linient": {
+                    "type": "boolean",
+                    "description": "The liniency of for the Prompt configuration"
+                },
+                "shots": {
+                    "type": "object",
+                    "description": "The number of shots for the Prompt configuration",
+                    "properties": {
+                        "positive": {
+                            "type": "number",
+                            "description": "The number of positive shots",
+                            "minimum": 0
+                        },
+                        "negative": {
+                            "type": "number",
+                            "description": "The number of negative shots",
+                            "minimum": 0
+                        }
+                    }
+                },
+                "selectionCriteria": {
+                    "type": "object",
+                    "description": "The selection criteria of the SLR",
+                    "properties": {
+                        "inclusion": {
+                            "type": "object",
+                            "description": "The title of the selection criteria",
+                            "properties": {
+                                "condition": {
+                                    "type": "array",
+                                    "description": "The condition of the selection criteria",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "any",
+                                            "all"
+                                        ]
+                                    }
+                                },
+                                "criteria": {
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "exclusion": {
+                            "type": "object",
+                            "description": "The title of the selection criteria",
+                            "properties": {
+                                "condition": {
+                                    "type": "array",
+                                    "description": "The condition of the selection criteria",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "any",
+                                            "all"
+                                        ]
+                                    }
+                                },
+                                "criteria": {
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    }
+                },
+                "output": {
+                    "type": "object",
+                    "description": "The output of the LLM",
+                    "properties": {
+                        "classes": {
+                            "type": "number",
+                            "description": "The classes of the output",
+                            "minimum": 2,
+                            "maximum": 5
+                        },
+                        "reasoning": {
+                            "type": "boolean",
+                            "description": "The reasoning of the output"
+                        },
+                        "confidence": {
+                            "type": "boolean",
+                            "description": "The confidence of the output"
+                        }
+                    },
+                    "required": [
+                        "classes"
+                    ]
+                }
+            },
+            "required": [
+                "features",
+                "linient",
+                "output"
+            ]
+        }
+    },
+    "required": [
+        "project",
+        "llm",
+        "dataset",
+        "configurations"
+    ]
+}
