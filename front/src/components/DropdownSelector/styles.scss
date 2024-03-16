@@ -1,0 +1,123 @@
+.dropdown-selection-button {
+  width: 370px;
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #8c8fa1;
+  cursor: pointer;
+  //   transition: 0.4s cubic-bezier(0.72, 0.02, 0, 0.94);
+  border: 1px solid #d9d9d9;
+  position: relative;
+  border-radius: 8px;
+  padding: 0 16px;
+
+  //   z-index: 2;
+
+  .dropdown-title {
+    font-size: 16px;
+    color: #8c8fa1;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.54;
+    letter-spacing: normal;
+    text-align: left;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .dropdown-arrow-container {
+    .arrow-icon {
+      margin-right: 8px;
+      margin-bottom: -6px;
+      //   transition: 0.5s;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -o-user-select: none;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .arrow-icon-active {
+      transform: rotate(180deg);
+      margin-bottom: -4px;
+    }
+  }
+
+  .dropdown-items-container {
+    padding: 16px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    // transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    transition: opacity 0.2s;
+
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    width: 370px;
+    //
+    // height: 0;
+    top: 49px;
+    cursor: auto;
+    left: -1px;
+    // z-index: 3;
+  }
+
+  .dropdown-item {
+    color: #24273a;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    opacity: 0;
+    cursor: pointer;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+
+    &:hover,
+    &:active {
+      background-color: #dce0e8;
+    }
+
+    .dropdown-text {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -o-user-select: none;
+      user-select: none;
+      pointer-events: none;
+      font-size: 12px;
+      color: #333333;
+    }
+
+    &--selected {
+      background-color: #dce0e8;
+    }
+  }
+
+  .dropdown-items-container-active {
+    visibility: visible;
+    opacity: 1;
+
+    .dropdown-item-active {
+      opacity: 1;
+    }
+  }
+}
