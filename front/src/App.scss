@@ -1,3 +1,13 @@
 .App {
   background-color: #f1ecec;
 }
+
+body {
+  * {
+    box-sizing: border-box;
+  }
+}
+
+p {
+  margin: 0;
+}

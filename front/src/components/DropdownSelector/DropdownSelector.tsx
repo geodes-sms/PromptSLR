@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./styles.scss";
 
 const DropdownSelector = (props: {
+  label: string;
   dropdownItems: string[];
   selectedItem: string;
   setSelectedItem: (item: string) => void;
@@ -39,19 +40,21 @@ const DropdownSelector = (props: {
   };
 
   return (
-    <div
-      className="dropdown-selection-button"
-      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-    >
+    <div className="dropdown-selector-container">
+      <p className="dropdown-selector-label">{props.label}</p>
       <div
-        className="dropdown-title"
-        style={{
-          color: "#1e1e20",
-        }}
+        className="dropdown-selection-button"
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        {dropDownTitle}
-      </div>
-      {/* <div className="dropdown-arrow-container">
+        <div
+          className="dropdown-title"
+          style={{
+            color: "#1e1e20",
+          }}
+        >
+          {dropDownTitle}
+        </div>
+        {/* <div className="dropdown-arrow-container">
       <SVGIcon
         name="arrowDown"
         width={"18"}
@@ -60,11 +63,12 @@ const DropdownSelector = (props: {
         ${isFilterItemsOpen && "arrow-icon-active"}`}
       />
     </div> */}
-      <div
-        className={`dropdown-items-container
+        <div
+          className={`dropdown-items-container
          ${isDropdownOpen && "dropdown-items-container-active"}`}
-      >
-        {createDropDownItemsUI()}
+        >
+          {createDropDownItemsUI()}
+        </div>
       </div>
     </div>
   );

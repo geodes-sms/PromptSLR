@@ -7,6 +7,7 @@ function ConfigurationForm() {
   return (
     <div>
       <DropdownSelector
+        label={"LLM Name"}
         dropdownItems={["ChatGPT", "Trainable", "Custom URL"]}
         selectedItem={LLMName}
         setSelectedItem={setLLMName}
