@@ -44,8 +44,7 @@
 
   .dropdown-arrow-container {
     .arrow-icon {
-      margin-right: 8px;
-      margin-bottom: -6px;
+      margin-bottom: -9px;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
@@ -54,11 +53,15 @@
       -o-user-select: none;
       user-select: none;
       pointer-events: none;
+      transition: 0.3s;
+      width: 24px;
+      height: 24px;
     }
 
     .arrow-icon-active {
       transform: rotate(180deg);
       margin-bottom: -4px;
+      margin-right: 5px;
     }
   }
 

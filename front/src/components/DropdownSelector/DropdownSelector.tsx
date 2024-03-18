@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./styles.scss";
+import SVGIcon from "../SVGIcon/SVGIcon";
 
 const DropdownSelector = (props: {
   label: string;
@@ -54,15 +55,15 @@ const DropdownSelector = (props: {
         >
           {dropDownTitle}
         </div>
-        {/* <div className="dropdown-arrow-container">
-      <SVGIcon
-        name="arrowDown"
-        width={"18"}
-        height={"18"}
-        className={`arrow-icon
-        ${isFilterItemsOpen && "arrow-icon-active"}`}
-      />
-    </div> */}
+        <div className="dropdown-arrow-container">
+          <SVGIcon
+            name="arrowDown"
+            width={"18"}
+            height={"18"}
+            className={`arrow-icon
+        ${isDropdownOpen && "arrow-icon-active"}`}
+          />
+        </div>
         <div
           className={`dropdown-items-container
          ${isDropdownOpen && "dropdown-items-container-active"}`}
