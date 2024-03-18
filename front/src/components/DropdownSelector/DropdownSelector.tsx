@@ -53,7 +53,7 @@ const DropdownSelector = (props: {
             color: "#1e1e20",
           }}
         >
-          {dropDownTitle}
+          {dropDownTitle || "Select"}
         </div>
         <div className="dropdown-arrow-container">
           <SVGIcon
