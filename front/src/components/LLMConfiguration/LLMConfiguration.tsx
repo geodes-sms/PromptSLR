@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import "./styles.scss";
 import Button from "../Button/Button";
+import DropdownSelector from "../DropdownSelector/DropdownSelector";
+import TextInput from "../TextInput/TextInput";
+import LLMForm from "../LLMForm/LLMForm";
 
 const LLMConfiguration = () => {
   const [step, setStep] = useState(1);
@@ -9,7 +12,7 @@ const LLMConfiguration = () => {
 
   const [APIKey, setAPIKey] = useState("");
   const [temperature, setTemperature] = useState("0.2");
-  const [maxToken, setMaxTokens] = useState("512");
+  const [maxTokens, setMaxTokens] = useState("512");
 
   const [foldCount, setFoldCount] = useState("150");
   const [epochs, setEpochs] = useState("12");
@@ -19,24 +22,61 @@ const LLMConfiguration = () => {
 
   const [additionalHyperParams, setadditionalHyperParams] = useState({});
 
-  const LLMForm = [
-    {
-      label: "LLM Name",
-      value: llmName,
-      setValue: (value: string) => setLlmName(value),
-      type: "dropdown",
-      options: ["ChatGPT", "Trainable", "Custom URL"],
-    },
-  ];
+  const renderInput = (formInput: any) => {
+    switch (formInput.type) {
+      case "dropdown":
+        return (
+          <DropdownSelector
+            label={formInput.label}
+            dropdownItems={formInput.options}
+            selectedItem={formInput.value}
+            setSelectedItem={formInput.setValue}
+          />
+        );
 
-  // Here you should define the form values (using states) and for info for each page
-  // pass everything to child components
+      case "textInput":
+        return (
+          <TextInput
+            label={formInput.label}
+            value={formInput.value}
+            setValue={formInput.setValue}
+          />
+        );
+
+      default:
+        return <></>;
+    }
+  };
+  const renderForm = (formFields: Array<any>) => {
+    return (
+      <div className="form-flex">
+        {formFields.map((item, i) => {
+          return <div key={i}>{renderInput(item)}</div>;
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="llm-configuration">
       <div className="llm-configuration__header">
-        <div className="configuration-breadcrumb">LLM</div>
+        <div className="configuration-breadcrumb" style={{ fontSize: "36px" }}>
+          LLM
+        </div>
         <Button label="next" onClick={() => {}} disabled={false} />
       </div>
+      <LLMForm
+        llmName={llmName}
+        setLlmName={setLlmName}
+        APIKey={APIKey}
+        setAPIKey={setAPIKey}
+        temperature={temperature}
+        setTemperature={setTemperature}
+        maxTokens={maxTokens}
+        setMaxTokens={setMaxTokens}
+        renderInput={renderInput}
+        renderForm={renderForm}
+      />
     </div>
   );
 };
