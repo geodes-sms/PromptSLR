@@ -50,12 +50,21 @@ const LLMForm = (props: {
       value: temperature,
       setValue: setTemperature,
       type: "textInput",
+      props: {
+        type: "number",
+        min: 0,
+        max: 1,
+        step: 0.1,
+      },
     },
     {
       label: "Max Tokens",
       value: maxTokens,
       setValue: setMaxTokens,
       type: "textInput",
+      props: {
+        type: "number",
+      },
     },
   ];
 

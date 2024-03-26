@@ -40,6 +40,7 @@ const LLMConfiguration = () => {
             label={formInput.label}
             value={formInput.value}
             setValue={formInput.setValue}
+            {...formInput.props}
           />
         );
 
