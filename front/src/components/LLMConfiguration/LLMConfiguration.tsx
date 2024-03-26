@@ -17,8 +17,9 @@ const LLMConfiguration = () => {
   const [foldCount, setFoldCount] = useState("150");
   const [epochs, setEpochs] = useState("12");
   const [seed, setSeed] = useState("12");
-
   const [classifierAlgorithm, setClassifierAlgorithm] = useState("");
+
+  const [customUrl, setCustomUrl] = useState("");
 
   const [additionalHyperParams, setadditionalHyperParams] = useState({});
 
@@ -77,6 +78,16 @@ const LLMConfiguration = () => {
         setMaxTokens={setMaxTokens}
         renderInput={renderInput}
         renderForm={renderForm}
+        classifierAlgorithm={classifierAlgorithm}
+        setClassifierAlgorithm={setClassifierAlgorithm}
+        foldCount={foldCount}
+        setFoldCount={setFoldCount}
+        epochs={epochs}
+        setEpochs={setEpochs}
+        seed={seed}
+        setSeed={setSeed}
+        customUrl={customUrl}
+        setCustomUrl={setCustomUrl}
       />
     </div>
   );
