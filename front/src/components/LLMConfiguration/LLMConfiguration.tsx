@@ -97,6 +97,9 @@ const LLMConfiguration = () => {
             return false;
         }
 
+      case 2:
+        return Boolean(selectedDataset);
+
       default:
         return false;
     }
