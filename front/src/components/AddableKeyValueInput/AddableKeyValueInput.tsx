@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, useEffect, useState, SetStateAction } from "react";
 import "./styles.scss";
 import TextInput from "../TextInput/TextInput";
 import SVGIcon from "../SVGIcon/SVGIcon";
 
-const AddableKeyValueInput = (props: { title: string }) => {
+const AddableKeyValueInput = (props: {
+  title: string;
+  values: Array<any>;
+  setValues: Dispatch<
+    SetStateAction<{ key: string; value: string; id: string }[]>
+  >;
+}) => {
   const [data, setData] = useState([
     { key: "", value: "", id: crypto.randomUUID() },
   ]);
@@ -32,6 +38,8 @@ const AddableKeyValueInput = (props: { title: string }) => {
 
   useEffect(() => {
     console.log("*** data changed:", data);
+    /* tslint:disable */
+    props.setValues(data);
   }, [JSON.stringify(data)]);
 
   const renderKeyValuePairInput = (index: number) => {

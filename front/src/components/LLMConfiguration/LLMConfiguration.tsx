@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.scss";
 import Button from "../Button/Button";
 import DropdownSelector from "../DropdownSelector/DropdownSelector";
@@ -22,7 +22,11 @@ const LLMConfiguration = () => {
 
   const [customUrl, setCustomUrl] = useState("");
 
-  const [additionalHyperParams, setadditionalHyperParams] = useState({});
+  const [additionalHyperParams, setAdditionalHyperParams] = useState([]);
+
+  useEffect(() => {
+    console.log("---- Additional params:", additionalHyperParams);
+  }, [additionalHyperParams]);
 
   const renderInput = (formInput: any) => {
     switch (formInput.type) {
@@ -43,6 +47,15 @@ const LLMConfiguration = () => {
             value={formInput.value}
             setValue={formInput.setValue}
             {...formInput.props}
+          />
+        );
+
+      case "addableInputs":
+        return (
+          <AddableKeyValueInput
+            title={formInput.title}
+            values={formInput.value}
+            setValues={formInput.setValue}
           />
         );
 
@@ -89,8 +102,9 @@ const LLMConfiguration = () => {
         setSeed={setSeed}
         customUrl={customUrl}
         setCustomUrl={setCustomUrl}
+        additionalHyperParams={additionalHyperParams}
+        setAdditionalHyperParams={setAdditionalHyperParams}
       />
-      <AddableKeyValueInput title="Additional Hyperparameters" />
     </div>
   );
 };

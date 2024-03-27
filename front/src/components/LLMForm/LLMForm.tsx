@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import "./styles.scss";
 
 const LLMForm = (props: {
@@ -20,6 +20,8 @@ const LLMForm = (props: {
   setSeed: (value: string) => void;
   customUrl: string;
   setCustomUrl: (value: string) => void;
+  additionalHyperParams: Array<any>;
+  setAdditionalHyperParams: Dispatch<SetStateAction<never[]>>;
 
   renderInput: (formInput: any) => JSX.Element;
   renderForm: (formFields: Array<any>) => JSX.Element;
@@ -43,6 +45,8 @@ const LLMForm = (props: {
     setSeed,
     customUrl,
     setCustomUrl,
+    additionalHyperParams,
+    setAdditionalHyperParams,
 
     renderInput,
     renderForm,
@@ -85,6 +89,12 @@ const LLMForm = (props: {
       props: {
         type: "number",
       },
+    },
+    {
+      title: "Additional Hyperparameters",
+      value: additionalHyperParams,
+      setValue: (value: never[]) => setAdditionalHyperParams(value),
+      type: "addableInputs",
     },
   ];
 
@@ -162,6 +172,12 @@ const LLMForm = (props: {
       props: {
         type: "number",
       },
+    },
+    {
+      title: "Additional Hyperparameters",
+      value: additionalHyperParams,
+      setValue: (value: never[]) => setAdditionalHyperParams(value),
+      type: "addableInputs",
     },
   ];
 
