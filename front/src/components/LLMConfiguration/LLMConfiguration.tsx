@@ -5,6 +5,7 @@ import DropdownSelector from "../DropdownSelector/DropdownSelector";
 import TextInput from "../TextInput/TextInput";
 import LLMForm from "../LLMForm/LLMForm";
 import AddableKeyValueInput from "../AddableKeyValueInput/AddableKeyValueInput";
+import DatasetForm from "../DatasetForm/DatasetForm";
 
 const LLMConfiguration = () => {
   const [step, setStep] = useState(1);
@@ -24,6 +25,9 @@ const LLMConfiguration = () => {
   const [customUrl, setCustomUrl] = useState("");
 
   const [additionalHyperParams, setAdditionalHyperParams] = useState([]);
+
+  // step2 (dataset)
+  const [selectedDataset, setSelectedDataset] = useState("");
 
   useEffect(() => {
     console.log("---- Additional params:", additionalHyperParams);
@@ -111,7 +115,6 @@ const LLMConfiguration = () => {
             setTemperature={setTemperature}
             maxTokens={maxTokens}
             setMaxTokens={setMaxTokens}
-            renderInput={renderInput}
             renderForm={renderForm}
             classifierAlgorithm={classifierAlgorithm}
             setClassifierAlgorithm={setClassifierAlgorithm}
@@ -128,6 +131,14 @@ const LLMConfiguration = () => {
           />
         );
 
+      case 2:
+        return (
+          <DatasetForm
+            selectedDataset={selectedDataset}
+            setSelectedDataset={setSelectedDataset}
+            renderForm={renderForm}
+          />
+        );
       default:
         return <div>No form available</div>;
     }

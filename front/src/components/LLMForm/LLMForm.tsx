@@ -23,7 +23,6 @@ const LLMForm = (props: {
   additionalHyperParams: Array<any>;
   setAdditionalHyperParams: Dispatch<SetStateAction<never[]>>;
 
-  renderInput: (formInput: any) => JSX.Element;
   renderForm: (formFields: Array<any>) => JSX.Element;
 }) => {
   const {
@@ -48,7 +47,6 @@ const LLMForm = (props: {
     additionalHyperParams,
     setAdditionalHyperParams,
 
-    renderInput,
     renderForm,
   } = props;
 
