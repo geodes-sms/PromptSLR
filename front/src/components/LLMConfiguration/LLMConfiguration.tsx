@@ -9,6 +9,7 @@ import AddableKeyValueInput from "../AddableKeyValueInput/AddableKeyValueInput";
 const LLMConfiguration = () => {
   const [step, setStep] = useState(1);
 
+  // step 1 (llm) fields
   const [llmName, setLlmName] = useState("");
 
   const [APIKey, setAPIKey] = useState("");
@@ -73,13 +74,41 @@ const LLMConfiguration = () => {
     );
   };
 
+  const isRequiredFieldsSatisfied = () => {
+    console.log(llmName);
+    switch (step) {
+      case 1:
+        console.log("Stuff:", llmName, APIKey, temperature, maxTokens);
+        switch (llmName) {
+          case "":
+            return false;
+          case "ChatGPT":
+            return Boolean(APIKey && temperature && maxTokens);
+          case "Trainable":
+            return Boolean(classifierAlgorithm && foldCount && epochs && seed);
+          case "Custom URL":
+            return Boolean(customUrl && temperature && maxTokens);
+
+          default:
+            return false;
+        }
+
+      default:
+        return false;
+    }
+  };
+
   return (
     <div className="llm-configuration">
       <div className="llm-configuration__header">
         <div className="configuration-breadcrumb" style={{ fontSize: "36px" }}>
           LLM
         </div>
-        <Button label="next" onClick={() => {}} disabled={false} />
+        <Button
+          label="next"
+          onClick={() => {}}
+          disabled={!isRequiredFieldsSatisfied()}
+        />
       </div>
       <LLMForm
         llmName={llmName}

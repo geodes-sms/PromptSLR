@@ -10,7 +10,7 @@ const Button = (props: {
   return (
     <button
       className={`custom-button ${props.disabled && "custom-button__disabled"}`}
-      onClick={props.onClick}
+      onClick={!props.disabled ? props.onClick : () => {}}
     >
       {props.label}
     </button>
