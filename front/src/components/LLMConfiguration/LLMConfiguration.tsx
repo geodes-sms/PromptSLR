@@ -4,6 +4,7 @@ import Button from "../Button/Button";
 import DropdownSelector from "../DropdownSelector/DropdownSelector";
 import TextInput from "../TextInput/TextInput";
 import LLMForm from "../LLMForm/LLMForm";
+import AddableKeyValueInput from "../AddableKeyValueInput/AddableKeyValueInput";
 
 const LLMConfiguration = () => {
   const [step, setStep] = useState(1);
@@ -89,6 +90,7 @@ const LLMConfiguration = () => {
         customUrl={customUrl}
         setCustomUrl={setCustomUrl}
       />
+      <AddableKeyValueInput title="Additional Hyperparameters" />
     </div>
   );
 };
