@@ -98,6 +98,45 @@ const LLMConfiguration = () => {
     }
   };
 
+  const renderPaginatedForm = () => {
+    switch (step) {
+      case 1:
+        return (
+          <LLMForm
+            llmName={llmName}
+            setLlmName={setLlmName}
+            APIKey={APIKey}
+            setAPIKey={setAPIKey}
+            temperature={temperature}
+            setTemperature={setTemperature}
+            maxTokens={maxTokens}
+            setMaxTokens={setMaxTokens}
+            renderInput={renderInput}
+            renderForm={renderForm}
+            classifierAlgorithm={classifierAlgorithm}
+            setClassifierAlgorithm={setClassifierAlgorithm}
+            foldCount={foldCount}
+            setFoldCount={setFoldCount}
+            epochs={epochs}
+            setEpochs={setEpochs}
+            seed={seed}
+            setSeed={setSeed}
+            customUrl={customUrl}
+            setCustomUrl={setCustomUrl}
+            additionalHyperParams={additionalHyperParams}
+            setAdditionalHyperParams={setAdditionalHyperParams}
+          />
+        );
+
+      default:
+        return <div>No form available</div>;
+    }
+  };
+
+  const gotoNextStep = () => {
+    setStep(step + 1);
+  };
+
   return (
     <div className="llm-configuration">
       <div className="llm-configuration__header">
@@ -106,34 +145,11 @@ const LLMConfiguration = () => {
         </div>
         <Button
           label="next"
-          onClick={() => {}}
+          onClick={() => gotoNextStep()}
           disabled={!isRequiredFieldsSatisfied()}
         />
       </div>
-      <LLMForm
-        llmName={llmName}
-        setLlmName={setLlmName}
-        APIKey={APIKey}
-        setAPIKey={setAPIKey}
-        temperature={temperature}
-        setTemperature={setTemperature}
-        maxTokens={maxTokens}
-        setMaxTokens={setMaxTokens}
-        renderInput={renderInput}
-        renderForm={renderForm}
-        classifierAlgorithm={classifierAlgorithm}
-        setClassifierAlgorithm={setClassifierAlgorithm}
-        foldCount={foldCount}
-        setFoldCount={setFoldCount}
-        epochs={epochs}
-        setEpochs={setEpochs}
-        seed={seed}
-        setSeed={setSeed}
-        customUrl={customUrl}
-        setCustomUrl={setCustomUrl}
-        additionalHyperParams={additionalHyperParams}
-        setAdditionalHyperParams={setAdditionalHyperParams}
-      />
+      {renderPaginatedForm()}
     </div>
   );
 };
