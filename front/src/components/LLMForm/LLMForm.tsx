@@ -137,6 +137,9 @@ const LLMForm = (props: {
       value: customUrl,
       setValue: setCustomUrl,
       type: "textInput",
+      props: {
+        placeholder: "api.url.com",
+      },
     },
 
     {

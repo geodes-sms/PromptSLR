@@ -9,6 +9,7 @@ const TextInput = (props: {
   min?: number;
   max?: number;
   step?: number;
+  placeholder?: string;
 }) => {
   return (
     <div className="text-input">
@@ -21,6 +22,7 @@ const TextInput = (props: {
         min={props.min}
         max={props.max}
         step={props.step}
+        placeholder={props.placeholder}
       />
     </div>
   );
