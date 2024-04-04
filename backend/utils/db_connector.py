@@ -1,5 +1,5 @@
-import asyncio
 import datetime
+import random
 from prisma import Prisma
 from hashlib import sha256
 
@@ -7,15 +7,19 @@ from hashlib import sha256
 class DBConnector:
     def __init__(self):
         self.db = Prisma()
+        self.db.connect()
 
-    async def connect(self):
-        await self.db.connect()
+    def __del__(self):
+        self.db.disconnect()
 
-    async def disconnect(self):
-        await self.db.disconnect()
+    def connect(self):
+        self.db.connect()
 
-    async def create_user(self, email: str, password: str, username: str = None):
-        user = await self.db.users.create(
+    def disconnect(self):
+        self.db.disconnect()
+
+    def create_user(self, email: str, password: str, username: str = None):
+        user = self.db.users.create(
             {
                 "Username": username or email,
                 "Email": email,
@@ -25,11 +29,12 @@ class DBConnector:
         )
         return user
 
-    async def create_project(
-        self, name: str, topicTitle: str, topicDescription: str = None
+    def create_project(
+        self, projectID: str, name: str, topicTitle: str, topicDescription: str = None
     ):
-        project = await self.db.projects.create(
+        project = self.db.projects.create(
             {
+                "ProjectID": projectID,
                 "Name": name,
                 "TopicTitle": topicTitle,
                 "TopicDescription": topicDescription,
@@ -37,7 +42,7 @@ class DBConnector:
         )
         return project
 
-    async def create_llm(
+    def create_llm(
         self,
         projectID: str,
         name: str,
@@ -46,7 +51,7 @@ class DBConnector:
         defaultTemperature: float = None,
         defaultMaxTokens: int = None,
     ):
-        llm = await self.db.llms.create(
+        llm = self.db.llms.create(
             {
                 "ProjectID": projectID,
                 "Name": name,
@@ -58,8 +63,8 @@ class DBConnector:
         )
         return llm
 
-    async def create_llmhyparams(self, llmID: str, key: str, value: str):
-        llmhyparams = await self.db.llmhyperparams.create(
+    def create_llmhyparams(self, llmID: str, key: str, value: str):
+        llmhyparams = self.db.llmhyperparams.create(
             {
                 "LLMID": llmID,
                 "Key": key,
@@ -68,27 +73,29 @@ class DBConnector:
         )
         return llmhyparams
 
-    async def create_dataset(self, name: str, projectID: str = None):
-        dataset = await self.db.datasets.create(
+    def create_dataset(self, name: str, projectID: str = None):
+        dataset = self.db.datasets.create(
             {
                 "Name": name,
                 "ProjectID": projectID,
-            }
+            },
+            skip_duplicates=True,
         )
         return dataset
 
-    async def create_configurations(self, projectID: str, config: dict):
-        configurations = await self.db.configurations.create(
+    def create_configurations(self, projectID: str, config: dict):
+        configurations = self.db.configurations.create(
             {
                 "ProjectID": projectID,
                 "ConfigJson": config,
             }
         )
 
-    async def create_articles(
+    def create_article(
         self,
         key: str,
         title: str,
+        doi: str,
         screenedDecision: str,
         datasetID: str,
         abstract: str = None,
@@ -103,11 +110,12 @@ class DBConnector:
         reviewerCount: int = None,
         venue: str = None,
     ):
-        articles = await self.db.articles.create(
+        articles = self.db.articles.create(
             {
                 "Key": key,
                 "Title": title,
                 "Abstract": abstract,
+                "DOI": doi,
                 "Authors": authors,
                 "Bibtex": bibtex,
                 "DatasetID": datasetID,
@@ -124,9 +132,11 @@ class DBConnector:
         )
         return articles
 
-    async def create_llmdecision(
+    def create_many_articles(self, articles: list):
+        self.db.articles.create_many(articles)
+
+    def create_llmdecision(
         self,
-        llmID: str,
         artileKey: str,
         decision: str,
         projectID: str,
@@ -136,27 +146,54 @@ class DBConnector:
         reason: str = None,
         confidence: float = None,
     ):
-        llmdecision = await self.db.llmdecisions.create(
-            {
-                "LLMID": llmID,
-                "ArticleKey": artileKey,
-                "ProjectID": projectID,
-                "Decision": decision,
-                "Error": error,
-                "Retries": retries,
-                "RawOutput": rawOutput,
-                "Reason": reason,
-                "Confidence": confidence,
-            }
-        )
+        if not is_decision_exists(projectID, artileKey):
+            llmdecision = self.db.llmdecisions.create(
+                {
+                    "LLMID": self.get_llmid(projectID),
+                    "ArticleKey": artileKey,
+                    "ProjectID": projectID,
+                    "Decision": decision,
+                    "Error": error,
+                    "Retries": retries,
+                    "RawOutput": rawOutput,
+                    "Reason": reason,
+                    "Confidence": confidence,
+                }
+            )
+        else:
+            llmdecision = self.db.llmdecisions.update(
+                {
+                    "where": {
+                        "ProjectID": projectID,
+                        "ArticleKey": artileKey,
+                    },
+                    "data": {
+                        "Decision": decision,
+                        "Error": error,
+                        "Retries": retries,
+                        "RawOutput": rawOutput,
+                        "Reason": reason,
+                        "Confidence": confidence,
+                    },
+                }
+            )
         return llmdecision
 
-    async def run_query(self, query: str):
-        result = await self.db.execute_raw(query)
+    def create_project_dataset(self, projectID: str, datasetID: str):
+        project_dataset = self.db.project_datasets.create(
+            {
+                "ProjectID": projectID,
+                "DatasetID": datasetID,
+            }
+        )
+        return project_dataset
+
+    def run_query(self, query: str):
+        result = self.db.execute_raw(query)
         return result
 
-    async def get_configurations(self, projectID: str):
-        configurations = await self.db.configurations.find_many(
+    def get_configurations(self, projectID: str):
+        configurations = self.db.configurations.find_many(
             {
                 "where": {
                     "ProjectID": projectID,
@@ -165,8 +202,8 @@ class DBConnector:
         )
         return configurations
 
-    async def get_articles(self, datasetID: str):
-        articles = await self.db.articles.find_many(
+    def get_articles(self, datasetID: str):
+        articles = self.db.articles.find_many(
             {
                 "where": {
                     "DatasetID": datasetID,
@@ -175,8 +212,8 @@ class DBConnector:
         )
         return articles
 
-    async def get_llmdecisions(self, projectID: str):
-        llmdecisions = await self.db.llmdecisions.find_many(
+    def get_llmdecisions(self, projectID: str):
+        llmdecisions = self.db.llmdecisions.find_many(
             {
                 "where": {
                     "ProjectID": projectID,
@@ -184,3 +221,120 @@ class DBConnector:
             }
         )
         return llmdecisions
+
+    def get_llmid(self, projectID: str):
+        llm = self.db.llms.find_first(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                }
+            }
+        )
+        return llm["LLMID"]
+
+    def get_datasetid(self, name: str):
+        dataset = self.db.datasets.find_first(
+            {
+                "where": {
+                    "Name": name,
+                }
+            }
+        )
+        return dataset["DatasetID"]
+
+    def get_project_status(self, projectID: str):
+        decision_tables = self.db.llmdecisions.find_many(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                },
+                "distinct": ["LLMID"],
+            }
+        )
+        datasetID = self.get_datasetid(projectID)
+        total_articles = self.db.articles.count(
+            {
+                "where": {
+                    "DatasetID": datasetID,
+                }
+            }
+        )
+        articles_with_decision = self.db.llmdecisions.count(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                    "Decision": {"not": "error"},
+                }
+            }
+        )
+        return total_articles, articles_with_decision
+
+    def get_shots(self, projectID: str, count: int, positive: bool = True):
+        articles = self.db.articles.find_many(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                    "Decision": ("Included" if positive else "Excluded"),
+                }
+            }
+        )
+        articles = random.sample(articles, count)
+        for article in articles:
+            self.db.articles.projectshots.create(
+                {
+                    "ProjectID": projectID,
+                    "ArticleKey": article["Key"],
+                    "Positive": positive,
+                }
+            )
+        return articles
+
+    def get_task_articles(self, projectID: str):
+        shots = self.db.articles.projectshots.find_many(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                }
+            }
+        )
+        datasetID = self.get_datasetid(projectID)
+        articles = self.db.articles.find_many(
+            {
+                "where": {
+                    "DatasetID": datasetID,
+                    "Key": {"not_in": [shot["ArticleKey"] for shot in shots]},
+                }
+            }
+        )
+        return articles
+
+    def is_project_exists(self, projectID: str) -> bool:
+        project = self.db.projects.find_first(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                }
+            }
+        )
+        return project is not None
+
+    def is_dataset_exists(self, name: str) -> bool:
+        dataset = self.db.datasets.find_first(
+            {
+                "where": {
+                    "Name": name,
+                }
+            }
+        )
+        return dataset is not None
+
+    def is_decision_exists(self, projectID: str, articleKey: str) -> bool:
+        decision = self.db.llmdecisions.find_first(
+            {
+                "where": {
+                    "ProjectID": projectID,
+                    "ArticleKey": articleKey,
+                }
+            }
+        )
+        return decision is not None

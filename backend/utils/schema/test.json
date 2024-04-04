@@ -1,6 +1,5 @@
 {
     "project": {
-        "id": "unique-UUID",
         "name": "myproject",
         "topic": {
             "title": "RL4SE",
@@ -16,6 +15,7 @@
                 "temprature": 0.2,
                 "maxTokens": 512
             },
+            "isTrainable": false,
             "additional": [
                 {
                     "key": "value"
@@ -33,13 +33,12 @@
             "keywords",
             "authors",
             "venue",
-            "references",
             "bibtex"
         ],
         "linient": true,
         "shots": {
             "positive": 2,
-            "negative": 4
+            "negative": 1
         },
         "selectionCriteria": {
             "inclusion": {

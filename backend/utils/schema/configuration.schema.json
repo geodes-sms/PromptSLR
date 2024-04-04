@@ -73,7 +73,11 @@
                         },
                         "additional": {
                             "type": "array",
-                            "description": "Additional hyperparameters for the LLM"
+                            "description": "Additional hyperparameters for the LLM, incase of trainable classifier all hyperparameters should be included here"
+                        },
+                        "isTrainable": {
+                            "type": "boolean",
+                            "description": "True if LLM is trainable like SVM, Logistic Regression, etc. Also True for random classifier"
                         }
                     }
                 }

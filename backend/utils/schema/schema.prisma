@@ -5,7 +5,7 @@ datasource db {
 
 generator db {
   provider             = "prisma-client-py"
-  interface            = "asyncio"
+  interface            = "sync"
   recursive_type_depth = 5
 }
 
@@ -19,7 +19,7 @@ model Users {
 }
 
 model Projects {
-  ProjectID        String           @id @default(uuid())
+  ProjectID        String            @id
   Name             String
   TopicTitle       String?
   TopicDescription String?
@@ -27,6 +27,8 @@ model Projects {
   Datasets         Datasets[]
   Configurations   Configurations[]
   LLMDecisions     LLMDecisions[]
+  ProjectDatasets  ProjectDatasets[]
+  ProjectShots     ProjectShots[]
 }
 
 model LLMs {
@@ -51,31 +53,33 @@ model LLMHyperparams {
 }
 
 model Datasets {
-  DatasetID String     @id @default(uuid())
-  ProjectID String
-  Name      String
-  Project   Projects   @relation(fields: [ProjectID], references: [ProjectID])
-  Articles  Articles[]
+  DatasetID       String            @id @default(uuid())
+  ProjectID       String
+  Name            String
+  Project         Projects          @relation(fields: [ProjectID], references: [ProjectID])
+  Articles        Articles[]
+  ProjectDatasets ProjectDatasets[]
 }
 
 model Configurations {
-  ConfigurationID             Int      @id @default(autoincrement())
-  ProjectID                   String
-  ConfigJson                  String
-  Project                     Projects @relation(fields: [ProjectID], references: [ProjectID])
+  ConfigurationID Int      @id @default(autoincrement())
+  ProjectID       String
+  ConfigJson      String
+  Project         Projects @relation(fields: [ProjectID], references: [ProjectID])
 }
 
 model Articles {
   Key               String         @id
   Title             String
   Abstract          String?
+  DOI               String?
   Keywords          String?
   Authors           String?
   Venue             String?
   References        String?
   Bibtex            String?
   ScreenedDecision  String
-  FinalDecision     String?
+  FinalDecision     String? // Future work not important for now
   Mode              String?
   InclusionCriteria String?
   ExclusionCriteria String?
@@ -83,6 +87,7 @@ model Articles {
   DatasetID         String
   Dataset           Datasets       @relation(fields: [DatasetID], references: [DatasetID])
   LLMDecisions      LLMDecisions[]
+  ProjectShots      ProjectShots[]
 }
 
 model LLMDecisions {
@@ -99,4 +104,23 @@ model LLMDecisions {
   LLM        LLMs     @relation(fields: [LLMID], references: [LLMID])
   Article    Articles @relation(fields: [ArticleKey], references: [Key])
   Project    Projects @relation(fields: [ProjectID], references: [ProjectID])
+}
+
+model ProjectDatasets {
+  ProjectID String
+  DatasetID String
+  Project   Projects @relation(fields: [ProjectID], references: [ProjectID])
+  Dataset   Datasets @relation(fields: [DatasetID], references: [DatasetID])
+
+  @@id([ProjectID, DatasetID])
+}
+
+model ProjectShots {
+  ProjectID  String
+  ArticleKey String
+  positive   Boolean
+  Project    Projects @relation(fields: [ProjectID], references: [ProjectID])
+  Key        Articles @relation(fields: [ArticleKey], references: [Key])
+
+  @@id([ProjectID, ArticleKey])
 }

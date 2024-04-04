@@ -1,3 +1,4 @@
+import os
 import jsonschema
 import json
 
@@ -7,7 +8,7 @@ class ConfigurationAnalyser:
         self,
         data,
         schema=None,
-        schema_file="utils/schema/configuration.schema.json",
+        schema_file=None,
     ):
         self.data = data
         if schema_file:
@@ -16,7 +17,13 @@ class ConfigurationAnalyser:
         elif schema:
             self.schema = schema
         else:
-            raise ValueError("Schema or schema file must be provided")
+            with open(
+                os.path.join(
+                    os.path.dirname(__file__), "schema", "configuration.schema.json"
+                ),
+                "r",
+            ) as f:
+                self.schema = json.load(f)
 
     def validate_data(self):
         try:

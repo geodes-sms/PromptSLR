@@ -1,0 +1,99 @@
+##	TITLE Section
+I am screening papers for a systematic literature review. The topic of the systematic review is «prompt.topic.title.dequote».
+
+
+## DESCRIPTION Section
+«IF prompt.topic.description !== null && prompt.topic.description.dequote !== ''»
+	Description of the systematic literature review is «prompt.topic.description.dequote».
+«ENDIF»
+The study should focus exclusively on this topic.
+
+
+## POSITIVE SHOTS
+«IF prompt.positiveShots > 0»
+
+I give «prompt.positiveShots» examples that should be included.
+
+«FOR article : filterArticlesByDecision(articles, prompt.positiveShots, false)»
+	«FOR f : prompt.features»
+		«val field = article.getClass().getDeclaredField(f.feature.toString.toUpperCase)»
+		«field.accessible = true»
+		«f.feature.toString.toUpperCase.dequote»: «field.get(article)»
+	«ENDFOR»
+«ENDFOR»
+«ENDIF»
+
+
+## NEGATIVE SHOTS
+«IF prompt.negativeShots > 0»
+
+I give «prompt.negativeShots» examples that should be excluded.
+«FOR article : filterArticlesByDecision(articles, prompt.negativeShots, true)»
+	«FOR f : prompt.features»
+		«val field = article.getClass().getDeclaredField(f.feature.toString.toUpperCase)»
+		«field.accessible = true»
+		«f.feature.toString.toUpperCase.dequote»: «field.get(article)»
+	«ENDFOR»
+«ENDFOR»
+«ENDIF»
+
+
+## INCLUSION CRITERIA
+«IF prompt.inclusion !== null»
+
+	Include if «prompt.inclusion.condition.toString.dequote» of the following criteria are true.
+	«var itr = 1»
+	«FOR criterions : prompt.inclusion.criteria»
+		«itr++»: «criterions.criterion.dequote»
+	«ENDFOR»
+«ENDIF»
+
+
+## EXCLUSION CRITERIA
+«IF prompt.exclusion !== null»
+
+	Exclude if «prompt.exclusion.condition.toString.dequote» of the following criteria are true.
+	«var itr = 1»
+	«FOR criterions : prompt.exclusion.criteria»
+		«itr++»: «criterions.criterion.dequote»
+	«ENDFOR»
+«ENDIF»
+
+Decide if the article should be included or excluded from the systematic review.
+
+
+## FEATURES
+I give the «FOR f : prompt.features»«f.feature.toString.toUpperCase», «ENDFOR» as input.
+
+
+## OUTPUTS
+Only Answer «IF prompt.outputs.decisions == 2 »INCLUDE or EXCLUDE
+	«ELSEIF prompt.outputs.decisions == 3»
+	INCLUDE, EXCLUDE or UNKNOWN
+	«ELSEIF prompt.outputs.decisions == 4»
+	INCLUDE, MAYBE_INCLUDE, EXCLUDE or MAYBE_EXCLUDE
+	«ELSEIF prompt.outputs.decisions == 5»
+	INCLUDE, MAYBE_INCLUDE, EXCLUDE, MAYBE_EXCLUDE or UNKNOWN
+«ENDIF»
+«IF prompt.outputs.reason»
+Give the reason of your answer.
+«ENDIF»
+«IF prompt.outputs.confidence»
+How confident are you about your answer on a scale of 0-10?
+«ENDIF»
+
+
+## LENIENCY
+«IF prompt.leniency == LeniencyLevel.LENIENT»
+Be lenient. I prefer including paper by mistake rather than excluding them by mistake.
+«ELSE»
+Be strict. I do not prefer including paper by mistake
+«ENDIF»
+
+
+## ARTICLES
+«FOR f : prompt.features»
+	«val field = qArticle.getClass().getDeclaredField(f.feature.toString.toUpperCase)»
+	«field.accessible = true»
+	- «f.feature.toString.toUpperCase.dequote»: «field.get(qArticle)»
+«ENDFOR»
