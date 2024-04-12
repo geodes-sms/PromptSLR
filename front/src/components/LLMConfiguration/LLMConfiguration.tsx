@@ -17,7 +17,7 @@ const LLMConfiguration = () => {
   const [temperature, setTemperature] = useState("0.2");
   const [maxTokens, setMaxTokens] = useState("512");
 
-  const [foldCount, setFoldCount] = useState("150");
+  const [foldCount, setFoldCount] = useState("0.2");
   const [epochs, setEpochs] = useState("12");
   const [seed, setSeed] = useState("12");
   const [classifierAlgorithm, setClassifierAlgorithm] = useState("");

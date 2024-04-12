@@ -117,6 +117,9 @@ const LLMForm = (props: {
       type: "textInput",
       props: {
         type: "number",
+        min: 0,
+        max: 1,
+        step: 0.1,
       },
     },
     {
