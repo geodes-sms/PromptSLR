@@ -40,6 +40,10 @@ const LLMConfiguration = () => {
   const [outputClasses, setOutputClasses] = useState(3);
   const [showReasons, setShowReasons] = useState(true);
   const [confidence, setConfidence] = useState(false);
+  const [inclusion, setInclusion] = useState(false);
+  const [exclusion, setExclusion] = useState(false);
+  const [inclusionCondition, setInclusionCondition] = useState("");
+  const [exclusionCondition, setExclusionCondition] = useState("");
 
   useEffect(() => {
     console.log("---- Additional params:", additionalHyperParams);
@@ -192,6 +196,14 @@ const LLMConfiguration = () => {
             setShowReasons={setShowReasons}
             outputClasses={outputClasses}
             setOutputClasses={setOutputClasses}
+            inclusion={inclusion}
+            setInclusion={setInclusion}
+            exclusion={exclusion}
+            setExclusion={setExclusion}
+            inclusionCondition={inclusionCondition}
+            setInclusionCondition={setInclusionCondition}
+            exclusionCondition={exclusionCondition}
+            setExclusionCondition={setExclusionCondition}
           />
         );
       default:

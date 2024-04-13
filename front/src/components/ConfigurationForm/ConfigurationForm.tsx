@@ -16,6 +16,14 @@ const ConfigurationForm = (props: {
   setShowReasons: (value: boolean) => void;
   confidence: boolean;
   setConfidence: (value: boolean) => void;
+  inclusion: boolean;
+  setInclusion: (value: boolean) => void;
+  exclusion: boolean;
+  setExclusion: (value: boolean) => void;
+  inclusionCondition: string;
+  setInclusionCondition: (value: string) => void;
+  exclusionCondition: string;
+  setExclusionCondition: (value: string) => void;
   renderForm: (formFields: Array<any>) => JSX.Element;
 }) => {
   const {
@@ -33,6 +41,14 @@ const ConfigurationForm = (props: {
     setShowReasons,
     confidence,
     setConfidence,
+    inclusion,
+    setInclusion,
+    exclusion,
+    setExclusion,
+    inclusionCondition,
+    setInclusionCondition,
+    exclusionCondition,
+    setExclusionCondition,
     renderForm,
   } = props;
   const firstRowForm = [
@@ -64,7 +80,7 @@ const ConfigurationForm = (props: {
       },
     },
   ];
-  const secondRowForm = [
+  const checkboxForm = [
     {
       label: "Linient",
       value: linient,
@@ -85,10 +101,49 @@ const ConfigurationForm = (props: {
     },
   ];
 
+  const inclusionSelectionCriteriaForm = [
+    {
+      label: "Inclusion",
+      value: inclusion,
+      setValue: setInclusion,
+      type: "checkbox",
+    },
+    {
+      label: "Inclusion Condition",
+      value: inclusionCondition,
+      setValue: setInclusionCondition,
+      type: "dropdown",
+      options: ["all", "any"],
+    },
+  ];
+
+  const exclusionSelectionCriteriaForm = [
+    {
+      label: "Exclusion",
+      value: exclusion,
+      setValue: setExclusion,
+      type: "checkbox",
+    },
+    {
+      label: "Exclusion Condition",
+      value: exclusionCondition,
+      setValue: setExclusionCondition,
+      type: "dropdown",
+      options: ["all", "any"],
+    },
+  ];
+
   return (
     <>
       {renderForm(firstRowForm)}
-      {renderForm(secondRowForm)}
+      {renderForm(checkboxForm)}
+      <div className="selection-criteria-section">
+        <p className="selection-criteria-section__title">
+          {"Selection Criteria"}
+        </p>
+        {renderForm(inclusionSelectionCriteriaForm)}
+        {renderForm(exclusionSelectionCriteriaForm)}
+      </div>
     </>
   );
 };
