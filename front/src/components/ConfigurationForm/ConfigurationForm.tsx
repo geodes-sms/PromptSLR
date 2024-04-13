@@ -10,6 +10,12 @@ const ConfigurationForm = (props: {
   setPositiveShots: (value: number) => void;
   negativeShots: number;
   setNegativeShots: (value: number) => void;
+  outputClasses: number;
+  setOutputClasses: (value: number) => void;
+  showReasons: boolean;
+  setShowReasons: (value: boolean) => void;
+  confidence: boolean;
+  setConfidence: (value: boolean) => void;
   renderForm: (formFields: Array<any>) => JSX.Element;
 }) => {
   const {
@@ -21,6 +27,12 @@ const ConfigurationForm = (props: {
     setPositiveShots,
     negativeShots,
     setNegativeShots,
+    outputClasses,
+    setOutputClasses,
+    showReasons,
+    setShowReasons,
+    confidence,
+    setConfidence,
     renderForm,
   } = props;
   const firstRowForm = [
@@ -31,14 +43,6 @@ const ConfigurationForm = (props: {
       setValue: (value: string[]) => setFeatures(value),
       type: "multi-select",
     },
-    {
-      label: "Linient",
-      value: linient,
-      setValue: setLinient,
-      type: "checkbox",
-    },
-  ];
-  const secondRowForm = [
     {
       label: "Positive Shots",
       value: positiveShots,
@@ -58,6 +62,26 @@ const ConfigurationForm = (props: {
         type: "number",
         min: 0,
       },
+    },
+  ];
+  const secondRowForm = [
+    {
+      label: "Linient",
+      value: linient,
+      setValue: setLinient,
+      type: "checkbox",
+    },
+    {
+      label: "Show Reasons",
+      value: showReasons,
+      setValue: setShowReasons,
+      type: "checkbox",
+    },
+    {
+      label: "Confidence",
+      value: confidence,
+      setValue: setConfidence,
+      type: "checkbox",
     },
   ];
 

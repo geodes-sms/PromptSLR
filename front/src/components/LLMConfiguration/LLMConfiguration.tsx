@@ -37,6 +37,9 @@ const LLMConfiguration = () => {
   const [linient, setLinient] = useState(true);
   const [positiveShots, setPositiveShots] = useState(2);
   const [negativeShots, setNegativeShots] = useState(1);
+  const [outputClasses, setOutputClasses] = useState(3);
+  const [showReasons, setShowReasons] = useState(true);
+  const [confidence, setConfidence] = useState(false);
 
   useEffect(() => {
     console.log("---- Additional params:", additionalHyperParams);
@@ -183,6 +186,12 @@ const LLMConfiguration = () => {
             setPositiveShots={setPositiveShots}
             negativeShots={negativeShots}
             setNegativeShots={setNegativeShots}
+            confidence={confidence}
+            setConfidence={setConfidence}
+            showReasons={showReasons}
+            setShowReasons={setShowReasons}
+            outputClasses={outputClasses}
+            setOutputClasses={setOutputClasses}
           />
         );
       default:
