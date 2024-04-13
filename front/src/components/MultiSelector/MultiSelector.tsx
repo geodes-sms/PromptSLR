@@ -12,8 +12,6 @@ const MultiSelector = (props: {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // const [selectedItems, setSelectedItems] = useState<string[]>([]);
-
   const handleItemSelect = (e: any, item: string) => {
     e.stopPropagation();
     !selectedItems.includes(item) && setSelectedItems([...selectedItems, item]);
