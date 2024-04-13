@@ -6,7 +6,18 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  margin-top: 12px;
+  left: 90px;
+
+  &-container {
+    display: flex;
+    position: relative;
+  }
+
+  &-label {
+    color: #24273a;
+    font-size: 20px;
+    font-weight: 500;
+  }
 
   &-input {
     position: absolute;
