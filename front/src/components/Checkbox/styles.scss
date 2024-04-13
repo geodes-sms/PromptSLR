@@ -6,10 +6,11 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  left: 90px;
+  top: -33px;
 
   &-container {
     display: flex;
+    flex-direction: column;
     position: relative;
   }
 
@@ -17,6 +18,7 @@
     color: #24273a;
     font-size: 20px;
     font-weight: 500;
+    margin-bottom: 45px;
   }
 
   &-input {
