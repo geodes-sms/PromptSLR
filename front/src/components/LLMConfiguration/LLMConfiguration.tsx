@@ -6,6 +6,9 @@ import TextInput from "../TextInput/TextInput";
 import LLMForm from "../LLMForm/LLMForm";
 import AddableKeyValueInput from "../AddableKeyValueInput/AddableKeyValueInput";
 import DatasetForm from "../DatasetForm/DatasetForm";
+import MultiSelector from "../MultiSelector/MultiSelector";
+import Checkbox from "../Checkbox/Checkbox";
+import ConfigurationForm from "../ConfigurationForm/ConfigurationForm";
 
 const LLMConfiguration = () => {
   const [step, setStep] = useState(1);
@@ -28,6 +31,12 @@ const LLMConfiguration = () => {
 
   // step2 (dataset)
   const [selectedDataset, setSelectedDataset] = useState("");
+
+  // step3 (configuration)
+  const [features, setFeatures] = useState<string[]>([]);
+  const [linient, setLinient] = useState(true);
+  const [positiveShots, setPositiveShots] = useState(2);
+  const [negativeShots, setNegativeShots] = useState(1);
 
   useEffect(() => {
     console.log("---- Additional params:", additionalHyperParams);
@@ -61,6 +70,25 @@ const LLMConfiguration = () => {
             title={formInput.title}
             values={formInput.value}
             setValues={formInput.setValue}
+          />
+        );
+
+      case "multi-select":
+        return (
+          <MultiSelector
+            label={formInput.label}
+            dropdownItems={formInput.items}
+            selectedItems={formInput.value}
+            setSelectedItems={formInput.setValue}
+          />
+        );
+
+      case "checkbox":
+        return (
+          <Checkbox
+            label={formInput.label}
+            isActive={formInput.value}
+            setIsActive={formInput.setValue}
           />
         );
 
@@ -140,6 +168,21 @@ const LLMConfiguration = () => {
             selectedDataset={selectedDataset}
             setSelectedDataset={setSelectedDataset}
             renderForm={renderForm}
+          />
+        );
+
+      case 3:
+        return (
+          <ConfigurationForm
+            renderForm={renderForm}
+            features={features}
+            setFeatures={setFeatures}
+            linient={linient}
+            setLinient={setLinient}
+            positiveShots={positiveShots}
+            setPositiveShots={setPositiveShots}
+            negativeShots={negativeShots}
+            setNegativeShots={setNegativeShots}
           />
         );
       default:
