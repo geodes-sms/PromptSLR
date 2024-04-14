@@ -9,6 +9,9 @@ const AddableKeyValueInput = (props: {
   setValues: Dispatch<
     SetStateAction<{ key: string; value: string; id: string }[]>
   >;
+  onlyValue?: boolean;
+  hideInputLabels?: boolean;
+  className?: string;
 }) => {
   const [data, setData] = useState([
     { key: "", value: "", id: crypto.randomUUID() },
@@ -45,14 +48,16 @@ const AddableKeyValueInput = (props: {
   const renderKeyValuePairInput = (index: number) => {
     return (
       <div className="addable-inputs__row" key={data[index].id}>
+        {!props.onlyValue && (
+          <TextInput
+            label={props.hideInputLabels ? "" : "Key"}
+            value={data[index].key}
+            setValue={(text) => updateData(index, "key", text)}
+            placeholder={`Key${index + 1}`}
+          />
+        )}
         <TextInput
-          label={"Key"}
-          value={data[index].key}
-          setValue={(text) => updateData(index, "key", text)}
-          placeholder={`Key${index + 1}`}
-        />
-        <TextInput
-          label={"Value"}
+          label={props.hideInputLabels ? "" : "Value"}
           value={data[index].value}
           setValue={(text) => updateData(index, "value", text)}
           placeholder={`Value${index + 1}`}
@@ -75,7 +80,7 @@ const AddableKeyValueInput = (props: {
   };
 
   return (
-    <div className="addable-inputs">
+    <div className={`addable-inputs ${props.className}`}>
       <p className="addable-inputs__title">{props.title}</p>
       {data.map((item, i) => {
         return renderKeyValuePairInput(i);
