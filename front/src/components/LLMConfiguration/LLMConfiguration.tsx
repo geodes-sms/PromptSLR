@@ -44,6 +44,8 @@ const LLMConfiguration = () => {
   const [exclusion, setExclusion] = useState(false);
   const [inclusionCondition, setInclusionCondition] = useState("");
   const [exclusionCondition, setExclusionCondition] = useState("");
+  const [inclusionCriteria, setInclusionCriteria] = useState([]);
+  const [exclusionCriteria, setExclusionCriteria] = useState([]);
 
   useEffect(() => {
     console.log("---- Additional params:", additionalHyperParams);
@@ -77,6 +79,7 @@ const LLMConfiguration = () => {
             title={formInput.title}
             values={formInput.value}
             setValues={formInput.setValue}
+            {...formInput.props}
           />
         );
 
@@ -103,9 +106,9 @@ const LLMConfiguration = () => {
         return <></>;
     }
   };
-  const renderForm = (formFields: Array<any>) => {
+  const renderForm = (formFields: Array<any>, className = "") => {
     return (
-      <div className="form-flex">
+      <div className={`form-flex ${className}`}>
         {formFields.map((item, i) => {
           return <div key={i}>{renderInput(item)}</div>;
         })}
@@ -204,6 +207,10 @@ const LLMConfiguration = () => {
             setInclusionCondition={setInclusionCondition}
             exclusionCondition={exclusionCondition}
             setExclusionCondition={setExclusionCondition}
+            inclusionCriteria={inclusionCriteria}
+            setInclusionCriteria={setInclusionCriteria}
+            exclusionCriteria={exclusionCriteria}
+            setExclusionCriteria={setExclusionCriteria}
           />
         );
       default:

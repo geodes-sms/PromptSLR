@@ -9,3 +9,21 @@
     color: #24273a;
   }
 }
+
+.criteria-form {
+  align-items: flex-start;
+}
+
+.addable-texts {
+  margin-top: 0;
+
+  .addable-inputs__title {
+    color: #24273a;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .addable-inputs__row {
+    margin-top: 0;
+  }
+}

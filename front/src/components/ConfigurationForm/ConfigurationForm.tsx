@@ -24,7 +24,11 @@ const ConfigurationForm = (props: {
   setInclusionCondition: (value: string) => void;
   exclusionCondition: string;
   setExclusionCondition: (value: string) => void;
-  renderForm: (formFields: Array<any>) => JSX.Element;
+  inclusionCriteria: never[];
+  setInclusionCriteria: (value: never[]) => void;
+  exclusionCriteria: never[];
+  setExclusionCriteria: (value: never[]) => void;
+  renderForm: (formFields: Array<any>, className?: string) => JSX.Element;
 }) => {
   const {
     features,
@@ -49,6 +53,10 @@ const ConfigurationForm = (props: {
     setInclusionCondition,
     exclusionCondition,
     setExclusionCondition,
+    inclusionCriteria,
+    setInclusionCriteria,
+    exclusionCriteria,
+    setExclusionCriteria,
     renderForm,
   } = props;
   const firstRowForm = [
@@ -73,6 +81,16 @@ const ConfigurationForm = (props: {
       label: "Negative Shots",
       value: negativeShots,
       setValue: setNegativeShots,
+      type: "textInput",
+      props: {
+        type: "number",
+        min: 0,
+      },
+    },
+    {
+      label: "Number of Classes",
+      value: outputClasses,
+      setValue: setOutputClasses,
       type: "textInput",
       props: {
         type: "number",
@@ -115,6 +133,17 @@ const ConfigurationForm = (props: {
       type: "dropdown",
       options: ["all", "any"],
     },
+    {
+      title: "Inclusion Criteria",
+      value: inclusionCriteria,
+      setValue: setInclusionCriteria,
+      type: "addableInputs",
+      props: {
+        onlyValue: true,
+        hideInputLabels: true,
+        className: "addable-texts",
+      },
+    },
   ];
 
   const exclusionSelectionCriteriaForm = [
@@ -131,6 +160,17 @@ const ConfigurationForm = (props: {
       type: "dropdown",
       options: ["all", "any"],
     },
+    {
+      title: "Exclusion Criteria",
+      value: exclusionCriteria,
+      setValue: setExclusionCriteria,
+      type: "addableInputs",
+      props: {
+        onlyValue: true,
+        hideInputLabels: true,
+        className: "addable-texts",
+      },
+    },
   ];
 
   return (
@@ -141,8 +181,8 @@ const ConfigurationForm = (props: {
         <p className="selection-criteria-section__title">
           {"Selection Criteria"}
         </p>
-        {renderForm(inclusionSelectionCriteriaForm)}
-        {renderForm(exclusionSelectionCriteriaForm)}
+        {renderForm(inclusionSelectionCriteriaForm, "criteria-form")}
+        {renderForm(exclusionSelectionCriteriaForm, "criteria-form")}
       </div>
     </>
   );
