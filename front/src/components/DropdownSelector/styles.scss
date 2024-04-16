@@ -1,6 +1,10 @@
 .dropdown-selector-container {
   display: flex;
   flex-direction: column;
+
+  &--disabled {
+    opacity: 0.5;
+  }
 }
 
 .dropdown-selector-label {

@@ -7,6 +7,7 @@ const DropdownSelector = (props: {
   dropdownItems: string[];
   selectedItem: string;
   setSelectedItem: (item: string) => void;
+  disabled?: boolean;
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropDownTitle, setDropDownTitle] = useState(props.selectedItem);
@@ -40,12 +41,22 @@ const DropdownSelector = (props: {
     return dropDownItemsUI;
   };
 
+  useEffect(() => {
+    if (props.disabled && isDropdownOpen) setIsDropdownOpen(false);
+  }, [props.disabled]);
+
   return (
-    <div className="dropdown-selector-container">
+    <div
+      className={`dropdown-selector-container ${
+        props.disabled && "dropdown-selector-container--disabled"
+      }`}
+    >
       <p className="dropdown-selector-label">{props.label}</p>
       <div
         className="dropdown-selection-button"
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        onClick={() =>
+          props.disabled ? {} : setIsDropdownOpen(!isDropdownOpen)
+        }
       >
         <div
           className="dropdown-title"
