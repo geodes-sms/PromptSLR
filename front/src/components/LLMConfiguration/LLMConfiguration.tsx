@@ -60,6 +60,7 @@ const LLMConfiguration = () => {
             dropdownItems={formInput.options}
             selectedItem={formInput.value}
             setSelectedItem={formInput.setValue}
+            {...formInput.props}
           />
         );
 

@@ -132,6 +132,9 @@ const ConfigurationForm = (props: {
       setValue: setInclusionCondition,
       type: "dropdown",
       options: ["all", "any"],
+      props: {
+        disabled: !inclusion,
+      },
     },
     {
       title: "Inclusion Criteria",
@@ -141,6 +144,7 @@ const ConfigurationForm = (props: {
       props: {
         onlyValue: true,
         hideInputLabels: true,
+        disabled: !inclusion,
         className: "addable-texts",
       },
     },
@@ -159,6 +163,9 @@ const ConfigurationForm = (props: {
       setValue: setExclusionCondition,
       type: "dropdown",
       options: ["all", "any"],
+      props: {
+        disabled: !exclusion,
+      },
     },
     {
       title: "Exclusion Criteria",
@@ -168,6 +175,7 @@ const ConfigurationForm = (props: {
       props: {
         onlyValue: true,
         hideInputLabels: true,
+        disabled: !exclusion,
         className: "addable-texts",
       },
     },
