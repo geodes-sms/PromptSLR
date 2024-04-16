@@ -12,6 +12,7 @@ const AddableKeyValueInput = (props: {
   onlyValue?: boolean;
   hideInputLabels?: boolean;
   className?: string;
+  disabled?: boolean;
 }) => {
   const [data, setData] = useState([
     { key: "", value: "", id: crypto.randomUUID() },
@@ -52,26 +53,35 @@ const AddableKeyValueInput = (props: {
           <TextInput
             label={props.hideInputLabels ? "" : "Key"}
             value={data[index].key}
-            setValue={(text) => updateData(index, "key", text)}
+            setValue={(text) =>
+              props.disabled ? {} : updateData(index, "key", text)
+            }
             placeholder={`Key${index + 1}`}
+            disabled={props.disabled}
           />
         )}
         <TextInput
           label={props.hideInputLabels ? "" : "Value"}
           value={data[index].value}
-          setValue={(text) => updateData(index, "value", text)}
+          setValue={(text) =>
+            props.disabled ? {} : updateData(index, "value", text)
+          }
           placeholder={`Value${index + 1}`}
+          disabled={props.disabled}
         />
         {data.length > 1 ? (
           <div
             className="addable-inputs__modify-btn"
-            onClick={() => removeField(index)}
+            onClick={() => (props.disabled ? {} : removeField(index))}
           >
             <SVGIcon name="minus" width={"20"} height={"20"} fill={"#D20F39"} />
           </div>
         ) : null}
         {index === data.length - 1 ? (
-          <div className="addable-inputs__modify-btn" onClick={addField}>
+          <div
+            className="addable-inputs__modify-btn"
+            onClick={() => (props.disabled ? {} : addField())}
+          >
             <SVGIcon name="plus" width={"20"} height={"20"} fill={"#40A02B"} />
           </div>
         ) : null}
@@ -80,7 +90,11 @@ const AddableKeyValueInput = (props: {
   };
 
   return (
-    <div className={`addable-inputs ${props.className}`}>
+    <div
+      className={`addable-inputs ${
+        props.disabled && "addable-inputs--disabled"
+      } ${props.className}`}
+    >
       <p className="addable-inputs__title">{props.title}</p>
       {data.map((item, i) => {
         return renderKeyValuePairInput(i);

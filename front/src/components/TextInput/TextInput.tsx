@@ -10,6 +10,7 @@ const TextInput = (props: {
   max?: number;
   step?: number;
   placeholder?: string;
+  disabled?: boolean;
 }) => {
   return (
     <div className="text-input">
@@ -25,6 +26,7 @@ const TextInput = (props: {
         max={props.max}
         step={props.step}
         placeholder={props.placeholder}
+        disabled={props.disabled}
       />
     </div>
   );

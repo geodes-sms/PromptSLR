@@ -3,6 +3,10 @@
   flex-direction: column;
   margin-top: 24px;
 
+  &--disabled {
+    opacity: 0.5;
+  }
+
   &__title {
     font-size: 24px;
     color: #24273a;
