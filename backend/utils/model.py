@@ -30,14 +30,14 @@ import matplotlib.pyplot as plt
 import numpy
 import warnings
 
-from backend.utils.output import ModelAnswer
+from utils.output import CorrectAnswer, ModelAnswer, Output
 
 # Ignore warnings from the grid search
 warnings.filterwarnings("ignore")
 
 
 class LanguageModel(object):
-    def __init__(self, context="", parameters={}):
+    def __init__(self, context="", parameters={}, *args, **kwargs):
         """
         Context is the task of the LLM. Parameters are controlling the LLM.
         """
@@ -393,14 +393,20 @@ class Random(LanguageModel):
         """
         super().__init__(context, parameters)
         self.name = "random"
-        self.seed = parameters["seed"]
+        breakpoint()
+        self.seed = int(parameters["llm"]["hyperparams"]["additional"]["seed"])
         random.seed(self.seed)  # repeatable random
 
-    def _api_decide(self, title, abstract, article_key=None):
-        d = Decision()
-        d.answer = random.choice([ModelAnswer.INCLUDE, ModelAnswer.EXCLUDE])
-        d.parameters = self.seed
-        return d
+    def api_decide(self, content, article=None):
+        d = random.choice([ModelAnswer.INCLUDE, ModelAnswer.EXCLUDE])
+        self.answer = Output(d)
+        self.answer.decision = self.answer.get_decision(
+            CorrectAnswer(article.ScreenedDecision)
+        )
+        self.answer.content = d
+        self.answer.reason = None
+        self.answer.confidence = None
+        return self.answer, article
 
 
 #########################
@@ -412,10 +418,10 @@ class ChatGPT(LanguageModel):
         Context is the system prompt. Paramters should have the api_key, temperature, and max_tokens.
         """
         super().__init__(context, parameters)
-        openai.api_key = self.parameters["api_key"]
-        self.name = "gpt-3.5-turbo-0613"
+        openai.api_key = self.parameters["llm"]["apikey"]
+        self.name = self.parameters["llm"]["name"]
 
-    def api_decide(self, content, article_key=None):
+    def api_decide(self, content, article=None):
         conversation = [
             {"role": "system", "content": self.context},
             {
@@ -430,7 +436,7 @@ class ChatGPT(LanguageModel):
                 temperature=self.parameters["temperature"],
                 max_tokens=self.parameters["max_tokens"],
             )
-            return response
+            return response, article
             # d.tokens = tokens = response["usage"]["total_tokens"]
             # d.answer = response.choices[0].message.content
             # finish_reason = response.choices[0].finish_reason

@@ -72,7 +72,7 @@
                             ]
                         },
                         "additional": {
-                            "type": "array",
+                            "type": "object",
                             "description": "Additional hyperparameters for the LLM, incase of trainable classifier all hyperparameters should be included here"
                         },
                         "isTrainable": {

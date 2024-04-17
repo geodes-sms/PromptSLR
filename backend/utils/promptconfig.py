@@ -3,9 +3,9 @@ from utils.datasets import Datasets
 
 
 class PromptConfig:
-    def __init__(self, config) -> None:
+    def __init__(self, config, dataset: Datasets) -> None:
         self.json = config
-        self.datasets = Datasets(config)
+        self.datasets = dataset
         self.data = {
             "positiveShots": self.datasets.get_posisitve_shots(),
             "negativeShots": self.datasets.get_negative_shots(),

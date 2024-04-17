@@ -12,7 +12,7 @@
         "apikey": "optional",
         "hyperparams": {
             "default": {
-                "temprature": 0.2,
+                "temperature": 0.2,
                 "maxTokens": 512
             },
             "isTrainable": false,

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import random
-from backend.utils.db_connector import DBConnector
+from utils.db_connector import DBConnector
 
 
 class Datasets:
@@ -10,29 +10,38 @@ class Datasets:
     ):
         self.config = config
         if not data_dir:
-            data_dir = os.path.join(os.getcwd(), "data")
-        self.df = pd.read_csv(
-            os.path.join(data_dir, f"{config['dataset']['name']}.csv"), sep="\t"
-        )
+            self.data_dir = os.path.join(os.getcwd(), "data")
+        else:
+            self.data_dir = data_dir
         self.project_id = project_id
         self.db_connector = DBConnector()
+
+    def create_dataset(self):
         self.dataset = self.db_connector.create_dataset(
-            name=config["dataset"]["name"], projectID=self.project_id
+            name=self.config["dataset"]["name"], projectID=self.project_id
         )
 
     def load_data(self):
-        for i in self.df.itertuples():
-            self.db_connector.create_article(
-                key=i.key,
-                abstract=i.abstract,
-                title=i.title,
-                doi=i.doi,
-                mode=i.mode,
-                screenedDecision=i.decision,
-                exclusionCriteria=i.exclusion_criteria,
-                reviewerCount=i.reviewer_count,
-                datasetID=self.dataset["DatasetID"],
-            )
+        self.df = pd.read_csv(
+            os.path.join(self.data_dir, f"{self.config['dataset']['name']}.csv"),
+            sep="\t",
+            na_values=[None],
+            keep_default_na=False,
+        )
+        with self.db_connector.db.tx() as tx:
+            for i in self.df.itertuples():
+                self.db_connector.create_article(
+                    tx=tx,
+                    key=i.key,
+                    abstract=str(i.abstract),
+                    title=i.title,
+                    doi=i.doi,
+                    mode=i.mode,
+                    screenedDecision=i.decision,
+                    exclusionCriteria=i.exclusion_criteria,
+                    reviewerCount=i.reviewer_count,
+                    datasetID=self.dataset.DatasetID,
+                )
 
     def get_posisitve_shots(self):
         self.positiveShots = self.db_connector.get_shots(
@@ -40,7 +49,13 @@ class Datasets:
             self.config["configurations"]["shots"]["positive"],
             positive=True,
         )
-
+        pshots = []
+        for j in self.positiveShots:
+            tmp = {}
+            for i in self.config["configurations"]["features"]:
+                tmp[i] = getattr(j, i.title())
+            pshots.append(tmp)
+        self.positiveShots = pshots
         return self.positiveShots
 
     def get_negative_shots(self):
@@ -49,6 +64,13 @@ class Datasets:
             self.config["configurations"]["shots"]["negative"],
             positive=False,
         )
+        nshots = []
+        for j in self.negativeShots:
+            tmp = {}
+            for i in self.config["configurations"]["features"]:
+                tmp[i] = getattr(j, i.title())
+            nshots.append(tmp)
+        self.negativeShots = nshots
         return self.negativeShots
 
     def get_articles(self):

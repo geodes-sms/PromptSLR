@@ -30,14 +30,14 @@ I give {{ json.configurations.shots.negative }} examples that should be excluded
 {% endif %}
 
 ## INCLUSION CRITERIA
-{% if json.configurations.selectionCriteria.inclusion %}
+{% if "selectionCriteria" in json.configurations and json.configurations.selectionCriteria.inclusion %}
 Include if {{ json.configurations.selectionCriteria.inclusion.condition[0] }} of the following criteria are true.
 {% for criterion in json.configurations.selectionCriteria.inclusion.criteria %}
 {{ loop.index }}: {{ criterion }}
 {% endfor %}
 {% endif %}
 ## EXCLUSION CRITERIA
-{% if json.configurations.selectionCriteria.exclusion %}
+{% if "selectionCriteria" in json.configurations and json.configurations.selectionCriteria.exclusion %}
 Exclude if {{ json.configurations.selectionCriteria.inclusion.condition[0] }} of the following criteria are true.
 {% for criterion in json.configurations.selectionCriteria.inclusion.criteria %}
 {{ loop.index }}: {{ criterion }}

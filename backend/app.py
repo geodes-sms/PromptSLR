@@ -23,7 +23,7 @@ async def init_experiment(data: dict, background_tasks: BackgroundTasks):
     validation_result = analyser.validate_data()
 
     # genereate a unique id for the project
-    project_id = uuid4()
+    project_id = str(uuid4())
 
     # initdb and initexperiment
     exp = Experiments(project_id, data)

@@ -1,6 +1,6 @@
-from backend.utils.datasets import Datasets
-from backend.utils.db_connector import DBConnector
-from backend.utils.scheduler import Scheduler
+from utils.datasets import Datasets
+from utils.db_connector import DBConnector
+from utils.scheduler import Scheduler
 
 
 class Experiments:
@@ -33,15 +33,17 @@ class Experiments:
             self.config["llm"]["hyperparams"]["default"]["temperature"],
             self.config["llm"]["hyperparams"]["default"]["maxTokens"],
         )
-        for key, value in self.config["llm"]["hyperparams"]["additional"].items():
-            self.db_connector.create_llmhyparams(
-                self.db_connector.get_llmid(self.project_id),
-                key,
-                value,
-            )
+        if "additional" in self.config["llm"]["hyperparams"]:
+            for key, value in self.config["llm"]["hyperparams"]["additional"].items():
+                self.db_connector.create_llmhyparams(
+                    self.db_connector.get_llmid(self.project_id),
+                    key,
+                    str(value),
+                )
+        self.datatsets = Datasets(config=self.config, project_id=self.project_id)
         if not self.db_connector.is_dataset_exists(self.config["dataset"]["name"]):
-            datatsets = Datasets()
-            datatsets.load_data()
+            self.datatsets.create_dataset()
+            self.datatsets.load_data()
 
         self.db_connector.create_project_dataset(
             self.project_id,
@@ -51,7 +53,7 @@ class Experiments:
         self.db_connector.create_configurations(self.project_id, self.config)
 
     def init_experiment(self):
-        self.scheduler = Scheduler(self.config)
+        self.scheduler = Scheduler(self.config, self.project_id, self.datatsets)
         self.scheduler.schedule()
 
     @staticmethod

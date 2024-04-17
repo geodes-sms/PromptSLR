@@ -1,6 +1,6 @@
 datasource db {
   provider = "sqlite"
-  url      = "file:dev.db"
+  url      = "file:dev.sqlite"
 }
 
 generator db {
@@ -24,7 +24,7 @@ model Projects {
   TopicTitle       String?
   TopicDescription String?
   LLMs             LLMs[]
-  Datasets         Datasets[]
+  Datasets         Dataset[]
   Configurations   Configurations[]
   LLMDecisions     LLMDecisions[]
   ProjectDatasets  ProjectDatasets[]
@@ -49,16 +49,17 @@ model LLMHyperparams {
   LLMID        Int
   Key          String
   Value        String
-  LLM          LLMs   @relation(fields: [LLMID], references: [LLMID])
+  LLMs         LLMs?  @relation(fields: [lLMsLLMID], references: [LLMID])
+  lLMsLLMID    Int?
 }
 
-model Datasets {
-  DatasetID       String            @id @default(uuid())
-  ProjectID       String
-  Name            String
-  Project         Projects          @relation(fields: [ProjectID], references: [ProjectID])
-  Articles        Articles[]
-  ProjectDatasets ProjectDatasets[]
+model Dataset {
+  DatasetID         String            @id @default(uuid())
+  Name              String
+  Articles          Articles[]
+  ProjectDatasets   ProjectDatasets[]
+  Projects          Projects?         @relation(fields: [projectsProjectID], references: [ProjectID])
+  projectsProjectID String?
 }
 
 model Configurations {
@@ -85,9 +86,10 @@ model Articles {
   ExclusionCriteria String?
   ReviewerCount     Int?
   DatasetID         String
-  Dataset           Datasets       @relation(fields: [DatasetID], references: [DatasetID])
   LLMDecisions      LLMDecisions[]
   ProjectShots      ProjectShots[]
+  Dataset           Dataset?       @relation(fields: [datasetDatasetID], references: [DatasetID])
+  datasetDatasetID  String?
 }
 
 model LLMDecisions {
@@ -110,7 +112,7 @@ model ProjectDatasets {
   ProjectID String
   DatasetID String
   Project   Projects @relation(fields: [ProjectID], references: [ProjectID])
-  Dataset   Datasets @relation(fields: [DatasetID], references: [DatasetID])
+  Dataset   Dataset  @relation(fields: [DatasetID], references: [DatasetID])
 
   @@id([ProjectID, DatasetID])
 }

@@ -104,7 +104,7 @@ class Output(ModelAnswer):
 
     def parse(self):
         # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these
-        self.answer, self.reason, self.confidence = self.raw_output.split("\n")
+        self.answer = self.raw_output
 
     def get_decision(self, correct_answer: CorrectAnswer):
         if self.is_include() and correct_answer.is_include():
