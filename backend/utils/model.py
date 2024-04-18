@@ -2,7 +2,7 @@ import os
 import re
 import pandas
 import random
-import openai
+from openai import OpenAI
 import nltk
 from gensim.models import Word2Vec
 from sklearn import preprocessing
@@ -417,7 +417,7 @@ class ChatGPT(LanguageModel):
         Context is the system prompt. Paramters should have the api_key, temperature, and max_tokens.
         """
         super().__init__(context, parameters)
-        openai.api_key = self.parameters["llm"]["apikey"]
+        self.client = OpenAI(api_key=self.parameters["llm"]["apikey"])
         self.name = self.parameters["llm"]["name"]
 
     def api_decide(self, content, article=None):
@@ -429,7 +429,7 @@ class ChatGPT(LanguageModel):
             },
         ]
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.name,
                 messages=conversation,
                 temperature=self.parameters["llm"]["hyperparams"]["default"][
