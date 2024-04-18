@@ -1,4 +1,4 @@
-import re
+import json
 
 
 class CorrectAnswer:
@@ -104,7 +104,17 @@ class Output(ModelAnswer):
 
     def parse(self):
         # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these
-        self.answer = self.raw_output
+        try:
+            json_output = json.loads(self.raw_output)
+            self.answer = json_output["decision"]
+            self.reason = json_output["reason"] if "reason" in json_output else None
+            self.confidence = (
+                json_output["confidence"] if "confidence" in json_output else None
+            )
+        except json.JSONDecodeError:
+            self.answer = self.raw_output
+            self.reason = None
+            self.confidence = None
 
     def get_decision(self, correct_answer: CorrectAnswer):
         if self.is_include() and correct_answer.is_include():

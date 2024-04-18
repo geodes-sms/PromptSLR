@@ -52,6 +52,7 @@ class Scheduler:
     def schedule(self):
         requests = 0
         responses = []
+        print(len(self.dataset.get_articles()))
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.rate_limit
         ) as executor:
@@ -65,27 +66,35 @@ class Scheduler:
                     print("Waiting for the rate limit to reset......")
                     time.sleep(60)
                     requests = 0
+        llm_decisions = []
         for response in concurrent.futures.as_completed(responses):
             answer, article = response.result()
             try:
-                self.db_connector.create_llmdecision(
-                    artileKey=article.Key,
-                    decision=answer.decision,
-                    projectID=self.project_id,
-                    error=False,
-                    retries=0,
-                    rawOutput=answer.content,
-                    reason=answer.reason,
-                    confidence=answer.confidence,
+                llm_decisions.append(
+                    {
+                        "LLMID": self.db_connector.get_llmid(self.project_id),
+                        "ArticleKey": article.Key,
+                        "ProjectID": self.project_id,
+                        "Decision": answer.decision,
+                        "Error": False,
+                        "Retries": 0,
+                        "RawOutput": answer.content,
+                        "Reason": answer.reason,
+                        "Confidence": answer.confidence,
+                    }
                 )
             except Exception as e:
-                self.db_connector.create_llmdecision(
-                    artileKey=article.Key,
-                    decision=e.__str__(),
-                    projectID=self.project_id,
-                    error=True,
-                    retries=1,
+                llm_decisions.append(
+                    {
+                        "LLMID": self.db_connector.get_llmid(self.project_id),
+                        "ArticleKey": article.Key,
+                        "ProjectID": self.project_id,
+                        "Decision": e.__str__(),
+                        "Error": True,
+                        "Retries": 1,
+                    }
                 )
+        self.db_connector.db.llmdecisions.create_many(llm_decisions)
 
     def format_article(self, article):
         tmp = {}

@@ -1,6 +1,6 @@
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = "postgresql://gauransh:1234@localhost:5432/promptslr"
 }
 
 generator db {
@@ -70,7 +70,8 @@ model Configurations {
 }
 
 model Articles {
-  Key               String         @id
+  Key               String         @id @default(uuid())
+  BibtexKey         String
   Title             String
   Abstract          String?
   DOI               String?

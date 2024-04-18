@@ -79,7 +79,6 @@ class DBConnector:
         dataset = self.db.dataset.create(
             {
                 "Name": name,
-                "ProjectID": projectID,
             }
         )
         return dataset
@@ -114,7 +113,7 @@ class DBConnector:
     ):
         articles = tx.articles.create(
             {
-                "Key": key,
+                "BibtexKey": key,
                 "Title": title,
                 "Abstract": abstract,
                 "DOI": doi,

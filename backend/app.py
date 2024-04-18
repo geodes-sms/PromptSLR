@@ -49,8 +49,14 @@ async def experiment_status(websocket: WebSocket, exp_id: str):
 
 @app.get("/test/promptTemplate/{exp_id}")
 async def test_prompt_template(exp_id: str):
-    print(app.state.prompt)
+    app.state.prompt = PromptConfig(app.state.config, app.state.dataset)
     return {"prompt": app.state.prompt}
+
+
+@app.get("/test/promptTokens/{exp_id}")
+async def test_prompt_tokens(exp_id: str):
+    print(app.state.tokens)
+    return {"tokens": app.state.tokens}
 
 
 if __name__ == "__main__":

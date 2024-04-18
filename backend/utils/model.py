@@ -393,7 +393,6 @@ class Random(LanguageModel):
         """
         super().__init__(context, parameters)
         self.name = "random"
-        breakpoint()
         self.seed = int(parameters["llm"]["hyperparams"]["additional"]["seed"])
         random.seed(self.seed)  # repeatable random
 
@@ -433,19 +432,19 @@ class ChatGPT(LanguageModel):
             response = openai.ChatCompletion.create(
                 model=self.name,
                 messages=conversation,
-                temperature=self.parameters["temperature"],
-                max_tokens=self.parameters["max_tokens"],
+                temperature=self.parameters["llm"]["hyperparams"]["default"][
+                    "temperature"
+                ],
+                max_tokens=self.parameters["llm"]["hyperparams"]["default"][
+                    "maxTokens"
+                ],
             )
-            return response, article
-            # d.tokens = tokens = response["usage"]["total_tokens"]
-            # d.answer = response.choices[0].message.content
-            # finish_reason = response.choices[0].finish_reason
-            # if finish_reason == "stop":  # otherwise there is an error
-            #     finish_reason = ""
-            # d.finish_reason = finish_reason
-            # d.parameters = [
-            #     f"{k}: {v}" for k, v in self.parameters.items() if k != "api_key"
-            # ]  # all but the API Key
+            self.answer = Output(response.choices[0].message)
+            self.answer.decision = self.answer.get_decision(
+                CorrectAnswer(article.ScreenedDecision)
+            )
+            self.answer.content = response.choices[0].message
+            return self.answer, article
         except Exception as e:
             print(e)
             # d.answer = str(type(e).__name__)
