@@ -137,6 +137,8 @@ const LLMConfiguration = () => {
   const isRequiredFieldsSatisfied = () => {
     console.log(llmName);
     switch (step) {
+      case 0:
+        return Boolean(projectName && topicTitle);
       case 1:
         console.log("Stuff:", llmName, APIKey, temperature, maxTokens);
         switch (llmName) {
