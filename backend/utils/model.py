@@ -117,7 +117,12 @@ class LanguageModel(object):
 class TrainableModel(LanguageModel):
     grid_param_prefix = "classifier__"
 
-    def __init__(self, context="", parameters={}, vectorizer_parameters={}):
+    def __init__(
+        self,
+        context="",
+        parameters={},
+        vectorizer_parameters={"min_count": 3, "workers": 4},
+    ):
         """
         This is a model that needs to be trained before it can make a decision.
         context is a sentence related to the topic of the systematic review that should be added to features (on top of title and abstract).
@@ -369,16 +374,13 @@ Area under the curve = {}
     def _api_decide(self, title, abstract, article_key=None):
         decisions = []
         if article_key not in self.decisions:
-            d = Decision()
-            d.answer = (
-                ModelAnswer.ERROR
-            )  # in case the article was never tested during cross-validation
-            d.finish_reason = "article not found"
-            return [d]
+            return Output(ModelAnswer.ERROR)
         for answer, param in self.decisions[article_key]:
-            d = Decision()
-            d.answer = ModelAnswer.INCLUDE if answer else ModelAnswer.EXCLUDE
-            d.parameters = param
+            d = Output(answer)
+            d.decision = d.get_decision(CorrectAnswer(article_key))
+            d.content = answer
+            d.reason = None
+            d.confidence = None
             decisions.append(d)
         return decisions
 
@@ -455,8 +457,50 @@ class ChatGPT(LanguageModel):
 # llamafile
 #########################
 class LlamaFile(LanguageModel):
-    def __init__(self, context="", parameters={}):
-        pass
+    def __init__(self, context="", parameters={}, *args, **kwargs):
+        """
+        Context is the system prompt. Paramters should have the api_key, temperature, and max_tokens.
+        """
+        super().__init__(context, parameters)
+        self.client = OpenAI(
+            api_key=(
+                self.parameters["llm"]["apikey"]
+                if "apikey" in self.parameters["llm"]
+                and self.parameters["llm"]["apikey"] != ""
+                else None
+            ),
+            base_url=self.parameters["llm"]["url"],
+        )
+
+        self.name = self.parameters["llm"]["name"]
+
+    def api_decide(self, content, article=None):
+        conversation = [
+            {"role": "system", "content": self.context},
+            {
+                "role": "user",
+                "content": content,
+            },
+        ]
+        try:
+            response = self.client.chat.completions.create(
+                model=self.name,
+                messages=conversation,
+                temperature=self.parameters["llm"]["hyperparams"]["default"][
+                    "temperature"
+                ],
+                max_tokens=self.parameters["llm"]["hyperparams"]["default"][
+                    "maxTokens"
+                ],
+            )
+            self.answer = Output(response.choices[0].message)
+            self.answer.decision = self.answer.get_decision(
+                CorrectAnswer(article.ScreenedDecision)
+            )
+            self.answer.content = response.choices[0].message
+            return self.answer, article
+        except Exception as e:
+            print(e)
 
 
 #########################
