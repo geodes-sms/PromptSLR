@@ -31,7 +31,7 @@ const ProjectInfoForm = (props: {
       },
     },
     {
-      label: "topic title",
+      label: "Topic Title",
       value: topicTitle,
       setValue: setTopicTitle,
       type: "textInput",
@@ -40,16 +40,17 @@ const ProjectInfoForm = (props: {
       },
     },
     {
-      label: "topic description",
+      label: "Topic Description",
       value: topicDescription,
       setValue: setTopicDescription,
-      type: "textInput",
+      type: "text-area",
       props: {
         placeholder: "reinforcement learning for software engineering",
+        rows: 12,
       },
     },
   ];
-  return <>{renderForm(formData)}</>;
+  return <>{renderForm(formData, "project-info-form")}</>;
 };
 
 export default ProjectInfoForm;

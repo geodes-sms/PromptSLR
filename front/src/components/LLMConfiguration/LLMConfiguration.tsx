@@ -10,6 +10,7 @@ import MultiSelector from "../MultiSelector/MultiSelector";
 import Checkbox from "../Checkbox/Checkbox";
 import ConfigurationForm from "../ConfigurationForm/ConfigurationForm";
 import ProjectInfoForm from "../ProjectInfoForm/ProjectInfoForm";
+import TextArea from "../TextArea/TextArea";
 
 const LLMConfiguration = () => {
   const [step, setStep] = useState(0);
@@ -73,6 +74,16 @@ const LLMConfiguration = () => {
       case "textInput":
         return (
           <TextInput
+            label={formInput.label}
+            value={formInput.value}
+            setValue={formInput.setValue}
+            {...formInput.props}
+          />
+        );
+
+      case "text-area":
+        return (
+          <TextArea
             label={formInput.label}
             value={formInput.value}
             setValue={formInput.setValue}
