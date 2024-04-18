@@ -9,9 +9,15 @@ import DatasetForm from "../DatasetForm/DatasetForm";
 import MultiSelector from "../MultiSelector/MultiSelector";
 import Checkbox from "../Checkbox/Checkbox";
 import ConfigurationForm from "../ConfigurationForm/ConfigurationForm";
+import ProjectInfoForm from "../ProjectInfoForm/ProjectInfoForm";
 
 const LLMConfiguration = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+
+  // step 0 (project info)
+  const [projectName, setProjectName] = useState("");
+  const [topicTitle, setTopicTitle] = useState("");
+  const [topicDescription, setTopicDescription] = useState("");
 
   // step 1 (llm) fields
   const [llmName, setLlmName] = useState("");
@@ -146,6 +152,18 @@ const LLMConfiguration = () => {
 
   const renderPaginatedForm = () => {
     switch (step) {
+      case 0:
+        return (
+          <ProjectInfoForm
+            projectName={projectName}
+            setProjectName={setProjectName}
+            topicTitle={topicTitle}
+            setTopicTitle={setTopicTitle}
+            topicDescription={topicDescription}
+            setTopicDescription={setTopicDescription}
+            renderForm={renderForm}
+          />
+        );
       case 1:
         return (
           <LLMForm
