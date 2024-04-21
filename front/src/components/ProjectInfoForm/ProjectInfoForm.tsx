@@ -45,7 +45,7 @@ const ProjectInfoForm = (props: {
       setValue: setTopicDescription,
       type: "text-area",
       props: {
-        placeholder: "reinforcement learning for software engineering",
+        placeholder: "Add an optional description for your topic.",
         rows: 12,
       },
     },

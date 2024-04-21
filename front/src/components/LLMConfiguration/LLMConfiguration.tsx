@@ -158,6 +158,9 @@ const LLMConfiguration = () => {
       case 2:
         return Boolean(selectedDataset);
 
+      case 3:
+        return features.length > 0;
+
       default:
         return false;
     }
@@ -250,9 +253,13 @@ const LLMConfiguration = () => {
     }
   };
 
+  const MAX_STEPS_SIZE = 3;
+
   const gotoNextStep = () => {
-    setStep(step + 1);
+    step < MAX_STEPS_SIZE ? setStep(step + 1) : onSubmitForm();
   };
+
+  const onSubmitForm = () => {};
 
   return (
     <div className="llm-configuration">
@@ -261,7 +268,7 @@ const LLMConfiguration = () => {
           LLM
         </div>
         <Button
-          label="next"
+          label={step < MAX_STEPS_SIZE ? "Next" : "Submit"}
           onClick={() => gotoNextStep()}
           disabled={!isRequiredFieldsSatisfied()}
         />
