@@ -26,7 +26,16 @@ class Scheduler:
         prompt_config = PromptConfig(config, self.dataset)
         templateEngine = TemplateEngine()
         self.context = templateEngine.render(promptConfig=prompt_config)
+        self.db_connector.db.projects.update(
+            where={
+                "ProjectID": self.project_id,
+            },
+            data={
+                "ContextTokens": templateEngine.get_tokens(),
+            },
+        )
         self.rate_limit = 50
+        self.max_retries = 5
         self.model = self.get_model()
 
     def get_model(self):
@@ -50,13 +59,22 @@ class Scheduler:
             raise ValueError(f"Model {self.config['llm']['name']} not supported")
 
     def schedule(self):
+        retries = 0
+        while retries < self.max_retries and not self.db_connector.is_error_present(
+            self.project_id
+        ):
+            self.run(retries=retries)
+            retries += 1
+
+    def run(self, retries=None):
         requests = 0
         responses = []
-        print(len(self.dataset.get_articles()))
+        articles = self.dataset.get_articles(retries=retries)
+        print(len(articles))
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.rate_limit
         ) as executor:
-            for article in self.dataset.get_articles():
+            for article in articles:
                 requests += 1
                 answer = executor.submit(
                     self.model.api_decide, self.format_article(article), article
@@ -68,8 +86,8 @@ class Scheduler:
                     requests = 0
         llm_decisions = []
         for response in concurrent.futures.as_completed(responses):
-            answer, article = response.result()
             try:
+                answer, article = response.result()
                 llm_decisions.append(
                     {
                         "LLMID": self.db_connector.get_llmid(self.project_id),
@@ -80,7 +98,8 @@ class Scheduler:
                         "Retries": 0,
                         "RawOutput": answer.content,
                         "Reason": answer.reason,
-                        "Confidence": answer.confidence,
+                        "Confidence": float(answer.confidence),
+                        "TokenUsed": int(answer.token_used),
                     }
                 )
             except Exception as e:
@@ -91,7 +110,11 @@ class Scheduler:
                         "ProjectID": self.project_id,
                         "Decision": e.__str__(),
                         "Error": True,
-                        "Retries": 1,
+                        "Retries": retries,
+                        "RawOutput": None,
+                        "Reason": None,
+                        "Confidence": None,
+                        "TokenUsed": None,
                     }
                 )
         self.db_connector.db.llmdecisions.create_many(llm_decisions)

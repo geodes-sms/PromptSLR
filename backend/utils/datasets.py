@@ -73,9 +73,11 @@ class Datasets:
         self.negativeShots = nshots
         return self.negativeShots
 
-    def get_articles(self):
+    def get_articles(self, retries=None):
         # get all the articles
-        self.articles = self.db_connector.get_task_articles(self.project_id)
+        self.articles = self.db_connector.get_task_articles(
+            self.project_id, retries=retries
+        )
         return self.articles
 
 

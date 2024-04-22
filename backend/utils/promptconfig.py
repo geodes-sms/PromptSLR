@@ -7,8 +7,16 @@ class PromptConfig:
         self.json = config
         self.datasets = dataset
         self.data = {
-            "positiveShots": self.datasets.get_posisitve_shots(),
-            "negativeShots": self.datasets.get_negative_shots(),
+            "positiveShots": (
+                self.datasets.get_posisitve_shots()
+                if "shots" in config["configurations"]
+                else None
+            ),
+            "negativeShots": (
+                self.datasets.get_negative_shots()
+                if "shots" in config["configurations"]
+                else None
+            ),
         }
 
 

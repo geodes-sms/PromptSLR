@@ -1,4 +1,5 @@
 import json
+import re
 
 
 class CorrectAnswer:
@@ -97,8 +98,9 @@ class Result:
 
 
 class Output(ModelAnswer):
-    def __init__(self, raw_output):
-        self.raw_output = raw_output
+    def __init__(self, raw_output: str):
+        self.filter_string = r"^\s*```json[^\S\r\n]*|```[^\S\r\n]*$"
+        self.raw_output = re.sub(self.filter_string, "", raw_output, flags=re.MULTILINE)
         self.parse()
         super().__init__(self.answer)
 
@@ -106,7 +108,7 @@ class Output(ModelAnswer):
         # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these
         try:
             json_output = json.loads(self.raw_output)
-            self.answer = json_output["decision"]
+            self.answer = json_output["answer"]
             self.reason = json_output["reason"] if "reason" in json_output else None
             self.confidence = (
                 json_output["confidence"] if "confidence" in json_output else None

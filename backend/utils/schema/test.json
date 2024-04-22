@@ -1,13 +1,76 @@
+// {
+//     "project": {
+//         "name": "myproject",
+//         "topic": {
+//             "title": "RL4SE",
+//             "description": "reinforcement learning for software engineering"
+//         }
+//     },
+//     "llm": {
+//         "name": "chatgpt",
+//         "url": "optional-url",
+//         "apikey": "optional",
+//         "hyperparams": {
+//             "default": {
+//                 "temperature": 0.2,
+//                 "maxTokens": 512
+//             },
+//             "isTrainable": false,
+//             "additional": [
+//                 {
+//                     "key": "value"
+//                 }
+//             ]
+//         }
+//     },
+//     "dataset": {
+//         "name": "rl4se"
+//     },
+//     "configurations": {
+//         "features": [
+//             "title",
+//             "abstract",
+//             "keywords",
+//             "authors",
+//             "venue",
+//             "bibtex"
+//         ],
+//         "linient": true,
+//         "shots": {
+//             "positive": 2,
+//             "negative": 1
+//         },
+//         "selectionCriteria": {
+//             "inclusion": {
+//                 "condition": [
+//                     "any"
+//                 ],
+//                 "criteria": []
+//             },
+//             "exclusion": {
+//                 "condition": [
+//                     "all"
+//                 ],
+//                 "criteria": []
+//             }
+//         },
+//         "output": {
+//             "classes": 3,
+//             "reason": true,
+//             "confidence": false
+//         }
+//     }
+// }
 {
     "project": {
-        "name": "myproject",
+        "name": "Random Rl4se",
         "topic": {
             "title": "RL4SE",
             "description": "reinforcement learning for software engineering"
         }
     },
     "llm": {
-        "name": "chatgpt",
+        "name": "random",
         "url": "optional-url",
         "apikey": "optional",
         "hyperparams": {
@@ -16,11 +79,9 @@
                 "maxTokens": 512
             },
             "isTrainable": false,
-            "additional": [
-                {
-                    "key": "value"
-                }
-            ]
+            "additional": {
+                "seed": "45"
+            }
         }
     },
     "dataset": {
@@ -29,35 +90,95 @@
     "configurations": {
         "features": [
             "title",
-            "abstract",
-            "keywords",
-            "authors",
-            "venue",
-            "bibtex"
+            "abstract"
         ],
         "linient": true,
         "shots": {
             "positive": 2,
-            "negative": 1
+            "negative": 3
         },
         "selectionCriteria": {
             "inclusion": {
                 "condition": [
                     "any"
                 ],
-                "criteria": []
+                "criteria": [
+                    "Include if Keyword Reinforcement"
+                ]
             },
             "exclusion": {
                 "condition": [
                     "all"
                 ],
-                "criteria": []
+                "criteria": [
+                    "Exclude if published before 2006"
+                ]
             }
         },
         "output": {
             "classes": 3,
             "reason": true,
-            "confidence": false
+            "confidence": true
+        }
+    }
+}
+
+
+{
+    "project": {
+        "name": "GPT 4 Turbo Rl4se",
+        "topic": {
+            "title": "RL4SE",
+            "description": "reinforcement learning for software engineering"
+        }
+    },
+    "llm": {
+        "name": "gpt-4-turbo",
+        "url": "optional-url",
+        "apikey": "",
+        "hyperparams": {
+            "default": {
+                "temperature": 0,
+                "maxTokens": 4096
+            },
+            "isTrainable": false
+        }
+    },
+    "dataset": {
+        "name": "rl4se-short"
+    },
+    "configurations": {
+        "features": [
+            "title",
+            "abstract"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 2,
+            "negative": 3
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "any"
+                ],
+                "criteria": [
+                    "Include if Keyword Reinforcement and Software Enginnering"
+                ]
+            },
+            "exclusion": {
+                "condition": [
+                    "all"
+                ],
+                "criteria": [
+                    "Exclude if published before 2006"
+                ]
+            }
+        },
+        "output": {
+            "classes": 3,
+            "reason": true,
+            "confidence": true
         }
     }
 }

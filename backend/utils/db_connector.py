@@ -279,7 +279,7 @@ class DBConnector:
             )
         return articles
 
-    def get_task_articles(self, projectID: str):
+    def get_task_articles(self, projectID: str, retries: int = None):
         shots = self.db.projectshots.find_many(
             where={
                 "ProjectID": projectID,
@@ -301,7 +301,9 @@ class DBConnector:
                     "ProjectID": projectID,
                 }
             )
-        except FieldNotFoundError:
+            print(project)
+        except FieldNotFoundError as e:
+            print(e)
             return False
         return project is not None
 
@@ -324,6 +326,15 @@ class DBConnector:
             where={
                 "ProjectID": projectID,
                 "ArticleKey": articleKey,
+            }
+        )
+        return decision is not None
+
+    def is_error_present(self, projectID: str) -> bool:
+        decision = self.db.llmdecisions.find_first(
+            where={
+                "ProjectID": projectID,
+                "Error": True,
             }
         )
         return decision is not None

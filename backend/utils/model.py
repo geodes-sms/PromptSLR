@@ -407,6 +407,7 @@ class Random(LanguageModel):
         self.answer.content = d
         self.answer.reason = None
         self.answer.confidence = None
+        self.answer.token_used = 0
         return self.answer, article
 
 
@@ -441,14 +442,19 @@ class ChatGPT(LanguageModel):
                     "maxTokens"
                 ],
             )
-            self.answer = Output(response.choices[0].message)
+            print(response.choices[0].message.model_dump()["content"])
+            self.answer = Output(response.choices[0].message.model_dump()["content"])
             self.answer.decision = self.answer.get_decision(
                 CorrectAnswer(article.ScreenedDecision)
             )
-            self.answer.content = response.choices[0].message
+            self.answer.content = response.choices[0].message.model_dump()["content"]
+            self.answer.token_used = response.usage.total_tokens
+            print(self.answer.content)
+            print(self.answer.decision)
+            print(self.answer.token_used)
             return self.answer, article
         except Exception as e:
-            print(e)
+            print(e.__str__())
             # d.answer = str(type(e).__name__)
         # return d
 
@@ -493,11 +499,15 @@ class LlamaFile(LanguageModel):
                     "maxTokens"
                 ],
             )
-            self.answer = Output(response.choices[0].message)
+            self.answer = Output(response.choices[0].message.model_dump()["content"])
             self.answer.decision = self.answer.get_decision(
                 CorrectAnswer(article.ScreenedDecision)
             )
-            self.answer.content = response.choices[0].message
+            self.answer.content = response.choices[0].message.model_dump()["content"]
+            self.answer.token_used = response.usage.total_tokens
+            print(self.answer.content)
+            print(self.answer.decision)
+            print(self.answer.token_used)
             return self.answer, article
         except Exception as e:
             print(e)

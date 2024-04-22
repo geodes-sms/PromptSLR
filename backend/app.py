@@ -4,11 +4,15 @@ from utils.promptconfig import PromptConfig
 from utils.template_engine import TemplateEngine
 from utils.experiments import Experiments
 from utils.analyser import ConfigurationAnalyser
+from utils.results import Results
+from utils.db_connector import DBConnector
 from uuid import uuid4
 
 app = FastAPI()
 
 tasks = {}
+
+db_instance = DBConnector()
 
 
 @app.get("/")
@@ -45,6 +49,14 @@ async def experiment_status(websocket: WebSocket, exp_id: str):
         sleep(1)
     task.join()
     websocket.send_json({"status": "completed"})
+
+
+@app.get("/experiment/results/{exp_id}")
+async def experiment_results(exp_id: str):
+    if not db_instance.is_project_exists(exp_id):
+        return {"error": "Experiment not found"}
+    r = Results(exp_id)
+    return r.get_results()
 
 
 @app.get("/test/promptTemplate/{exp_id}")

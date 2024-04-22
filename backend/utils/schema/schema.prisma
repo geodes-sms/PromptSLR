@@ -23,6 +23,7 @@ model Projects {
   Name             String
   TopicTitle       String?
   TopicDescription String?
+  ContextTokens    Int?
   LLMs             LLMs[]
   Datasets         Dataset[]
   Configurations   Configurations[]
@@ -104,6 +105,7 @@ model LLMDecisions {
   RawOutput  String?
   Reason     String?
   Confidence Float?
+  TokenUsed  Int?
   LLM        LLMs     @relation(fields: [LLMID], references: [LLMID])
   Article    Articles @relation(fields: [ArticleKey], references: [Key])
   Project    Projects @relation(fields: [ProjectID], references: [ProjectID])
