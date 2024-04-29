@@ -154,6 +154,8 @@ const LLMConfiguration = () => {
             return Boolean(classifierAlgorithm && foldCount && epochs && seed);
           case "Custom URL":
             return Boolean(customUrl && temperature && maxTokens);
+          case "Random":
+            return Boolean(seed);
 
           default:
             return false;
