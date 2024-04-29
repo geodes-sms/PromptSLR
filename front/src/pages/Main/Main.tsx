@@ -4,12 +4,12 @@ import Navbar from "../../components/Navbar/Navbar";
 import LLMConfiguration from "../../components/LLMConfiguration/LLMConfiguration";
 // import ConfigurationWindow from "../../components/ConfigurationWindow/ConfigurationWindow";
 
-function Main() {
+function Main(props: { setProjectId: (val: string) => void }) {
   return (
     <>
       <section className="section__config" id="configuration">
         {/* <ConfigurationWindow /> */}
-        <LLMConfiguration />
+        <LLMConfiguration setProjectId={props.setProjectId} />
       </section>
     </>
   );

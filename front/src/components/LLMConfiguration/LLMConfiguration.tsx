@@ -13,7 +13,7 @@ import ProjectInfoForm from "../ProjectInfoForm/ProjectInfoForm";
 import TextArea from "../TextArea/TextArea";
 import { useNavigate } from "react-router-dom";
 
-const LLMConfiguration = () => {
+const LLMConfiguration = (props: { setProjectId: (val: string) => void }) => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
@@ -334,7 +334,7 @@ const LLMConfiguration = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify(data),
     })
@@ -343,10 +343,12 @@ const LLMConfiguration = () => {
         setIsLoading(false);
         console.log(
           console.log("RESPONSE :", resjson)
+
           // save resjson.projectId
         );
+        props.setProjectId(resjson.exp_id);
 
-        // navigate("/results");
+        navigate("/results");
       })
       .catch((error: string) => {
         setIsLoading(false);

@@ -1,11 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.scss";
 
-const ResultsPage = () => {
+const ResultsPage = (props: { projectId: string }) => {
+  const { projectId } = props;
+
+  const [isLoading, setIsLoading] = useState(true);
+
   const data = {
     accuracy: 0.233344354,
     precision: 0.45453432,
     recall: 0.435436433,
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      onRequestResult();
+    }, 10000);
+  }, []);
+
+  const onRequestResult = () => {
+    fetch(`thepath/${projectId}`)
+      .then((response) => response.json())
+      .then((resjson) => {
+        setIsLoading(false);
+        console.log(console.log("FINAL RESPONSE :", resjson));
+      })
+      .catch((error: string) => {
+        setIsLoading(false);
+        console.log("Final ERROR :", error);
+      });
   };
 
   //   const papers = [

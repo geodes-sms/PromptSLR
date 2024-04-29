@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.scss";
 import Main from "./pages/Main/Main";
 import { Routes, Route, Outlet, Link } from "react-router-dom";
@@ -6,12 +6,17 @@ import ResultsPage from "./pages/ResultsPage/ResultsPage";
 import Navbar from "./components/Navbar/Navbar";
 
 function App() {
+  const [projectId, setProjectId] = useState("");
+
   return (
     <div className="App">
       <Navbar />
       <Routes>
-        <Route path="/" element={<Main />}></Route>
-        <Route path="/results" element={<ResultsPage />}></Route>
+        <Route path="/" element={<Main setProjectId={setProjectId} />}></Route>
+        <Route
+          path="/results"
+          element={<ResultsPage projectId={projectId} />}
+        ></Route>
       </Routes>
     </div>
   );
