@@ -277,29 +277,29 @@ const LLMConfiguration = () => {
         },
       },
       llm: {
-        name: llmName,
+        name: llmName.toLowerCase(),
         url: customUrl,
         apikey: APIKey,
         hyperparams: {
           default: {
-            temperature: temperature,
-            maxTokens: maxTokens,
+            temperature: Number(temperature),
+            maxTokens: Number(maxTokens),
           },
           isTrainable: llmName === "Trainable",
           additional: {
-            seed: seed,
+            seed: Number(seed),
           },
         },
       },
       dataset: {
-        name: selectedDataset,
+        name: selectedDataset.toLowerCase(),
       },
       configurations: {
         features: features,
         linient: linient,
         shots: {
-          positive: positiveShots,
-          negative: negativeShots,
+          positive: Number(positiveShots),
+          negative: Number(negativeShots),
         },
         selectionCriteria: {
           inclusion: inclusion
@@ -320,7 +320,7 @@ const LLMConfiguration = () => {
             : null,
         },
         output: {
-          classes: outputClasses,
+          classes: Number(outputClasses),
           reason: showReasons,
           confidence: confidence,
         },
@@ -328,11 +328,13 @@ const LLMConfiguration = () => {
     };
 
     console.log("The json to be sent:", data);
+    console.log(JSON.stringify(data));
 
-    fetch("https://jsonplaceholder.typicode.com/posts", {
+    fetch("http://localhost:8000/experiment/init", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify(data),
     })

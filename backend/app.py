@@ -1,5 +1,7 @@
 from time import sleep
 from fastapi import FastAPI, WebSocket, BackgroundTasks
+
+from fastapi.middleware.cors import CORSMiddleware
 from utils.promptconfig import PromptConfig
 from utils.template_engine import TemplateEngine
 from utils.experiments import Experiments
@@ -9,6 +11,17 @@ from utils.db_connector import DBConnector
 from uuid import uuid4
 
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 tasks = {}
 
