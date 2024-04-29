@@ -1,0 +1,40 @@
+.addable-inputs {
+  display: flex;
+  flex-direction: column;
+  margin-top: 24px;
+
+  &--disabled {
+    opacity: 0.5;
+  }
+
+  &__title {
+    font-size: 24px;
+    color: #24273a;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  &__modify-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    box-shadow: 2px 2px 9px #d9d9d9;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-end;
+
+    margin-right: -15px;
+
+    cursor: pointer;
+  }
+}

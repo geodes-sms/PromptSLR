@@ -1,11 +1,14 @@
 .App {
-  background-color: #f1ecec;
+  background-color: #f6f6f6;
 }
 
 .section {
   &__config {
+    padding: 20px 40px;
+
     display: flex;
-    align-items: center;
     justify-content: center;
+    min-height: 100vh;
+    // calc(100vh - 53.82px);
   }
 }
