@@ -5,6 +5,7 @@ const ResultsPage = (props: { projectId: string }) => {
   const { projectId } = props;
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [metrics, setMetrics] = useState<Object>({});
 
   // const data = {
@@ -39,6 +40,7 @@ const ResultsPage = (props: { projectId: string }) => {
       })
       .catch((error: string) => {
         setIsLoading(false);
+        setIsError(true);
         console.log("Final ERROR :", error);
       });
   };
@@ -47,6 +49,8 @@ const ResultsPage = (props: { projectId: string }) => {
     <div className="results-container">
       {isLoading ? (
         <div>Please Wait...</div>
+      ) : isError ? (
+        <div className="results-error">An Error Occured !!</div>
       ) : (
         <>
           <p className="results-title">Performance Metrics</p>
