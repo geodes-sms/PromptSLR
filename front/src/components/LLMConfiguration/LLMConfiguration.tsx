@@ -11,9 +11,12 @@ import Checkbox from "../Checkbox/Checkbox";
 import ConfigurationForm from "../ConfigurationForm/ConfigurationForm";
 import ProjectInfoForm from "../ProjectInfoForm/ProjectInfoForm";
 import TextArea from "../TextArea/TextArea";
+import { useNavigate } from "react-router-dom";
 
 const LLMConfiguration = () => {
-  const [step, setStep] = useState(0);
+  const navigate = useNavigate();
+
+  const [step, setStep] = useState(3);
 
   // step 0 (project info)
   const [projectName, setProjectName] = useState("");
@@ -259,7 +262,9 @@ const LLMConfiguration = () => {
     step < MAX_STEPS_SIZE ? setStep(step + 1) : onSubmitForm();
   };
 
-  const onSubmitForm = () => {};
+  const onSubmitForm = () => {
+    navigate("/results");
+  };
 
   return (
     <div className="llm-configuration">
