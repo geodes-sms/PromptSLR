@@ -56,7 +56,19 @@ const LLMForm = (props: {
       value: llmName,
       setValue: (value: string) => setLlmName(value),
       type: "dropdown",
-      options: ["ChatGPT", "Trainable", "Custom URL"],
+      options: ["ChatGPT", "Trainable", "Custom URL", "Random"],
+    },
+  ];
+
+  const RandomForm = [
+    {
+      label: "Seed",
+      value: seed,
+      setValue: setSeed,
+      type: "textInput",
+      props: {
+        type: "number",
+      },
     },
   ];
 
@@ -192,6 +204,9 @@ const LLMForm = (props: {
 
       case "Custom URL":
         return <div>{renderForm(customURLForm)}</div>;
+
+      case "Random":
+        return <div>{renderForm(RandomForm)}</div>;
 
       default:
         return <></>;
