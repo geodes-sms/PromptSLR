@@ -5,17 +5,28 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    min-height: 100vh;
   }
 
   &-box {
-    width: 400px;
+    width: 700px;
     padding: 12px;
     border-radius: 8px;
     border: 1px solid #d9d9d9;
-    background-color: #fff;
 
     display: flex;
     flex-direction: column;
+
+    &_key {
+      font-size: 22px;
+      font-weight: 700;
+      margin-right: 3px;
+    }
+
+    &_value {
+      color: rgb(72, 71, 71);
+      margin-left: 3px;
+    }
   }
 
   &-title {
