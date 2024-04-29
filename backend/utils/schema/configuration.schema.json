@@ -5,10 +5,6 @@
         "project": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string",
-                    "description": "The project UUID"
-                },
                 "name": {
                     "type": "string",
                     "description": "The project name"
@@ -29,7 +25,11 @@
                         "title"
                     ]
                 }
-            }
+            },
+            "required": [
+                "name",
+                "topic"
+            ]
         },
         "llm": {
             "type": "object",
@@ -54,7 +54,7 @@
                             "type": "object",
                             "description": "Default hyperparameters for the LLM",
                             "properties": {
-                                "temprature": {
+                                "temperature": {
                                     "type": "number",
                                     "description": "The temprature hyperparameter",
                                     "maximum": 1,
@@ -67,7 +67,7 @@
                                 }
                             },
                             "required": [
-                                "temprature",
+                                "temperature",
                                 "maxTokens"
                             ]
                         },
@@ -82,133 +82,133 @@
                     }
                 }
             }
-        },
-        "dataset": {
-            "type": "object",
-            "description": "The datasets used to train the LLM",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "The dataset name"
-                }
+        }
+    },
+    "dataset": {
+        "type": "object",
+        "description": "The datasets used to train the LLM",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "The dataset name"
             }
-        },
-        "configurations": {
-            "type": "object",
-            "description": "The configurations used to train the LLM",
-            "properties": {
-                "features": {
-                    "type": "array",
-                    "description": "The features to be injected in the prompt",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "title",
-                            "abstract",
-                            "keywords",
-                            "authors",
-                            "venue",
-                            "references",
-                            "bibtex"
-                        ]
-                    }
-                },
-                "linient": {
-                    "type": "boolean",
-                    "description": "The liniency of for the Prompt configuration"
-                },
-                "shots": {
-                    "type": "object",
-                    "description": "The number of shots for the Prompt configuration",
-                    "properties": {
-                        "positive": {
-                            "type": "number",
-                            "description": "The number of positive shots",
-                            "minimum": 0
-                        },
-                        "negative": {
-                            "type": "number",
-                            "description": "The number of negative shots",
-                            "minimum": 0
-                        }
-                    }
-                },
-                "selectionCriteria": {
-                    "type": "object",
-                    "description": "The selection criteria of the SLR",
-                    "properties": {
-                        "inclusion": {
-                            "type": "object",
-                            "description": "The title of the selection criteria",
-                            "properties": {
-                                "condition": {
-                                    "type": "array",
-                                    "description": "The condition of the selection criteria",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": [
-                                            "any",
-                                            "all"
-                                        ]
-                                    }
-                                },
-                                "criteria": {
-                                    "type": "array"
-                                }
-                            }
-                        },
-                        "exclusion": {
-                            "type": "object",
-                            "description": "The title of the selection criteria",
-                            "properties": {
-                                "condition": {
-                                    "type": "array",
-                                    "description": "The condition of the selection criteria",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": [
-                                            "any",
-                                            "all"
-                                        ]
-                                    }
-                                },
-                                "criteria": {
-                                    "type": "array"
-                                }
-                            }
-                        }
-                    }
-                },
-                "output": {
-                    "type": "object",
-                    "description": "The output of the LLM",
-                    "properties": {
-                        "classes": {
-                            "type": "number",
-                            "description": "The classes of the output",
-                            "minimum": 2,
-                            "maximum": 5
-                        },
-                        "reasoning": {
-                            "type": "boolean",
-                            "description": "The reasoning of the output"
-                        },
-                        "confidence": {
-                            "type": "boolean",
-                            "description": "The confidence of the output"
-                        }
-                    },
-                    "required": [
-                        "classes"
+        }
+    },
+    "configurations": {
+        "type": "object",
+        "description": "The configurations used to train the LLM",
+        "properties": {
+            "features": {
+                "type": "array",
+                "description": "The features to be injected in the prompt",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "title",
+                        "abstract",
+                        "keywords",
+                        "authors",
+                        "venue",
+                        "references",
+                        "bibtex"
                     ]
                 }
             },
-            "required": [
-                "features",
-                "linient",
-                "output"
-            ]
-        }
+            "linient": {
+                "type": "boolean",
+                "description": "The liniency of for the Prompt configuration"
+            },
+            "shots": {
+                "type": "object",
+                "description": "The number of shots for the Prompt configuration",
+                "properties": {
+                    "positive": {
+                        "type": "number",
+                        "description": "The number of positive shots",
+                        "minimum": 0
+                    },
+                    "negative": {
+                        "type": "number",
+                        "description": "The number of negative shots",
+                        "minimum": 0
+                    }
+                }
+            },
+            "selectionCriteria": {
+                "type": "object",
+                "description": "The selection criteria of the SLR",
+                "properties": {
+                    "inclusion": {
+                        "type": "object",
+                        "description": "The title of the selection criteria",
+                        "properties": {
+                            "condition": {
+                                "type": "array",
+                                "description": "The condition of the selection criteria",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "any",
+                                        "all"
+                                    ]
+                                }
+                            },
+                            "criteria": {
+                                "type": "array"
+                            }
+                        }
+                    },
+                    "exclusion": {
+                        "type": "object",
+                        "description": "The title of the selection criteria",
+                        "properties": {
+                            "condition": {
+                                "type": "array",
+                                "description": "The condition of the selection criteria",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "any",
+                                        "all"
+                                    ]
+                                }
+                            },
+                            "criteria": {
+                                "type": "array"
+                            }
+                        }
+                    }
+                }
+            },
+            "output": {
+                "type": "object",
+                "description": "The output of the LLM",
+                "properties": {
+                    "classes": {
+                        "type": "number",
+                        "description": "The classes of the output",
+                        "minimum": 2,
+                        "maximum": 5
+                    },
+                    "reasoning": {
+                        "type": "boolean",
+                        "description": "The reasoning of the output"
+                    },
+                    "confidence": {
+                        "type": "boolean",
+                        "description": "The confidence of the output"
+                    }
+                },
+                "required": [
+                    "classes"
+                ]
+            }
+        },
+        "required": [
+            "features",
+            "linient",
+            "output"
+        ]
     },
     "required": [
         "project",

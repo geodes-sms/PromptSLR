@@ -23,15 +23,27 @@ class Experiments:
             self.project_id,
             self.config["project"]["name"],
             self.config["project"]["topic"]["title"],
-            self.config["project"]["topic"]["description"],
+            (
+                self.config["project"]["topic"]["description"]
+                if "description" in self.config["project"]["topic"]
+                else None
+            ),
         )
         self.db_connector.create_llm(
             self.project_id,
             self.config["llm"]["name"],
-            self.config["llm"]["url"],
-            self.config["llm"]["apikey"],
-            self.config["llm"]["hyperparams"]["default"]["temperature"],
-            self.config["llm"]["hyperparams"]["default"]["maxTokens"],
+            self.config["llm"]["url"] if "url" in self.config["llm"] else None,
+            self.config["llm"]["apikey"] if "apikey" in self.config["llm"] else None,
+            (
+                self.config["llm"]["hyperparams"]["default"]["temperature"]
+                if "default" in self.config["llm"]["hyperparams"]
+                else None
+            ),
+            (
+                self.config["llm"]["hyperparams"]["default"]["maxTokens"]
+                if "default" in self.config["llm"]["hyperparams"]
+                else None
+            ),
         )
         if "additional" in self.config["llm"]["hyperparams"]:
             for key, value in self.config["llm"]["hyperparams"]["additional"].items():

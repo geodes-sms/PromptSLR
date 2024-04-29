@@ -64,12 +64,17 @@ class Results:
         The Matthews correlation coefficient of the articles completed by this model.
         MCC = (TP * TN - FP * FN) / SQRT((TP + FP)(TP + FN)(TN + FP)(TN + FN))
         """
-        return (self.tp * self.tn - self.fp * self.fn) / (
-            (self.tp + self.fp)
-            * (self.tp + self.fn)
-            * (self.tn + self.fp)
-            * (self.tn + self.fn)
-        ) ** 0.5
+        return (
+            (self.tp * self.tn - self.fp * self.fn)
+            / 2
+            / (
+                (self.tp + self.fp)
+                * (self.tp + self.fn)
+                * (self.tn + self.fp)
+                * (self.tn + self.fn)
+            )
+            ** 0.5
+        ) + 0.5
 
     def get_balanced_accuracy(self):
         """

@@ -1,0 +1,52 @@
+{
+    "project": {
+        "name": "Random RL4SE",
+        "topic": {
+            "title": "RL4SE"
+        }
+    },
+    "llm": {
+        "name": "random",
+        "hyperparams": {
+            "isTrainable": false,
+            "additional": {
+                "seed": 123
+            }
+        }
+    },
+    "dataset": {
+        "name": "rl4se"
+    },
+    "configurations": {
+        "features": [
+            "title",
+            "abstract"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 3,
+            "negative": 1
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "any"
+                ],
+                "criteria": [
+                    "Title containing Reinforcement."
+                ]
+            },
+            "exclusion": {
+                "condition": [
+                    "any"
+                ],
+                "criteria": [
+                    "Papers published before 2006"
+                ]
+            }
+        },
+        "output": {
+            "classes": 2
+        }
+    }
+}

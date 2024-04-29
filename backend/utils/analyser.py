@@ -28,6 +28,8 @@ class ConfigurationAnalyser:
     def validate_data(self):
         try:
             jsonschema.validate(self.data, self.schema)
-            return True
+            print("Data is valid")
+            return "Data is valid", True
         except jsonschema.ValidationError as e:
-            return e.message
+            print(e.message)
+            return e.message, False

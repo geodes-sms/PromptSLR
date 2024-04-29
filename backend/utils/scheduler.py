@@ -60,9 +60,11 @@ class Scheduler:
 
     def schedule(self):
         retries = 0
-        while retries < self.max_retries and not self.db_connector.is_error_present(
-            self.project_id
+        while (
+            not self.db_connector.is_error_present(self.project_id)
+            and retries < self.max_retries
         ):
+            # TODO: Add a retry mechanism and fix loop for error handling
             self.run(retries=retries)
             retries += 1
 
@@ -98,8 +100,12 @@ class Scheduler:
                         "Retries": 0,
                         "RawOutput": answer.content,
                         "Reason": answer.reason,
-                        "Confidence": float(answer.confidence),
-                        "TokenUsed": int(answer.token_used),
+                        "Confidence": (
+                            float(answer.confidence) if answer.confidence else None
+                        ),
+                        "TokenUsed": (
+                            int(answer.token_used) if answer.token_used else None
+                        ),
                     }
                 )
             except Exception as e:

@@ -1,0 +1,53 @@
+{
+    "project": {
+        "name": "SVM for Text Classification",
+        "topic": {
+            "title": "Using SVM to Classify Text",
+            "description": "Study on the effectiveness of SVM models in text categorization."
+        }
+    },
+    "llm": {
+        "name": "svm",
+        "hyperparams": {
+            "isTrainable": true,
+            "additional": {
+                "seed": 45,
+                "split_ratio": 0.8,
+                "epochs": 10
+            }
+        }
+    },
+    "dataset": {
+        "name": "TextData"
+    },
+    "configurations": {
+        "features": [
+            "abstract",
+            "keywords",
+            "authors",
+            "venue"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 10,
+            "negative": 5
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "all"
+                ]
+            },
+            "exclusion": {
+                "condition": [
+                    "all"
+                ]
+            }
+        },
+        "output": {
+            "classes": 5,
+            "reasoning": true,
+            "confidence": true
+        }
+    }
+}

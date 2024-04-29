@@ -24,16 +24,15 @@ async def root():
 async def init_experiment(data: dict, background_tasks: BackgroundTasks):
     # Validate the data
     analyser = ConfigurationAnalyser(data)
-    validation_result = analyser.validate_data()
-
+    validation_message, validation_result = analyser.validate_data()
+    if not validation_result:
+        return {"error": validation_message}
     # genereate a unique id for the project
     project_id = str(uuid4())
 
     # initdb and initexperiment
     exp = Experiments(project_id, data)
     background_tasks.add_task(exp.init)
-    if not validation_result:
-        return {"error": validation_result}
     return {"message": "Experiment initialized!", "exp_id": project_id}
 
 
@@ -57,6 +56,11 @@ async def experiment_results(exp_id: str):
         return {"error": "Experiment not found"}
     r = Results(exp_id)
     return r.get_results()
+
+
+@app.get("/experiment/listall")
+async def experiment_listall():
+    return db_instance.get_projects()
 
 
 @app.get("/test/promptTemplate/{exp_id}")

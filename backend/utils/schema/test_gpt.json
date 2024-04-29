@@ -1,0 +1,56 @@
+{
+    "project": {
+        "name": "Deep Learning Exploration",
+        "topic": {
+            "title": "Using GPT for NLP",
+            "description": "Exploring generative models in natural language processing."
+        }
+    },
+    "llm": {
+        "name": "gpt-3",
+        "apikey": "123456abcdef",
+        "hyperparams": {
+            "isTrainable": false,
+            "default": {
+                "temperature": 0.3,
+                "maxTokens": 500
+            },
+            "additional": {
+                "seed": 42
+            }
+        }
+    },
+    "dataset": {
+        "name": "NLPData"
+    },
+    "configurations": {
+        "features": [
+            "title",
+            "abstract",
+            "keywords",
+            "authors"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 5,
+            "negative": 2
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "any"
+                ]
+            },
+            "exclusion": {
+                "condition": [
+                    "all"
+                ]
+            }
+        },
+        "output": {
+            "classes": 3,
+            "reasoning": true,
+            "confidence": false
+        }
+    }
+}

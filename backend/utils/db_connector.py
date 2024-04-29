@@ -294,6 +294,13 @@ class DBConnector:
         )
         return articles
 
+    def get_projects(self):
+        projects = self.db.projects.find_many()
+        resp = {}
+        for project in projects:
+            resp[project.ProjectID] = project.Name
+        return resp
+
     def is_project_exists(self, projectID: str) -> bool:
         try:
             project = self.db.projects.find_first(
@@ -331,6 +338,7 @@ class DBConnector:
         return decision is not None
 
     def is_error_present(self, projectID: str) -> bool:
+        # TODO: Fix for excluding fixed errors
         decision = self.db.llmdecisions.find_first(
             where={
                 "ProjectID": projectID,

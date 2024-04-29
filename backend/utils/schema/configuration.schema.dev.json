@@ -1,0 +1,295 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "description": "Schema for validating the JSON configuration of a language learning model project with additional settings based on model type.",
+    "project": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "topic": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "title"
+                ]
+            }
+        },
+        "required": [
+            "name",
+            "topic"
+        ]
+    },
+    "llm": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            },
+            "apikey": {
+                "type": "string"
+            },
+            "hyperparams": {
+                "type": "object",
+                "properties": {
+                    "isTrainable": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "additional": {
+                        "type": "object",
+                        "properties": {
+                            "seed": {
+                                "type": "integer"
+                            },
+                            "split_ratio": {
+                                "type": "number"
+                            },
+                            "epochs": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "default": {
+                        "type": "object",
+                        "properties": {
+                            "temperature": {
+                                "type": "number",
+                                "default": 0.2
+                            },
+                            "maxTokens": {
+                                "type": "integer",
+                                "default": 512
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "required": [
+            "name"
+        ],
+        "dependentRequired": {
+            "name": {
+                "oneOf": [
+                    {
+                        "pattern": ".*gpt.*",
+                        "required": [
+                            "apikey"
+                        ],
+                        "properties": {
+                            "hyperparams": {
+                                "properties": {
+                                    "default": {
+                                        "properties": {
+                                            "temperature": {
+                                                "type": "number",
+                                                "default": 0.2
+                                            },
+                                            "maxTokens": {
+                                                "type": "integer",
+                                                "default": 512
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "apikey": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    },
+                    {
+                        "const": "llamafile",
+                        "required": [
+                            "url"
+                        ]
+                    },
+                    {
+                        "pattern": "svm|lr|rf|cnb|mnb",
+                        "properties": {
+                            "hyperparams": {
+                                "properties": {
+                                    "additional": {
+                                        "required": [
+                                            "seed",
+                                            "split_ratio",
+                                            "epochs"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "const": "random",
+                        "properties": {
+                            "hyperparams": {
+                                "required": [
+                                    "additional"
+                                ],
+                                "properties": {
+                                    "additional": {
+                                        "required": [
+                                            "seed"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "dataset": {
+        "type": "object",
+        "description": "Information about the dataset used in the project.",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "The name of the dataset."
+            }
+        },
+        "required": [
+            "name"
+        ]
+    },
+    "configurations": {
+        "type": "object",
+        "description": "The configurations used to train the LLM",
+        "properties": {
+            "features": {
+                "type": "array",
+                "description": "The features to be injected in the prompt",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "title",
+                        "abstract",
+                        "keywords",
+                        "authors",
+                        "venue",
+                        "references",
+                        "bibtex"
+                    ]
+                }
+            },
+            "linient": {
+                "type": "boolean",
+                "description": "The leniency for the Prompt configuration."
+            },
+            "shots": {
+                "type": "object",
+                "description": "The number of shots for the Prompt configuration",
+                "properties": {
+                    "positive": {
+                        "type": "integer",
+                        "description": "The number of positive shots",
+                        "minimum": 0
+                    },
+                    "negative": {
+                        "type": "integer",
+                        "description": "The number of negative shots",
+                        "minimum": 0
+                    }
+                }
+            },
+            "selectionCriteria": {
+                "type": "object",
+                "description": "The selection criteria of the SLR",
+                "properties": {
+                    "inclusion": {
+                        "type": "object",
+                        "description": "Inclusion criteria with conditions and criteria specifics.",
+                        "properties": {
+                            "condition": {
+                                "type": "array",
+                                "description": "Condition under which data is included, restricted to 'any' or 'all'.",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "any",
+                                        "all"
+                                    ]
+                                }
+                            },
+                            "criteria": {
+                                "type": "array",
+                                "description": "Specific criteria for inclusion."
+                            }
+                        }
+                    },
+                    "exclusion": {
+                        "type": "object",
+                        "description": "Exclusion criteria with conditions and criteria specifics.",
+                        "properties": {
+                            "condition": {
+                                "type": "array",
+                                "description": "Condition under which data is excluded, restricted to 'any' or 'all'.",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "any",
+                                        "all"
+                                    ]
+                                }
+                            },
+                            "criteria": {
+                                "type": "array",
+                                "description": "Specific criteria for exclusion."
+                            }
+                        }
+                    }
+                }
+            },
+            "output": {
+                "type": "object",
+                "description": "The output of the LLM",
+                "properties": {
+                    "classes": {
+                        "type": "integer",
+                        "description": "The number of classes in the model's output.",
+                        "minimum": 2,
+                        "maximum": 5
+                    },
+                    "reasoning": {
+                        "type": "boolean",
+                        "description": "Indicates if the output should include reasoning."
+                    },
+                    "confidence": {
+                        "type": "boolean",
+                        "description": "Indicates if the output should include confidence scores."
+                    }
+                },
+                "required": [
+                    "classes"
+                ]
+            }
+        },
+        "required": [
+            "features",
+            "linient",
+            "output"
+        ]
+    },
+    "required": [
+        "project",
+        "llm",
+        "dataset",
+        "configurations"
+    ]
+}

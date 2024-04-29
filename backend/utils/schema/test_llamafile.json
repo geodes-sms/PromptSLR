@@ -1,0 +1,55 @@
+{
+    "project": {
+        "name": "LlamaFile Analysis",
+        "topic": {
+            "title": "Efficiency of LlamaFile in Large Scale Data",
+            "description": "Exploration into the capabilities of LlamaFile models in handling extensive datasets."
+        }
+    },
+    "llm": {
+        "name": "llamafile",
+        "url": "https://api.llamafile.com",
+        "hyperparams": {
+            "isTrainable": false,
+            "additional": {
+                "seed": 99
+            }
+        }
+    },
+    "dataset": {
+        "name": "LargeScaleData"
+    },
+    "configurations": {
+        "features": [
+            "title",
+            "abstract",
+            "keywords",
+            "authors",
+            "venue",
+            "references",
+            "bibtex"
+        ],
+        "linient": true,
+        "shots": {
+            "positive": 4,
+            "negative": 2
+        },
+        "selectionCriteria": {
+            "inclusion": {
+                "condition": [
+                    "any"
+                ]
+            },
+            "exclusion": {
+                "condition": [
+                    "all"
+                ]
+            }
+        },
+        "output": {
+            "classes": 4,
+            "reasoning": true,
+            "confidence": true
+        }
+    }
+}
