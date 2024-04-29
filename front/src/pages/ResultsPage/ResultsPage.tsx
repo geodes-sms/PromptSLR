@@ -20,7 +20,7 @@ const ResultsPage = () => {
       <div className="results-box">
         {Object.entries(data).map(([key, value]) => (
           <div key={key}>
-            {key}: {value}
+            <span>{key}</span>:<span>{value}</span>
           </div>
         ))}
       </div>

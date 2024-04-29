@@ -41,7 +41,6 @@ const AddableKeyValueInput = (props: {
   };
 
   useEffect(() => {
-    console.log("*** data changed:", data);
     /* tslint:disable */
     props.setValues(data);
   }, [JSON.stringify(data)]);

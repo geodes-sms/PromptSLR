@@ -16,7 +16,8 @@ import { useNavigate } from "react-router-dom";
 const LLMConfiguration = () => {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   // step 0 (project info)
   const [projectName, setProjectName] = useState("");
@@ -263,7 +264,90 @@ const LLMConfiguration = () => {
   };
 
   const onSubmitForm = () => {
-    navigate("/results");
+    setIsLoading(true);
+
+    const data = {
+      project: {
+        name: projectName,
+        topic: {
+          title: topicTitle,
+          description: topicDescription,
+        },
+      },
+      llm: {
+        name: llmName,
+        url: customUrl,
+        apikey: APIKey,
+        hyperparams: {
+          default: {
+            temperature: temperature,
+            maxTokens: maxTokens,
+          },
+          isTrainable: llmName === "Trainable",
+          additional: {
+            seed: seed,
+          },
+        },
+      },
+      dataset: {
+        name: selectedDataset,
+      },
+      configurations: {
+        features: features,
+        linient: linient,
+        shots: {
+          positive: positiveShots,
+          negative: negativeShots,
+        },
+        selectionCriteria: {
+          inclusion: inclusion
+            ? {
+                condition: [inclusionCondition],
+                criteria: inclusionCriteria.map(
+                  (criteria: any) => criteria.value
+                ),
+              }
+            : null,
+          exclusion: exclusion
+            ? {
+                condition: [exclusionCondition],
+                criteria: exclusionCriteria.map(
+                  (criteria: any) => criteria.value
+                ),
+              }
+            : null,
+        },
+        output: {
+          classes: outputClasses,
+          reason: showReasons,
+          confidence: confidence,
+        },
+      },
+    };
+
+    console.log("The json to be sent:", data);
+
+    fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((resjson) => {
+        setIsLoading(false);
+        console.log(
+          console.log("RESPONSE :", resjson)
+          // save resjson.projectId
+        );
+
+        // navigate("/results");
+      })
+      .catch((error: string) => {
+        setIsLoading(false);
+        console.log("ERROR :", error);
+      });
   };
 
   return (
