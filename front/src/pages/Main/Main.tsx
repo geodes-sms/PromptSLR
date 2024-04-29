@@ -7,7 +7,6 @@ import LLMConfiguration from "../../components/LLMConfiguration/LLMConfiguration
 function Main() {
   return (
     <>
-      <Navbar />
       <section className="section__config" id="configuration">
         {/* <ConfigurationWindow /> */}
         <LLMConfiguration />

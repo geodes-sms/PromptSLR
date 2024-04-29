@@ -9,12 +9,12 @@ function Navbar() {
     {
       key: 1,
       label: "Configuration",
-      link: "configuration",
+      link: "/",
     },
     {
       key: 2,
       label: "Results",
-      link: "results",
+      link: "/results",
     },
   ];
 
@@ -39,6 +39,7 @@ function Navbar() {
               key={item.key}
               isSelected={selectedTabIndex === i}
               label={item.label}
+              link={item.link}
               onClick={() => ScrollToSection(i)}
             />
           );

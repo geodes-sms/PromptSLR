@@ -3,17 +3,22 @@ $selected_color: #1e66f5;
 .navItem {
   cursor: pointer;
   height: 100%;
-  padding: 16px;
   display: flex;
   align-items: center;
   list-style: none;
   scroll-behavior: smooth;
-
+  text-decoration: none;
+  color: black;
+  padding: 16px;
   transition: color 0.1s, font-weight 0.1s;
 
   &--selected {
     color: $selected_color;
     font-weight: bold;
     border-bottom: 3px solid $selected_color;
+  }
+
+  &:active {
+    color: black;
   }
 }
