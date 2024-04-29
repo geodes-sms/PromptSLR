@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./styles.scss";
 import NavItem from "../NavItem/NavItem";
+import { useLocation } from "react-router-dom";
 
 function Navbar() {
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const location = useLocation();
+
+  const [selectedTabIndex, setSelectedTabIndex] = useState(-1);
+
+  useEffect(() => {
+    onUpdateSelectedTabBasedOnPath();
+  }, [location.pathname]);
+
+  const onUpdateSelectedTabBasedOnPath = () => {
+    const selectedIdx = navbar_items.findIndex(
+      (item) => item.link === location.pathname
+    );
+    if (selectedIdx >= 0) setSelectedTabIndex(selectedIdx);
+  };
 
   const navbar_items = [
     {
