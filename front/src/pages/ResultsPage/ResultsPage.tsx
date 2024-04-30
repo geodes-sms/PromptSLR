@@ -61,7 +61,7 @@ const ResultsPage = (props: { projectId: string }) => {
             {Object.entries(metrics).map(([key, value]) => (
               <ul key={key}>
                 <li>
-                  <span className={"results-box_key"}>{key}</span>:
+                  <span className={"results-box_key"}>{key.split('_').join(" ")}</span>:
                   <span className={"results-box_value"}>{value}</span>
                 </li>
               </ul>
