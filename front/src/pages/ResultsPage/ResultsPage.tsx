@@ -19,7 +19,10 @@ const ResultsPage = (props: { projectId: string }) => {
   }, []);
 
   const onRequestResult = () => {
-    fetch(`thepath/${projectId}`)
+    fetch(`http://localhost:8000/experiment/results/${projectId}`,{headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    }})
       .then((response) => response.json())
       .then((resjson) => {
         setIsLoading(false);
