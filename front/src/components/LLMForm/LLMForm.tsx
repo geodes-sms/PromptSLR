@@ -56,7 +56,7 @@ const LLMForm = (props: {
       value: llmName,
       setValue: (value: string) => setLlmName(value),
       type: "dropdown",
-      options: ["ChatGPT", "Trainable", "Custom URL", "Random"],
+      options: ["ChatGPT", "Custom URL", "Random"],
     },
   ];
 
