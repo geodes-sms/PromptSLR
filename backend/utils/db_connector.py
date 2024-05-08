@@ -1,9 +1,11 @@
 import datetime
 import json
 import random
+from typing import List
 from prisma import Prisma
 from prisma.errors import FieldNotFoundError
 from hashlib import sha256
+from prisma.models import LLMDecisions
 
 
 class DBConnector:
@@ -286,12 +288,25 @@ class DBConnector:
             }
         )
         datasetID = self.get_datasetid_by_project(projectID)
-        articles = self.db.articles.find_many(
-            where={
-                "DatasetID": datasetID,
-                "Key": {"not_in": [shot.ArticleKey for shot in shots]},
-            }
-        )
+        if not retries:
+            articles = self.db.articles.find_many(
+                where={
+                    "DatasetID": datasetID,
+                    "Key": {"not_in": [shot.ArticleKey for shot in shots]},
+                }
+            )
+
+        else:
+            error_decisions = self.get_error_decision(projectID)
+            articles = self.db.articles.find_many(
+                where={
+                    "DatasetID": datasetID,
+                    "Key": {"not_in": [shot.ArticleKey for shot in shots]},
+                    "Key": {
+                        "in": [decision.ArticleKey for decision in error_decisions]
+                    },
+                }
+            )
         return articles
 
     def get_projects(self):
@@ -337,12 +352,15 @@ class DBConnector:
         )
         return decision is not None
 
-    def is_error_present(self, projectID: str) -> bool:
+    def get_error_decision(self, projectID: str) -> List[LLMDecisions] | None:
         # TODO: Fix for excluding fixed errors
-        decision = self.db.llmdecisions.find_first(
+        decision = self.db.llmdecisions.find_many(
             where={
                 "ProjectID": projectID,
                 "Error": True,
             }
         )
-        return decision is not None
+        return decision
+
+    def is_error_present(self, projectID: str) -> bool:
+        return self.get_error_decision(projectID) is None

@@ -146,3 +146,8 @@ class Results:
             "npv": self.get_npv(),
             "g_mean": self.get_g_mean(),
         }
+
+
+class TrainableResults(Results):
+    def __init__(self, project_id: str):
+        super().__init__(project_id)

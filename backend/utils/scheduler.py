@@ -60,12 +60,19 @@ class Scheduler:
 
     def schedule(self):
         retries = 0
-        while (
-            not self.db_connector.is_error_present(self.project_id)
-            and retries < self.max_retries
-        ):
+        # while (
+        #     not (self.db_connector.is_error_present(self.project_id))
+        #     and retries < self.max_retries
+        # ):
+        while retries < self.max_retries:
             # TODO: Add a retry mechanism and fix loop for error handling
-            self.run(retries=retries)
+            print("Retries: ", retries)
+            if not self.db_connector.is_error_present(self.project_id) and retries > 0:
+                break
+            elif retries == 0:
+                self.run()
+            else:
+                self.run(retries=retries)
             retries += 1
 
     def run(self, retries=None):
@@ -87,6 +94,7 @@ class Scheduler:
                     time.sleep(60)
                     requests = 0
         llm_decisions = []
+        llm_errors = []
         for response in concurrent.futures.as_completed(responses):
             try:
                 answer, article = response.result()
@@ -109,7 +117,7 @@ class Scheduler:
                     }
                 )
             except Exception as e:
-                llm_decisions.append(
+                llm_errors.append(
                     {
                         "LLMID": self.db_connector.get_llmid(self.project_id),
                         "ArticleKey": article.Key,
@@ -123,7 +131,12 @@ class Scheduler:
                         "TokenUsed": None,
                     }
                 )
-        self.db_connector.db.llmdecisions.create_many(llm_decisions)
+        if not retries or retries == 0:
+            self.db_connector.db.llmdecisions.create_many(llm_decisions)
+            self.db_connector.db.llmdecisions.create_many(llm_errors)
+        else:
+            self.db_connector.db.llmdecisions.update_many(llm_decisions, {})
+            self.db_connector.db.llmdecisions.update_many(llm_errors, {})
 
     def format_article(self, article):
         tmp = {}
