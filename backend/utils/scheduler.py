@@ -40,9 +40,21 @@ class Scheduler:
         self.max_retries = 5
         self.vectorizer_parameters = {"min_count": 3, "workers": 4}
         self.trainable_parameters = {
-            "seed": self.config["llm"]["hyperparams"]["additional"]["seed"],
-            "fold_count": self.config["llm"]["hyperparams"]["additional"]["fold_count"],
-            "epoch": self.config["llm"]["hyperparams"]["additional"]["epoch"],
+            "seed": (
+                self.config["llm"]["hyperparams"]["additional"]["seed"]
+                if "seed" in self.config["llm"]["hyperparams"]["additional"]
+                else None
+            ),
+            "fold_count": (
+                self.config["llm"]["hyperparams"]["additional"]["fold_count"]
+                if "fold_count" in self.config["llm"]["hyperparams"]["additional"]
+                else None
+            ),
+            "epoch": (
+                self.config["llm"]["hyperparams"]["additional"]["epoch"]
+                if "epoch" in self.config["llm"]["hyperparams"]["additional"]
+                else None
+            ),
         }
         self.model = self.get_model()
 
@@ -57,7 +69,7 @@ class Scheduler:
             )
         elif self.config["llm"]["name"] == "svm":
             return SupportVectorMachine(
-                context=self.context, vectorizer_parameters=self.vectorizer_parametersg
+                context=self.context, vectorizer_parameters=self.vectorizer_parameters
             )
         elif self.config["llm"]["name"] == "mnb":
             return MultiNaiveBayes(
