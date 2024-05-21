@@ -56,7 +56,7 @@ class ModelAnswer:
     )
     ERROR = "ERROR"  # in case an error occurred when deciding for this article
 
-    def __init__(self, answer):
+    def __init__(self, answer, trainable=False):
         self.answer = answer
         assert answer in (
             ModelAnswer.INCLUDE,
@@ -83,6 +83,41 @@ class ModelAnswer:
         return self.answer == ModelAnswer.ERROR
 
 
+class TrainableModelAnswer(ModelAnswer):
+    def __init__(self, answer):
+        self.answer = answer
+        assert answer in (
+            CorrectAnswer.INCLUDE,
+            CorrectAnswer.EXCLUDE,
+            CorrectAnswer.CONFLICT_INCLUDE,
+            CorrectAnswer.CONFLICT_EXCLUDE,
+        )
+
+    def is_include(self):
+        return self.answer in (
+            CorrectAnswer.INCLUDE,
+            CorrectAnswer.CONFLICT_INCLUDE,
+        )
+
+    def is_exclude(self):
+        return self.answer in (
+            CorrectAnswer.EXCLUDE,
+            CorrectAnswer.CONFLICT_EXCLUDE,
+        )
+
+    def is_conflict(self):
+        """
+        The answer is inconclusive.
+        """
+        return self.answer in (
+            CorrectAnswer.CONFLICT_INCLUDE,
+            CorrectAnswer.CONFLICT_EXCLUDE,
+        )
+
+    def is_error(self):
+        return False
+
+
 class Result:
     """
     The correctness of the decision w.r.t. the ground truth.
@@ -97,12 +132,20 @@ class Result:
     )
 
 
-class Output(ModelAnswer):
-    def __init__(self, raw_output: str):
-        self.filter_string = r"^\s*```json[^\S\r\n]*|```[^\S\r\n]*$"
-        self.raw_output = re.sub(self.filter_string, "", raw_output, flags=re.MULTILINE)
-        self.parse()
-        super().__init__(self.answer)
+class Output(TrainableModelAnswer):
+    def __init__(self, raw_output: str, trainable: bool = False):
+        if trainable:
+            self.answer = raw_output
+            self.reason = None
+            self.confidence = None
+            super().__init__(self.answer)
+        else:
+            self.filter_string = r"^\s*```json[^\S\r\n]*|```[^\S\r\n]*$"
+            self.raw_output = re.sub(
+                self.filter_string, "", raw_output, flags=re.MULTILINE
+            )
+            self.parse()
+            ModelAnswer.__init__(self.answer)
 
     def parse(self):
         # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these

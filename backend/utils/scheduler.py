@@ -1,3 +1,4 @@
+import os
 import time
 from utils.datasets import Datasets
 from utils.db_connector import DBConnector
@@ -14,6 +15,7 @@ from utils.model import (
 from utils.output import CorrectAnswer, Output
 from utils.promptconfig import PromptConfig
 from utils.template_engine import TemplateEngine
+import csv
 import concurrent.futures
 
 
@@ -36,6 +38,12 @@ class Scheduler:
         )
         self.rate_limit = 50
         self.max_retries = 5
+        self.vectorizer_parameters = {"min_count": 3, "workers": 4}
+        self.trainable_parameters = {
+            "seed": self.config["llm"]["hyperparams"]["additional"]["seed"],
+            "fold_count": self.config["llm"]["hyperparams"]["additional"]["fold_count"],
+            "epoch": self.config["llm"]["hyperparams"]["additional"]["epoch"],
+        }
         self.model = self.get_model()
 
     def get_model(self):
@@ -44,36 +52,52 @@ class Scheduler:
         elif self.config["llm"]["name"] == "llamafile":
             return LlamaFile(context=self.context, parameters=self.config)
         elif self.config["llm"]["name"] == "lr":
-            return LogisticRegression(self.config)
+            return LogisticRegression(
+                context=self.context, vectorizer_parameters=self.vectorizer_parameters
+            )
         elif self.config["llm"]["name"] == "svm":
-            return SupportVectorMachine(self.config)
+            return SupportVectorMachine(
+                context=self.context, vectorizer_parameters=self.vectorizer_parametersg
+            )
         elif self.config["llm"]["name"] == "mnb":
-            return MultiNaiveBayes(self.config)
+            return MultiNaiveBayes(
+                context=self.context, vectorizer_parameters=self.vectorizer_parameters
+            )
         elif self.config["llm"]["name"] == "cnb":
-            return ComplementNaiveBayes(self.config)
+            return ComplementNaiveBayes(
+                context=self.context, vectorizer_parameters=self.vectorizer_parameters
+            )
         elif self.config["llm"]["name"] == "rf":
-            return RandomForest(self.config)
+            return RandomForest(
+                context=self.context, vectorizer_parameters=self.vectorizer_parameters
+            )
         elif self.config["llm"]["name"] == "random":
             return Random(context=self.context, parameters=self.config)
         else:
             raise ValueError(f"Model {self.config['llm']['name']} not supported")
 
     def schedule(self):
-        retries = 0
-        # while (
-        #     not (self.db_connector.is_error_present(self.project_id))
-        #     and retries < self.max_retries
-        # ):
-        while retries < self.max_retries:
-            # TODO: Add a retry mechanism and fix loop for error handling
-            print("Retries: ", retries)
-            if not self.db_connector.is_error_present(self.project_id) and retries > 0:
-                break
-            elif retries == 0:
-                self.run()
-            else:
-                self.run(retries=retries)
-            retries += 1
+        if self.config["llm"]["hyperparams"]["isTrainable"]:
+            self.run_trainable()
+        else:
+            retries = 0
+            # while (
+            #     not (self.db_connector.is_error_present(self.project_id))
+            #     and retries < self.max_retries
+            # ):
+            while retries < self.max_retries:
+                # TODO: Add a retry mechanism and fix loop for error handling
+                print("Retries: ", retries)
+                if (
+                    not self.db_connector.is_error_present(self.project_id)
+                    and retries > 0
+                ):
+                    break
+                elif retries == 0:
+                    self.run()
+                else:
+                    self.run(retries=retries)
+                retries += 1
 
     def run(self, retries=None):
         requests = 0
@@ -124,7 +148,7 @@ class Scheduler:
                         "ProjectID": self.project_id,
                         "Decision": e.__str__(),
                         "Error": True,
-                        "Retries": retries,
+                        "Retries": 0 if not retries else retries,
                         "RawOutput": None,
                         "Reason": None,
                         "Confidence": None,
@@ -137,6 +161,69 @@ class Scheduler:
         else:
             self.db_connector.db.llmdecisions.update_many(llm_decisions, {})
             self.db_connector.db.llmdecisions.update_many(llm_errors, {})
+
+    def run_trainable(self):
+        articles = self.dataset.get_articles()
+        print(len(articles))
+        llm_decisions = []
+        llm_errors = []
+        path_prefix = "models"
+        self.model_path = os.path.join(path_prefix, "f{self.project_id}.bin")
+        self.model_vectorizer_path = os.path.join(
+            path_prefix, "f{self.project_id}_word2vec.bin"
+        )
+        if os.path.exists(self.model_path) and os.path.exists(
+            self.model_vectorizer_path
+        ):
+            self.model.load()
+        else:
+            if not os.path.exists(path_prefix):
+                os.makedirs(path_prefix)
+            self.model.train(
+                data=self.dataset.get_trainable_datapath(),
+                training_parameters=self.trainable_parameters,
+            )
+            self.model.save(path=path_prefix, filename=self.project_id)
+
+        for article in articles:
+            try:
+                answer, article = self.model.api_decide(article=article)
+                llm_decisions.append(
+                    {
+                        "LLMID": self.db_connector.get_llmid(self.project_id),
+                        "ArticleKey": article.Key,
+                        "ProjectID": self.project_id,
+                        "Decision": answer.decision,
+                        "Error": False,
+                        "Retries": 0,
+                        "RawOutput": answer.content,
+                        "Reason": answer.reason,
+                        "Confidence": (
+                            float(answer.confidence) if answer.confidence else None
+                        ),
+                        "TokenUsed": (
+                            int(answer.token_used) if answer.token_used else None
+                        ),
+                    }
+                )
+            except Exception as e:
+                llm_errors.append(
+                    {
+                        "LLMID": self.db_connector.get_llmid(self.project_id),
+                        "ArticleKey": article.Key,
+                        "ProjectID": self.project_id,
+                        "Decision": e.__str__(),
+                        "Error": True,
+                        "Retries": 0,
+                        "RawOutput": None,
+                        "Reason": None,
+                        "Confidence": None,
+                        "TokenUsed": None,
+                    }
+                )
+        self.db_connector.db.llmdecisions.create_many(llm_decisions)
+        self.db_connector.db.llmdecisions.create_many(llm_errors)
+        print("Created LLM Decisions")
 
     def format_article(self, article):
         tmp = {}

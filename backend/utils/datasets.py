@@ -80,6 +80,9 @@ class Datasets:
         )
         return self.articles
 
+    def get_trainable_datapath(self):
+        return os.path.join(self.data_dir, f"{self.config['dataset']['name']}.csv")
+
 
 # {
 #     "title": "",
