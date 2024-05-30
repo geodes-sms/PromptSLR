@@ -70,7 +70,7 @@ with col1:
     }
 
     llm_name = st.selectbox(
-        "LLM Name", ["ChatGPT", "Trainable", "Random", "Custom URL"], key="llm_name"
+        "LLM Name", ["ChatGPT", "Trainable", "Random", "Llamafile"], key="llm_name"
     )
     if llm_name == "Trainable":
         llm_algo = st.selectbox(
@@ -88,10 +88,12 @@ with col1:
         epoch = int(st.text_input("Epoch", "10"))
         add_params = {"seed": seed, "fold_count": fold_count, "epoch": epoch}
         default_params = {"temperature": None, "maxTokens": None}
-    elif llm_name == "Custom URL":
+        url = None
+        api_key = None
+    elif llm_name == "Llamafile":
         url = st.text_input("URL")
-        temp = st.text_input("Temprature", "0.1")
-        max_token = st.text_input("Max Tokens", "100")
+        temp = float(st.text_input("Temprature", "0.1"))
+        max_token = int(st.text_input("Max Tokens", "100"))
         st.subheader("Additional Parameters")
         # Button to add a new key-value pair
         if st.button("Add"):
@@ -117,7 +119,7 @@ with col1:
             if pair["key"]
         }
         default_params = {"temperature": temp, "maxTokens": max_token}
-        data["llm"]["url"] = url or None
+        api_key = None
 
     elif llm_name == "ChatGPT":
         api_key = st.text_input("api_key")
@@ -149,16 +151,21 @@ with col1:
         }
         default_params = {"temperature": temp, "maxTokens": max_token}
         data["llm"]["apikey"] = api_key or None
+        url = None
 
     elif llm_name == "Random":
         seed = int(st.text_input("Seed", "42"))
         add_params = {"seed": seed}
         default_params = {"temperature": None, "maxTokens": None}
+        url = None
+        api_key = None
 
     data["llm"] = {
         "name": (
             trainable_Algos[llm_algo] if llm_name == "Trainable" else llm_name.lower()
         ),
+        "url": url or None,
+        "apikey": api_key or None,
         "hyperparams": {
             "isTrainable": llm_name == "Trainable",
             "additional": add_params,
@@ -257,7 +264,7 @@ with col2:
         # initdb and initexperiment
         print(data)
         print(project_id)
-        exp = Experiments(project_id, data)
+        exp = Experiments(project_id, data, bar)
         exp.init()
         bar.progress(100)
         with col3:

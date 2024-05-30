@@ -489,6 +489,7 @@ class LlamaFile(LanguageModel):
                 self.parameters["llm"]["apikey"]
                 if "apikey" in self.parameters["llm"]
                 and self.parameters["llm"]["apikey"] != ""
+                and self.parameters["llm"]["apikey"] is not None
                 else "some-key"
             ),
             base_url=self.parameters["llm"]["url"],

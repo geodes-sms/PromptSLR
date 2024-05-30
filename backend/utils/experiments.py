@@ -5,10 +5,11 @@ from utils.scheduler import Scheduler
 
 class Experiments:
 
-    def __init__(self, project_id: str, config: dict):
+    def __init__(self, project_id: str, config: dict, progress_bar=None):
         self.project_id = project_id
         self.config = config
         self.db_connector = DBConnector()
+        self.progress_bar = progress_bar
 
     def init(self):
         if not self.is_experiment_exists():
@@ -65,7 +66,9 @@ class Experiments:
         self.db_connector.create_configurations(self.project_id, self.config)
 
     def init_experiment(self):
-        self.scheduler = Scheduler(self.config, self.project_id, self.datatsets)
+        self.scheduler = Scheduler(
+            self.config, self.project_id, self.datatsets, self.progress_bar
+        )
         self.scheduler.schedule()
 
     @staticmethod

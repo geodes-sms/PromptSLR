@@ -20,10 +20,13 @@ import concurrent.futures
 
 
 class Scheduler:
-    def __init__(self, config: dict, project_id: str, dataset: Datasets = None):
+    def __init__(
+        self, config: dict, project_id: str, dataset: Datasets = None, progress_bar=None
+    ):
         self.config = config
         self.project_id = project_id
         self.dataset = dataset
+        self.progress_bar = progress_bar
         self.db_connector = DBConnector()
         prompt_config = PromptConfig(config, self.dataset)
         templateEngine = TemplateEngine()
@@ -131,6 +134,7 @@ class Scheduler:
                     requests = 0
         llm_decisions = []
         llm_errors = []
+        counts = 0
         for response in concurrent.futures.as_completed(responses):
             try:
                 answer, article = response.result()
@@ -167,6 +171,9 @@ class Scheduler:
                         "TokenUsed": None,
                     }
                 )
+            counts += 1
+            self.progress_bar.progress(counts / len(articles))
+            self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
         if not retries or retries == 0:
             self.db_connector.db.llmdecisions.create_many(llm_decisions)
             self.db_connector.db.llmdecisions.create_many(llm_errors)
@@ -197,7 +204,7 @@ class Scheduler:
             )
             self.model.save(path=path_prefix, filename=self.project_id)
 
-        for article in articles:
+        for count, article in enumerate(articles):
             try:
                 answer, article = self.model.api_decide(article=article)
                 llm_decisions.append(
@@ -233,6 +240,8 @@ class Scheduler:
                         "TokenUsed": None,
                     }
                 )
+            self.progress_bar.progress(count / len(articles))
+            self.progress_bar.text(f"Progress: {count}/{len(articles)}")
         self.db_connector.db.llmdecisions.create_many(llm_decisions)
         self.db_connector.db.llmdecisions.create_many(llm_errors)
         print("Created LLM Decisions")
