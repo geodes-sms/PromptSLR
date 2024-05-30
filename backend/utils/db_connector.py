@@ -194,12 +194,13 @@ class DBConnector:
         return result
 
     def get_configurations(self, projectID: str):
-        configurations = self.db.configurations.find_many(
+        configurations = self.db.configurations.find_first(
             where={
                 "ProjectID": projectID,
             }
         )
-        return configurations
+        print(configurations)
+        return configurations.ConfigJson
 
     def get_articles(self, datasetID: str):
         articles = self.db.articles.find_many(

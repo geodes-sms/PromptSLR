@@ -116,6 +116,7 @@ class Scheduler:
 
     def run(self, retries=None):
         requests = 0
+        counts = 0
         responses = []
         articles = self.dataset.get_articles(retries=retries)
         print(len(articles))
@@ -124,17 +125,19 @@ class Scheduler:
         ) as executor:
             for article in articles:
                 requests += 1
+                counts += 1
                 answer = executor.submit(
                     self.model.api_decide, self.format_article(article), article
                 )
                 responses.append(answer)
+                self.progress_bar.progress(counts / len(articles))
+                self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
                 if requests >= self.rate_limit and isinstance(self.model, ChatGPT):
                     print("Waiting for the rate limit to reset......")
                     time.sleep(60)
                     requests = 0
         llm_decisions = []
         llm_errors = []
-        counts = 0
         for response in concurrent.futures.as_completed(responses):
             try:
                 answer, article = response.result()
@@ -171,9 +174,6 @@ class Scheduler:
                         "TokenUsed": None,
                     }
                 )
-            counts += 1
-            self.progress_bar.progress(counts / len(articles))
-            self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
         if not retries or retries == 0:
             self.db_connector.db.llmdecisions.create_many(llm_decisions)
             self.db_connector.db.llmdecisions.create_many(llm_errors)

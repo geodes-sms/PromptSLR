@@ -132,6 +132,12 @@ class Results:
         Return all the results in a dictionary.
         """
         return {
+            "completed_articles": self.get_completed(),
+            "articles_with_error": self.get_error(),
+            "true_positive": self.tp,
+            "false_positive": self.fp,
+            "true_negative": self.tn,
+            "false_negative": self.fn,
             "accuracy": self.get_accuracy(),
             "precision": self.get_precision(),
             "recall": self.get_recall(),
@@ -146,6 +152,20 @@ class Results:
             "npv": self.get_npv(),
             "g_mean": self.get_g_mean(),
         }
+
+    def get_completed(self):
+        """
+        Get the number of completed articles.
+        """
+        return self.total
+
+    def get_error(self):
+        """
+        Get the number of articles that errored.
+        """
+        return self.db_connector.db.llmdecisions.count(
+            where={"ProjectID": self.project_id, "Error": True}
+        )
 
 
 class TrainableResults(Results):
