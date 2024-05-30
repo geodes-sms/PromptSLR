@@ -9,7 +9,11 @@ from utils.experiments import Experiments
 from utils.results import Results
 
 
-st.set_page_config(page_title="PromptSLR", page_icon=":robot:", layout="wide")
+st.set_page_config(
+    page_title="PromptSLR",
+    page_icon="🤖",
+    layout="wide",
+)
 st.title("PromptSLR")
 
 data = {}
