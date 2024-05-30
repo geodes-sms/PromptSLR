@@ -50,7 +50,7 @@ experiment = st.multiselect(
     "Experiment",
     [f"{value} - {key}" for key, value in db_connector.get_projects().items()],
 )
-project_ids = [i.split(" - ")[1] for i in experiment]
+project_lables, project_ids = zip(*[project.split(" - ") for project in experiment])
 
 st.subheader("Choose the metrics you want to analyse")
 metrics = st.multiselect(
@@ -86,7 +86,7 @@ if plot == "Bar":
     x_axis = st.selectbox("X-Axis", metrics, index=0)
     y_axis = st.selectbox("Y-Axis", metrics, index=1)
     df = get_results_df(project_ids)
-    fig = px.bar(df, x=x_axis, y=y_axis)
+    fig = px.bar(df, x=x_axis, y=y_axis, hover_name=project_lables)
     st.plotly_chart(fig)
 
 elif plot == "Line":
@@ -94,14 +94,14 @@ elif plot == "Line":
     x_axis = st.selectbox("X-Axis", metrics, index=0)
     y_axis = st.selectbox("Y-Axis", metrics, index=1)
     df = get_results_df(project_ids)
-    fig = px.line(df, x=x_axis, y=y_axis)
+    fig = px.line(df, x=x_axis, y=y_axis, hover_name=project_lables)
     st.plotly_chart(fig)
 
 elif plot == "Pie":
     st.subheader("Choose the values")
     values = st.selectbox("Values", metrics, index=0)
     df = get_results_df(project_ids)
-    fig = px.pie(df, values=values)
+    fig = px.pie(df, values=values, hover_name=project_lables)
     st.plotly_chart(fig)
 
 elif plot == "Scatter":
@@ -109,12 +109,12 @@ elif plot == "Scatter":
     x_axis = st.selectbox("X-Axis", metrics, index=0)
     y_axis = st.selectbox("Y-Axis", metrics, index=1)
     df = get_results_df(project_ids)
-    fig = px.scatter(df, x=x_axis, y=y_axis)
+    fig = px.scatter(df, x=x_axis, y=y_axis, hover_name=project_lables)
     st.plotly_chart(fig)
 
 elif plot == "Radial":
     st.subheader("Choose the values")
     values = st.selectbox("Values", metrics, index=0)
     df = get_results_df(project_ids)
-    fig = px.line_polar(df, r=values, theta=metrics)
+    fig = px.line_polar(df, r=values, theta=project_lables, line_close=True)
     st.plotly_chart(fig)
