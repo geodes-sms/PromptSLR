@@ -5,6 +5,9 @@ class Results:
     def __init__(self, project_id: str):
         self.db_connector = DBConnector()
         self.project_id = project_id
+        # get from params
+        self.exp_iter = 1
+
         self.tp = self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Decision": "TP"}
         )
@@ -17,6 +20,12 @@ class Results:
         self.fn = self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Decision": "FN"}
         )
+        if self.exp_iter > 1:
+            self.tp = self.tp / self.exp_iter
+            self.fp = self.fp / self.exp_iter
+            self.tn = self.tn / self.exp_iter
+            self.fn = self.fn / self.exp_iter
+        print(self.tp, self.fp, self.tn, self.fn)
         self.total = self.tp + self.fp + self.tn + self.fn
 
     def get_accuracy(self):
@@ -64,6 +73,7 @@ class Results:
         The Matthews correlation coefficient of the articles completed by this model.
         MCC = (TP * TN - FP * FN) / SQRT((TP + FP)(TP + FN)(TN + FP)(TN + FN))
         """
+
         return (
             (self.tp * self.tn - self.fp * self.fn)
             / 2
@@ -127,6 +137,15 @@ class Results:
         """
         return (self.get_recall() * self.get_specificity()) ** 0.5
 
+    def get_gps(self):
+        """
+        The General Performance Score of the articles completed by this model.
+        GPS = 2 * (Specificity * Recall) / (Specificity + Recall)
+        """
+        return (2 * self.get_specificity() * self.get_recall()) / (
+            self.get_specificity() + self.get_recall()
+        )
+
     def get_results(self):
         """
         Return all the results in a dictionary.
@@ -146,11 +165,12 @@ class Results:
             "mcc": "{:.4f}".format(self.get_mcc()),
             "balanced_accuracy": "{:.4f}".format(self.get_balanced_accuracy()),
             "miss_rate": "{:.4f}".format(self.get_miss_rate()),
-            "fβ_score": "{:.4f}".format(self.get_fb_score()),
+            "f2_score": "{:.4f}".format(self.get_fb_score(2)),
             "wss": "{:.4f}".format(self.get_wss()),
             "wss@95": "{:.4f}".format(self.get_wss(recall=0.95)),
             "npv": "{:.4f}".format(self.get_npv()),
             "g_mean": "{:.4f}".format(self.get_g_mean()),
+            "general_performance_score": "{:.4f}".format(self.get_gps()),
         }
 
     def get_completed(self):

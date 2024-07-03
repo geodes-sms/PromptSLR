@@ -81,10 +81,10 @@ col1, col2, col3 = st.columns([2, 3, 2])
 if load_experiment:
     with col1:
         st.title("LLM Configurations")
-        name = st.text_input("Name", value=config["project"]["name"])
-        title = st.text_input("Title", value=config["project"]["topic"]["title"])
+        name = st.text_input("Experiment Name", value=config["project"]["name"])
+        title = st.text_input("SR Topic", value=config["project"]["topic"]["title"])
         description = st.text_area(
-            "Description",
+            "SR Description",
             value=(
                 config["project"]["topic"]["description"]
                 if "description" in config["project"]["topic"]
@@ -97,7 +97,7 @@ if load_experiment:
         }
         llm_names_list = ["Chatgpt", "Trainable", "Random", "Llamafile"]
         llm_name = st.selectbox(
-            "LLM Name",
+            "Classifier Family",
             llm_names_list,
             key="llm_name",
             index=llm_names_list.index(
@@ -126,7 +126,7 @@ if load_experiment:
             else:
                 index = 0
             llm_algo = st.selectbox(
-                "Algorithm",
+                "Classifier Name",
                 llm_algos_list,
                 index=index,
             )
@@ -454,10 +454,10 @@ else:
     with col1:
         data["llm"] = {}
         st.title("LLM Configurations")
-        name = st.text_input("Name", "Experiment 1")
-        title = st.text_input("Title", "RL4SE")
+        name = st.text_input("Experiment Name", "Experiment 1")
+        title = st.text_input("SR Topic", "RL4SE")
         description = st.text_area(
-            "Description", "Reinforcement Learning for Software Engineering"
+            "SR Description", "Reinforcement Learning for Software Engineering"
         )
         data["project"] = {
             "name": name,
@@ -465,11 +465,13 @@ else:
         }
 
         llm_name = st.selectbox(
-            "LLM Name", ["Chatgpt", "Trainable", "Random", "Llamafile"], key="llm_name"
+            "Classifier Family",
+            ["Chatgpt", "Trainable", "Random", "Llamafile"],
+            key="llm_name",
         )
         if llm_name == "Trainable":
             llm_algo = st.selectbox(
-                "Algorithm",
+                "Classifier Name",
                 [
                     "Logistic Regression",
                     "Random Forest",
