@@ -199,7 +199,7 @@ class Scheduler:
             if not os.path.exists(path_prefix):
                 os.makedirs(path_prefix)
             self.model.train(
-                data=self.dataset.get_trainable_datapath(),
+                data=articles,
                 training_parameters=self.trainable_parameters,
             )
             self.model.save(path=path_prefix, filename=self.project_id)

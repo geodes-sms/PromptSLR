@@ -1,6 +1,6 @@
 import os
 import re
-import pandas
+import pandas as pd
 import random
 from openai import OpenAI
 import nltk
@@ -212,7 +212,16 @@ class TrainableModel(LanguageModel):
             else 10
         )
         # Preprocess the data
-        data = pandas.read_csv(data, delimiter="\t")
+        # data = pd.DataFrame()
+        tmp = []
+        for i in data:
+            tmp.append(i.__dict__)
+        data = pd.DataFrame(tmp)
+        data.columns = data.columns.str.lower()
+        if "decision" not in data.columns:
+            data["decision"] = data["screeneddecision"]
+            data.drop("screeneddecision", axis=1, inplace=True)
+        # breakpoint()
         data.dropna(
             subset=["abstract"], inplace=True
         )  # ignore rows with missing abstracts
@@ -269,6 +278,7 @@ class TrainableModel(LanguageModel):
             search_strategy = GridSearchCV
 
         # This will be used as the key when storing each decision
+        # breakpoint()
         article_keys = data["key"].values.tolist()
 
         # Iterate over the cross-validation splits
@@ -387,7 +397,7 @@ Area under the curve = {}
     #     return decisions
 
     def api_decide(self, article=None):
-        for answer, _ in self.decisions[article.BibtexKey]:
+        for answer, _ in self.decisions[article.Key]:
             answer = self.label_encoder.inverse_transform([answer])[0]
             self.answer = Output(answer, trainable=True)
             self.answer.decision = self.answer.get_decision(
