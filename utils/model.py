@@ -1,6 +1,6 @@
 import os
 import re
-import pandas
+import pandas as pd
 import random
 from openai import OpenAI
 import nltk
@@ -34,6 +34,8 @@ from utils.output import CorrectAnswer, ModelAnswer, Output
 
 # Ignore warnings from the grid search
 warnings.filterwarnings("ignore")
+# load nltk resources
+nltk.download("punkt")
 
 
 class LanguageModel(object):
@@ -210,7 +212,16 @@ class TrainableModel(LanguageModel):
             else 10
         )
         # Preprocess the data
-        data = pandas.read_csv(data, delimiter="\t")
+        # data = pd.DataFrame()
+        tmp = []
+        for i in data:
+            tmp.append(i.__dict__)
+        data = pd.DataFrame(tmp)
+        data.columns = data.columns.str.lower()
+        if "decision" not in data.columns:
+            data["decision"] = data["screeneddecision"]
+            data.drop("screeneddecision", axis=1, inplace=True)
+        # breakpoint()
         data.dropna(
             subset=["abstract"], inplace=True
         )  # ignore rows with missing abstracts
@@ -237,8 +248,8 @@ class TrainableModel(LanguageModel):
             ]
         )
         # Convert decision column to binary labels
-        label_encoder = preprocessing.LabelEncoder()
-        decisions = label_encoder.fit_transform(data["decision"])
+        self.label_encoder = preprocessing.LabelEncoder()
+        decisions = self.label_encoder.fit_transform(data["decision"])
         # decisions = data["decision"].apply(
         #    lambda x: 1 if x == CorrectAnswer.INCLUDE else 0
         # )
@@ -267,6 +278,7 @@ class TrainableModel(LanguageModel):
             search_strategy = GridSearchCV
 
         # This will be used as the key when storing each decision
+        # breakpoint()
         article_keys = data["key"].values.tolist()
 
         # Iterate over the cross-validation splits
@@ -371,18 +383,31 @@ Area under the curve = {}
     def _set_error_decision(self, decision):
         decision = [decision]
 
-    def _api_decide(self, title, abstract, article_key=None):
-        decisions = []
-        if article_key not in self.decisions:
-            return Output(ModelAnswer.ERROR)
-        for answer, param in self.decisions[article_key]:
-            d = Output(answer)
-            d.decision = d.get_decision(CorrectAnswer(article_key))
-            d.content = answer
-            d.reason = None
-            d.confidence = None
-            decisions.append(d)
-        return decisions
+    # def _api_decide(self, title, abstract, article_key=None):
+    #     decisions = []
+    #     if article_key not in self.decisions:
+    #         return Output(ModelAnswer.ERROR)
+    #     for answer, param in self.decisions[article_key]:
+    #         d = Output(answer)
+    #         d.decision = d.get_decision(CorrectAnswer(article_key))
+    #         d.content = answer
+    #         d.reason = None
+    #         d.confidence = None
+    #         decisions.append(d)
+    #     return decisions
+
+    def api_decide(self, article=None):
+        for answer, _ in self.decisions[article.Key]:
+            answer = self.label_encoder.inverse_transform([answer])[0]
+            self.answer = Output(answer, trainable=True)
+            self.answer.decision = self.answer.get_decision(
+                CorrectAnswer(article.ScreenedDecision)
+            )
+            self.answer.content = answer
+            self.answer.token_used = 0
+            self.answer.reason = None
+            self.answer.confidence = None
+        return self.answer, article
 
 
 #########################
@@ -455,6 +480,7 @@ class ChatGPT(LanguageModel):
             return self.answer, article
         except Exception as e:
             print(e.__str__())
+            raise e
             # d.answer = str(type(e).__name__)
         # return d
 
@@ -473,12 +499,13 @@ class LlamaFile(LanguageModel):
                 self.parameters["llm"]["apikey"]
                 if "apikey" in self.parameters["llm"]
                 and self.parameters["llm"]["apikey"] != ""
-                else None
+                and self.parameters["llm"]["apikey"] is not None
+                else "some-key"
             ),
             base_url=self.parameters["llm"]["url"],
         )
 
-        self.name = self.parameters["llm"]["name"]
+        self.name = "LLaMA_CPP"
 
     def api_decide(self, content, article=None):
         conversation = [
@@ -492,12 +519,16 @@ class LlamaFile(LanguageModel):
             response = self.client.chat.completions.create(
                 model=self.name,
                 messages=conversation,
-                temperature=self.parameters["llm"]["hyperparams"]["default"][
-                    "temperature"
-                ],
-                max_tokens=self.parameters["llm"]["hyperparams"]["default"][
-                    "maxTokens"
-                ],
+                temperature=(
+                    self.parameters["llm"]["hyperparams"]["default"]["temperature"]
+                    if "default" in self.parameters["llm"]["hyperparams"]
+                    else 0
+                ),
+                max_tokens=(
+                    self.parameters["llm"]["hyperparams"]["default"]["maxTokens"]
+                    if "default" in self.parameters["llm"]["hyperparams"]
+                    else 4096
+                ),
             )
             self.answer = Output(response.choices[0].message.model_dump()["content"])
             self.answer.decision = self.answer.get_decision(
@@ -510,7 +541,8 @@ class LlamaFile(LanguageModel):
             print(self.answer.token_used)
             return self.answer, article
         except Exception as e:
-            print(e)
+            print(e.__str__())
+            raise e
 
 
 #########################

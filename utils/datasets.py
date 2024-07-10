@@ -23,23 +23,26 @@ class Datasets:
 
     def load_data(self):
         self.df = pd.read_csv(
-            os.path.join(self.data_dir, f"{self.config['dataset']['name']}.csv"),
+            os.path.join(
+                self.data_dir, f"{self.config['dataset']['name'].lower()}.csv"
+            ),
             sep="\t",
             na_values=[None],
             keep_default_na=False,
         )
+        print(self.df.shape)
         with self.db_connector.db.tx() as tx:
             for i in self.df.itertuples():
                 self.db_connector.create_article(
                     tx=tx,
-                    key=i.key,
+                    key=str(i.key),
                     abstract=str(i.abstract),
-                    title=i.title,
-                    doi=i.doi,
-                    mode=i.mode,
-                    screenedDecision=i.decision,
-                    exclusionCriteria=i.exclusion_criteria,
-                    reviewerCount=i.reviewer_count,
+                    title=str(i.title),
+                    doi=str(i.doi),
+                    mode=str(i.mode),
+                    screenedDecision=str(i.decision),
+                    exclusionCriteria=str(i.exclusion_criteria),
+                    reviewerCount=int(i.reviewer_count),
                     datasetID=self.dataset.DatasetID,
                 )
 
@@ -79,6 +82,9 @@ class Datasets:
             self.project_id, retries=retries
         )
         return self.articles
+
+    def get_trainable_datapath(self):
+        return os.path.join(self.data_dir, f"{self.config['dataset']['name']}.csv")
 
 
 # {

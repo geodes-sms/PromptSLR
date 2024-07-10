@@ -1,14 +1,13 @@
 {
     "project": {
-        "name": "LlamaFile Analysis",
+        "name": "RL4SE",
         "topic": {
-            "title": "Efficiency of LlamaFile in Large Scale Data",
-            "description": "Exploration into the capabilities of LlamaFile models in handling extensive datasets."
+            "title": "Reinforcement Learning for Software Engineering"
         }
     },
     "llm": {
         "name": "llamafile",
-        "url": "https://api.llamafile.com",
+        "url": "http://localhost:7777/v1",
         "hyperparams": {
             "isTrainable": false,
             "additional": {
@@ -17,37 +16,38 @@
         }
     },
     "dataset": {
-        "name": "LargeScaleData"
+        "name": "rl4se-short"
     },
     "configurations": {
         "features": [
             "title",
-            "abstract",
-            "keywords",
-            "authors",
-            "venue",
-            "references",
-            "bibtex"
+            "abstract"
         ],
         "linient": true,
         "shots": {
-            "positive": 4,
-            "negative": 2
+            "positive": 1,
+            "negative": 1
         },
         "selectionCriteria": {
             "inclusion": {
                 "condition": [
                     "any"
+                ],
+                "criteria": [
+                    "Title containing Reinforcement."
                 ]
             },
             "exclusion": {
                 "condition": [
-                    "all"
+                    "any"
+                ],
+                "criteria": [
+                    "Papers published before 2006"
                 ]
             }
         },
         "output": {
-            "classes": 4,
+            "classes": 2,
             "reasoning": true,
             "confidence": true
         }

@@ -7,47 +7,49 @@
         }
     },
     "llm": {
-        "name": "svm",
+        "name": "mnb",
         "hyperparams": {
             "isTrainable": true,
             "additional": {
                 "seed": 45,
-                "split_ratio": 0.8,
-                "epochs": 10
+                "fold_count": 2,
+                "epoch": 1
             }
         }
     },
     "dataset": {
-        "name": "TextData"
+        "name": "rl4se"
     },
     "configurations": {
         "features": [
-            "abstract",
-            "keywords",
-            "authors",
-            "venue"
+            "title",
+            "abstract"
         ],
         "linient": true,
         "shots": {
-            "positive": 10,
-            "negative": 5
+            "positive": 1,
+            "negative": 1
         },
         "selectionCriteria": {
             "inclusion": {
                 "condition": [
-                    "all"
+                    "any"
+                ],
+                "criteria": [
+                    "Title containing Reinforcement."
                 ]
             },
             "exclusion": {
                 "condition": [
-                    "all"
+                    "any"
+                ],
+                "criteria": [
+                    "Papers published before 2006"
                 ]
             }
         },
         "output": {
-            "classes": 5,
-            "reasoning": true,
-            "confidence": true
+            "classes": 2
         }
     }
 }

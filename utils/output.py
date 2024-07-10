@@ -56,31 +56,65 @@ class ModelAnswer:
     )
     ERROR = "ERROR"  # in case an error occurred when deciding for this article
 
-    def __init__(self, answer):
+    def __init__(self, answer, trainable=False):
         self.answer = answer
-        assert answer in (
-            ModelAnswer.INCLUDE,
-            ModelAnswer.MAYBE_INCLUDE,
-            ModelAnswer.EXCLUDE,
-            ModelAnswer.MAYBE_EXCLUDE,
-            ModelAnswer.UNKOWN,
-            ModelAnswer.ERROR,
-        )
+        self.trainable = trainable
+        if trainable:
+            assert answer in (
+                CorrectAnswer.INCLUDE,
+                CorrectAnswer.EXCLUDE,
+                CorrectAnswer.CONFLICT_INCLUDE,
+                CorrectAnswer.CONFLICT_EXCLUDE,
+            )
+        else:
+            assert answer in (
+                ModelAnswer.INCLUDE,
+                ModelAnswer.MAYBE_INCLUDE,
+                ModelAnswer.EXCLUDE,
+                ModelAnswer.MAYBE_EXCLUDE,
+                ModelAnswer.UNKOWN,
+                ModelAnswer.ERROR,
+            )
 
     def is_include(self):
-        return self.answer == ModelAnswer.INCLUDE
+
+        return (
+            self.answer == ModelAnswer.INCLUDE
+            if not self.trainable
+            else self.answer
+            in (
+                CorrectAnswer.INCLUDE,
+                CorrectAnswer.CONFLICT_INCLUDE,
+            )
+        )
 
     def is_exclude(self):
-        return self.answer == ModelAnswer.EXCLUDE
+        return (
+            self.answer == ModelAnswer.EXCLUDE
+            if not self.trainable
+            else self.answer
+            in (
+                CorrectAnswer.EXCLUDE,
+                CorrectAnswer.CONFLICT_EXCLUDE,
+            )
+        )
 
     def is_conflict(self):
         """
         The answer is inconclusive.
         """
-        return self.answer in (ModelAnswer.MAYBE_INCLUDE, ModelAnswer.MAYBE_EXCLUDE)
+        return (
+            self.answer in (ModelAnswer.MAYBE_INCLUDE, ModelAnswer.MAYBE_EXCLUDE)
+            if not self.trainable
+            else self.answer
+            in (
+                CorrectAnswer.CONFLICT_INCLUDE,
+                CorrectAnswer.CONFLICT_EXCLUDE,
+            )
+        )
 
     def is_error(self):
-        return self.answer == ModelAnswer.ERROR
+        return self.answer == ModelAnswer.ERROR if not self.trainable else False
 
 
 class Result:
@@ -98,22 +132,46 @@ class Result:
 
 
 class Output(ModelAnswer):
-    def __init__(self, raw_output: str):
-        self.filter_string = r"^\s*```json[^\S\r\n]*|```[^\S\r\n]*$"
-        self.raw_output = re.sub(self.filter_string, "", raw_output, flags=re.MULTILINE)
-        self.parse()
-        super().__init__(self.answer)
+    def __init__(self, raw_output: str, trainable: bool = False):
+        if trainable:
+            self.answer = raw_output
+            self.reason = None
+            self.confidence = None
+            super().__init__(self.answer, trainable=True)
+        else:
+            self.filter_string = re.compile(
+                r'\{\s*"decision":\s*"([^"]+)"'
+                r'(?:\s*,\s*"reason":\s*"([^"]*)")?'
+                r'(?:\s*,\s*"confidence":\s*(\d+))?'
+                r"\s*\}"
+            )
+            self.raw_output = raw_output
+            self.parse()
+            super().__init__(self.answer, trainable=False)
 
     def parse(self):
         # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these
         try:
-            json_output = json.loads(self.raw_output)
-            self.answer = json_output["answer"]
-            self.reason = json_output["reason"] if "reason" in json_output else None
-            self.confidence = (
-                json_output["confidence"] if "confidence" in json_output else None
-            )
-        except json.JSONDecodeError:
+            res = self.filter_string.search(self.raw_output)
+            if res:
+                result = {
+                    "decision": res.group(1),
+                }
+                if res.group(2) is not None:
+                    result["reason"] = res.group(2)
+                if res.group(3) is not None:
+                    result["confidence"] = int(res.group(3))
+                print(result)
+                self.answer = result["decision"]
+                self.reason = result["reason"] if "reason" in result else None
+                self.confidence = (
+                    result["confidence"] if "confidence" in result else None
+                )
+            else:
+                self.answer = self.raw_output
+                self.reason = None
+                self.confidence = None
+        except AttributeError:
             self.answer = self.raw_output
             self.reason = None
             self.confidence = None

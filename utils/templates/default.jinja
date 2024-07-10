@@ -60,7 +60,16 @@ Give the reason of your answer.
 How confident are you about your answer on a scale of 0-10?
 {% endif %}
 
-Give answer in JSON format.
+Give answer in JSON as formatted below:
+{
+    "decision": "INCLUDE"
+    {% if json.configurations.output.reason %}
+    ,"reason": "This is relevant to topic"
+    {% endif %}
+    {% if json.configurations.output.confidence %}
+    ,"confidence": 8
+    {% endif %}
+}
 
 ## LENIENCY
 {% if json.configurations.linient %}
