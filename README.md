@@ -1,9 +1,9 @@
-# PromptSLR
+# PromptSLR Backend Codebase
 
-## Front-end
-Run the following scripts in the `front` directory: 
-### `npm install` or `yarn install`
-Installs all the required dependencies
-### `npm start` or `yarn start`
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The backend is using the Python environment with FastAPI as the web framework.
+
+## Setup
+1. Setup the Python environment by installing conda or miniconda.
+2. Create a new conda environment using the `environment.yml` file.
+3. Activate the conda environment.
+4. Run the backend using the `python app.py` command in the backend directory.
