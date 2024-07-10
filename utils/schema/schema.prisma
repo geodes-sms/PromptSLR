@@ -21,6 +21,7 @@ model Users {
 model Projects {
   ProjectID        String            @id
   Name             String
+  Iteration        Int
   TopicTitle       String?
   TopicDescription String?
   ContextTokens    Int?

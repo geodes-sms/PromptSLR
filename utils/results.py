@@ -6,7 +6,7 @@ class Results:
         self.db_connector = DBConnector()
         self.project_id = project_id
         # get from params
-        self.exp_iter = 1
+        self.iterations = self.db_connector.get_project_iterations(self.project_id)
 
         self.tp = self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Decision": "TP"}
@@ -20,11 +20,11 @@ class Results:
         self.fn = self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Decision": "FN"}
         )
-        if self.exp_iter > 1:
-            self.tp = self.tp / self.exp_iter
-            self.fp = self.fp / self.exp_iter
-            self.tn = self.tn / self.exp_iter
-            self.fn = self.fn / self.exp_iter
+        if self.iterations > 1:
+            self.tp = self.tp / self.iterations
+            self.tn = self.tn / self.iterations
+            self.fp = self.fp / self.iterations
+            self.fn = self.fn / self.iterations
         print(self.tp, self.fp, self.tn, self.fn)
         self.total = self.tp + self.fp + self.tn + self.fn
 

@@ -62,19 +62,19 @@ def delete_pair(index):
 load_experiment = False
 project_id = None
 list_of_experiments = db_instance.get_projects()
-st.sidebar.write("Load Existing Experiment:")
-project_id = st.sidebar.selectbox(
-    "Experiment Name",
-    [f"{value} - {key}" for key, value in list_of_experiments.items()],
-).split(" - ")[1]
-
-config = json.loads(db_instance.get_configurations(project_id))
-if st.sidebar.button("Load"):
-    load_experiment = True
-if st.sidebar.button("Create New"):
-    load_experiment = False
-print(project_id)
-print(config)
+if list_of_experiments:
+    st.sidebar.write("Load Existing Experiment:")
+    project_id = st.sidebar.selectbox(
+        "Experiment Name",
+        [f"{value} - {key}" for key, value in list_of_experiments.items()],
+    ).split(" - ")[1]
+    config = json.loads(db_instance.get_configurations(project_id))
+    if st.sidebar.button("Load"):
+        load_experiment = True
+    if st.sidebar.button("Create New"):
+        load_experiment = False
+    print(project_id)
+    print(config)
 
 col1, col2, col3 = st.columns([2, 3, 2])
 
@@ -83,6 +83,14 @@ if load_experiment:
         st.title("LLM Configurations")
         name = st.text_input("Experiment Name", value=config["project"]["name"])
         title = st.text_input("SR Topic", value=config["project"]["topic"]["title"])
+        iterations = st.text_input(
+            "Iterations",
+            value=(
+                config["project"]["iterations"]
+                if "iterations" in config["project"]
+                else 1
+            ),
+        )
         description = st.text_area(
             "SR Description",
             value=(
@@ -94,6 +102,7 @@ if load_experiment:
         data["project"] = {
             "name": name,
             "topic": {"title": title, "description": description},
+            "iterations": iterations,
         }
         llm_names_list = ["Chatgpt", "Trainable", "Random", "Llamafile"]
         llm_name = st.selectbox(
@@ -459,9 +468,14 @@ else:
         description = st.text_area(
             "SR Description", "Reinforcement Learning for Software Engineering"
         )
+        iterations = st.text_input(
+            "Iterations",
+            value=1,
+        )
         data["project"] = {
             "name": name,
             "topic": {"title": title, "description": description},
+            "iterations": iterations,
         }
 
         llm_name = st.selectbox(

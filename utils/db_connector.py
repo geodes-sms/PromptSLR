@@ -34,7 +34,12 @@ class DBConnector:
         return user
 
     def create_project(
-        self, projectID: str, name: str, topicTitle: str, topicDescription: str = None
+        self,
+        projectID: str,
+        name: str,
+        topicTitle: str,
+        topicDescription: str = None,
+        iterations: int = 1,
     ):
         project = self.db.projects.create(
             {
@@ -42,6 +47,7 @@ class DBConnector:
                 "Name": name,
                 "TopicTitle": topicTitle,
                 "TopicDescription": topicDescription,
+                "Iteration": int(iterations),
             }
         )
         return project
@@ -365,3 +371,11 @@ class DBConnector:
 
     def is_error_present(self, projectID: str) -> bool:
         return self.get_error_decision(projectID) is None
+
+    def get_project_iterations(self, projectID: str):
+        project = self.db.projects.find_first(
+            where={
+                "ProjectID": projectID,
+            }
+        )
+        return int(project.Iteration)
