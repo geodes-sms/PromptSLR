@@ -8,12 +8,14 @@ from utils.db_connector import DBConnector
 from utils.experiments import Experiments
 from utils.results import Results
 
-
 st.set_page_config(
     page_title="PromptSLR",
     page_icon="🤖",
     layout="wide",
 )
+with open("assets/css/custom.css") as css:
+    st.markdown(f"<style>{css.read()}</style>", unsafe_allow_html=True)
+
 st.title("PromptSLR")
 
 data = {}
@@ -456,8 +458,14 @@ if load_experiment:
             if not db_instance.is_project_exists(project_id):
                 st.error("Experiment not found")
             r = Results(project_id)
-            for k, v in r.get_results().items():
-                st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+            if int(iterations) > 1:
+                for k, v in r.get_results_metadata().items():
+                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                st.subheader("Moments")
+                st.dataframe(r.get_moment())
+            else:
+                for k, v in r.get_results().items():
+                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
 
 else:
     with col1:
@@ -688,5 +696,11 @@ else:
                 if not db_instance.is_project_exists(project_id):
                     st.error("Experiment not found")
                 r = Results(project_id)
-                for k, v in r.get_results().items():
-                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                if int(iterations) > 1:
+                    for k, v in r.get_results_metadata().items():
+                        st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                    st.subheader("Moments")
+                    st.dataframe(r.get_moment())
+                else:
+                    for k, v in r.get_results().items():
+                        st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")

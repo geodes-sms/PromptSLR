@@ -103,6 +103,7 @@ model LLMDecisions {
   Decision   String
   Error      Boolean
   Retries    Int
+  Iteration  Int
   RawOutput  String?
   Reason     String?
   Confidence Float?

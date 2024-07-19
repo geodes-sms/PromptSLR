@@ -1,31 +1,21 @@
+import numpy as np
 from utils.db_connector import DBConnector
+import pandas as pd
 
 
-class Results:
-    def __init__(self, project_id: str):
-        self.db_connector = DBConnector()
-        self.project_id = project_id
-        # get from params
-        self.iterations = self.db_connector.get_project_iterations(self.project_id)
+class BaseResults:
+    def __init__(self):
+        self.tp = 0
+        self.fp = 0
+        self.tn = 0
+        self.fn = 0
+        self.total = 0
 
-        self.tp = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "TP"}
-        )
-        self.fp = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "FP"}
-        )
-        self.tn = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "TN"}
-        )
-        self.fn = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "FN"}
-        )
-        if self.iterations > 1:
-            self.tp = self.tp / self.iterations
-            self.tn = self.tn / self.iterations
-            self.fp = self.fp / self.iterations
-            self.fn = self.fn / self.iterations
-        print(self.tp, self.fp, self.tn, self.fn)
+    def set_result_values(self, tp: int, fp: int, tn: int, fn: int):
+        self.tp = tp
+        self.fp = fp
+        self.tn = tn
+        self.fn = fn
         self.total = self.tp + self.fp + self.tn + self.fn
 
     def get_accuracy(self):
@@ -152,6 +142,7 @@ class Results:
         """
         return {
             "completed_articles": self.get_completed(),
+            "iterations": self.iterations,
             "articles_with_error": self.get_error(),
             "true_positive": self.tp,
             "false_positive": self.fp,
@@ -183,11 +174,93 @@ class Results:
         """
         Get the number of articles that errored.
         """
+        raise NotImplementedError
+
+
+class Results(BaseResults):
+    def __init__(self, project_id: int):
+        self.db_connector = DBConnector()
+        self.project_id = project_id
+        self.iterations = self.db_connector.get_project_iterations(self.project_id)
+        self.moments = []
+        super().__init__()
+        for iter in range(self.iterations):
+            print(iter)
+            tp = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "TP", "Iteration": iter}
+            )
+            fp = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "FP", "Iteration": iter}
+            )
+            tn = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "TN", "Iteration": iter}
+            )
+            fn = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "FN", "Iteration": iter}
+            )
+            self.set_result_values(tp, fp, tn, fn)
+            self.moments.append(self.get_results())
+
+    def get_error(self):
         return self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Error": True}
         )
 
+    def get_moment(self):
+        """
+        Get the moment of the model.
+        """
+        tmp = {}
+        tmp["Metric"] = []
+        tmp["mean"] = []
+        tmp["std"] = []
+        tmp["median"] = []
+        tmp["IQR"] = []
+        tmp["skewness"] = []
+        tmp["kurtosis"] = []
+        for k in self.get_moment_metric_names():
+            print(k)
+            data = [float(i[k]) for i in self.moments]
+            print(data)
+            tmp["Metric"].append(k)
+            tmp["mean"].append(np.mean(data))
+            tmp["std"].append(np.std(data))
+            tmp["median"].append(np.median(data))
+            tmp["IQR"].append(np.percentile(data, 75) - np.percentile(data, 25))
+            tmp["skewness"].append(pd.Series(data).skew())
+            tmp["kurtosis"].append(pd.Series(data).kurtosis())
 
-class TrainableResults(Results):
-    def __init__(self, project_id: str):
-        super().__init__(project_id)
+        return pd.DataFrame(tmp)
+
+    def get_moment_metric_names(self):
+        return [
+            "true_positive",
+            "false_positive",
+            "true_negative",
+            "false_negative",
+            "accuracy",
+            "precision",
+            "recall",
+            "f1_score",
+            "specificity",
+            "mcc",
+            "balanced_accuracy",
+            "miss_rate",
+            "f2_score",
+            "wss",
+            "wss@95",
+            "npv",
+            "g_mean",
+            "general_performance_score",
+        ]
+
+    def get_results_metadata(self):
+        return {
+            "completed_articles": self.get_completed(),
+            "iterations": self.iterations,
+            "articles_with_error": self.get_error(),
+            "true_positive": self.tp,
+            "false_positive": self.fp,
+            "true_negative": self.tn,
+            "false_negative": self.fn,
+        }

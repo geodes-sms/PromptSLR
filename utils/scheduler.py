@@ -93,9 +93,9 @@ class Scheduler:
             raise ValueError(f"Model {self.config['llm']['name']} not supported")
 
     def schedule(self):
-        for _ in range(self.iterations):
+        for iter in range(self.iterations):
             if self.config["llm"]["hyperparams"]["isTrainable"]:
-                self.run_trainable()
+                self.run_trainable(iter)
             else:
                 retries = 0
                 # while (
@@ -111,12 +111,12 @@ class Scheduler:
                     ):
                         break
                     elif retries == 0:
-                        self.run()
+                        self.run(iter=iter)
                     else:
-                        self.run(retries=retries)
+                        self.run(iter=iter, retries=retries)
                     retries += 1
 
-    def run(self, retries=None):
+    def run(self, iter, retries=None):
         requests = 0
         counts = 0
         responses = []
@@ -159,6 +159,7 @@ class Scheduler:
                         "TokenUsed": (
                             int(answer.token_used) if answer.token_used else None
                         ),
+                        "Iteration": iter,
                     }
                 )
             except Exception as e:
@@ -174,6 +175,7 @@ class Scheduler:
                         "Reason": None,
                         "Confidence": None,
                         "TokenUsed": None,
+                        "Iteration": iter,
                     }
                 )
         if not retries or retries == 0:
@@ -183,7 +185,7 @@ class Scheduler:
             self.db_connector.db.llmdecisions.update_many(llm_decisions, {})
             self.db_connector.db.llmdecisions.update_many(llm_errors, {})
 
-    def run_trainable(self):
+    def run_trainable(self, iter):
         articles = self.dataset.get_articles()
         print(len(articles))
         llm_decisions = []
@@ -225,6 +227,7 @@ class Scheduler:
                         "TokenUsed": (
                             int(answer.token_used) if answer.token_used else None
                         ),
+                        "Iteration": iter,
                     }
                 )
             except Exception as e:
@@ -240,6 +243,7 @@ class Scheduler:
                         "Reason": None,
                         "Confidence": None,
                         "TokenUsed": None,
+                        "Iteration": iter,
                     }
                 )
             self.progress_bar.progress(count / len(articles))
