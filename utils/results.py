@@ -219,9 +219,7 @@ class Results(BaseResults):
         tmp["skewness"] = []
         tmp["kurtosis"] = []
         for k in self.get_moment_metric_names():
-            print(k)
             data = [float(i[k]) for i in self.moments]
-            print(data)
             tmp["Metric"].append(k)
             tmp["mean"].append(np.mean(data))
             tmp["std"].append(np.std(data))
@@ -264,3 +262,27 @@ class Results(BaseResults):
             "true_negative": self.tn,
             "false_negative": self.fn,
         }
+
+    def get_moment_values_df(self):
+        return pd.DataFrame(self.moments)
+
+    def get_kappa(self):
+        """
+        The Cohen's Kappa of the articles completed by this model.
+        Kappa = (Po - Pe) / (1 - Pe)
+        """
+        includes = self.db_connector.db.llmdecisions.group_by(
+            by=["ArticleKey"],
+            where={"ProjectID": self.project_id, "Decision": {"in": ["TP", "FP"]}},
+            count=True,
+        )
+        print(len(includes))
+        excludes = self.db_connector.db.llmdecisions.group_by(
+            by=["ArticleKey"],
+            where={"ProjectID": self.project_id, "Decision": {"in": ["TN", "FN"]}},
+            count=True,
+        )
+        print(len(excludes))
+        # pi = []
+        # for i in includes:
+        #     pi.append()

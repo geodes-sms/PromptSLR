@@ -43,6 +43,7 @@ pillow
 pkgutil_resolve_name 
 platformdirs 
 ply==3.11
+plotly
 prisma==0.13.1
 pydantic 
 pydantic_core 

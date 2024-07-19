@@ -41,11 +41,17 @@ def get_results_df(project_ids, metrics=None):
                 "WSS": result.get_wss(),
                 "WSS@95": result.get_wss(recall=0.95),
                 "NPV": result.get_npv(),
-                "G-Mean": result.get_g_mean(),
+                "G Mean": result.get_g_mean(),
                 "General Performance Score": result.get_gps(),
             }
         )
     df = pd.DataFrame(results)
+    return df
+
+
+def get_multiple_iterations_df(project_id):
+    result = Results(project_id)
+    df = result.get_moment_values_df()
     return df
 
 
@@ -79,13 +85,15 @@ metrics = st.multiselect(
         "WSS",
         "WSS@95",
         "NPV",
-        "G-Mean",
+        "G Mean",
         "General Performance Score",
     ],
 )
 
 st.subheader("Choose the plot you want to see")
-plot = st.selectbox("Plot", ["Bar", "Line", "Pie", "Scatter", "Radial"], index=0)
+plot = st.selectbox(
+    "Plot", ["Bar", "Line", "Pie", "Scatter", "Radial", "Boxplot"], index=0
+)
 
 if plot == "Bar":
     st.subheader("Choose the x and y axis")
@@ -144,3 +152,9 @@ elif plot == "Radial":
 # bubble chart
 
 # box plot
+elif plot == "Boxplot":
+    # y_axis = st.selectbox("Y-Axis", metrics, index=1)
+    df = get_multiple_iterations_df(project_ids[0])
+    for i in [i.lower().replace(" ", "_") for i in metrics]:
+        fig = px.box(df, y=i)
+        st.plotly_chart(fig)

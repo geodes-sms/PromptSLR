@@ -301,6 +301,7 @@ if load_experiment:
                 keep_default_na=False,
             )
             st.dataframe(df.head(10))
+            st.write("Total Rows: ", df.shape[0])
         else:
             st.write("No dataset selected")
 
@@ -461,6 +462,7 @@ if load_experiment:
             if int(iterations) > 1:
                 for k, v in r.get_results_metadata().items():
                     st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                st.write(f"Kappa : {r.get_kappa()}")
                 st.subheader("Moments")
                 st.dataframe(r.get_moment())
             else:
@@ -608,6 +610,7 @@ else:
                 keep_default_na=False,
             )
             st.dataframe(df.head(10))
+            st.write("Total Rows: ", df.shape[0])
         else:
             st.write("No dataset selected")
 
@@ -699,6 +702,7 @@ else:
                 if int(iterations) > 1:
                     for k, v in r.get_results_metadata().items():
                         st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                    st.write(f"Kappa : {r.get_kappa()}")
                     st.subheader("Moments")
                     st.dataframe(r.get_moment())
                 else:
