@@ -268,21 +268,54 @@ class Results(BaseResults):
 
     def get_kappa(self):
         """
-        The Cohen's Kappa of the articles completed by this model.
-        Kappa = (Po - Pe) / (1 - Pe)
+        The Fleiss Kappa of the articles completed by this model.
+        pi = (Include^2 + Exclude^2 - n) / (n * (n - 1))
+        p_include = Sum(Include) / (n * N)
+        p_exclude = Sum(Exclude) / (n * N)
+        p_mean = pi.mean()
+        p_e = p_include^2 + p_exclude^2
+        kappa = (p_mean - p_e) / (1 - p_e)
         """
+
+        # get include and exclude decisions
+        article_keys = self.db_connector.db.llmdecisions.find_many(
+            where={"ProjectID": self.project_id},
+            distinct=["ArticleKey"],
+        )
+        unique_article_keys = [i.ArticleKey for i in article_keys]
         includes = self.db_connector.db.llmdecisions.group_by(
             by=["ArticleKey"],
             where={"ProjectID": self.project_id, "Decision": {"in": ["TP", "FP"]}},
             count=True,
         )
-        print(len(includes))
+
         excludes = self.db_connector.db.llmdecisions.group_by(
             by=["ArticleKey"],
             where={"ProjectID": self.project_id, "Decision": {"in": ["TN", "FN"]}},
             count=True,
         )
-        print(len(excludes))
-        # pi = []
-        # for i in includes:
-        #     pi.append()
+        include_dict = {
+            include["ArticleKey"]: include["_count"]["_all"] for include in includes
+        }
+        exclude_dict = {
+            exclude["ArticleKey"]: exclude["_count"]["_all"] for exclude in excludes
+        }
+        final_includes_counts = [
+            include_dict.get(key, 0) for key in unique_article_keys
+        ]
+        final_excludes_counts = [
+            exclude_dict.get(key, 0) for key in unique_article_keys
+        ]
+        N = len(unique_article_keys)
+        n = self.iterations
+        pi = (
+            np.array(final_includes_counts) ** 2
+            + np.array(final_excludes_counts) ** 2
+            - n
+        ) / (n * (n - 1))
+        p_include = sum(final_includes_counts) / (n * N)
+        p_exclude = sum(final_excludes_counts) / (n * N)
+        p_mean = pi.mean()
+        p_e = p_include**2 + p_exclude**2
+        kappa = (p_mean - p_e) / (1 - p_e)
+        return kappa
