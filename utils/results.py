@@ -257,10 +257,6 @@ class Results(BaseResults):
             "completed_articles": self.get_completed(),
             "iterations": self.iterations,
             "articles_with_error": self.get_error(),
-            "true_positive": self.tp,
-            "false_positive": self.fp,
-            "true_negative": self.tn,
-            "false_negative": self.fn,
         }
 
     def get_moment_values_df(self):

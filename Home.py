@@ -13,10 +13,7 @@ st.set_page_config(
     page_icon="🤖",
     layout="wide",
 )
-with open("assets/css/custom.css") as css:
-    st.markdown(f"<style>{css.read()}</style>", unsafe_allow_html=True)
-
-st.title("PromptSLR")
+st.title("🤖 PromptSLR")
 
 data = {}
 trainable_Algos = {
