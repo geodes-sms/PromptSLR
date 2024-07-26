@@ -8,13 +8,12 @@ from utils.db_connector import DBConnector
 from utils.experiments import Experiments
 from utils.results import Results
 
-
 st.set_page_config(
     page_title="PromptSLR",
     page_icon="🤖",
     layout="wide",
 )
-st.title("PromptSLR")
+st.title("🤖 PromptSLR")
 
 data = {}
 trainable_Algos = {
@@ -62,19 +61,19 @@ def delete_pair(index):
 load_experiment = False
 project_id = None
 list_of_experiments = db_instance.get_projects()
-st.sidebar.write("Load Existing Experiment:")
-project_id = st.sidebar.selectbox(
-    "Experiment Name",
-    [f"{value} - {key}" for key, value in list_of_experiments.items()],
-).split(" - ")[1]
-
-config = json.loads(db_instance.get_configurations(project_id))
-if st.sidebar.button("Load"):
-    load_experiment = True
-if st.sidebar.button("Create New"):
-    load_experiment = False
-print(project_id)
-print(config)
+if list_of_experiments:
+    st.sidebar.write("Load Existing Experiment:")
+    project_id = st.sidebar.selectbox(
+        "Experiment Name",
+        [f"{value} - {key}" for key, value in list_of_experiments.items()],
+    ).split(" - ")[1]
+    config = json.loads(db_instance.get_configurations(project_id))
+    if st.sidebar.button("Load"):
+        load_experiment = True
+    if st.sidebar.button("Create New"):
+        load_experiment = False
+    print(project_id)
+    print(config)
 
 col1, col2, col3 = st.columns([2, 3, 2])
 
@@ -83,6 +82,14 @@ if load_experiment:
         st.title("LLM Configurations")
         name = st.text_input("Experiment Name", value=config["project"]["name"])
         title = st.text_input("SR Topic", value=config["project"]["topic"]["title"])
+        iterations = st.text_input(
+            "Iterations",
+            value=(
+                config["project"]["iterations"]
+                if "iterations" in config["project"]
+                else 1
+            ),
+        )
         description = st.text_area(
             "SR Description",
             value=(
@@ -94,6 +101,7 @@ if load_experiment:
         data["project"] = {
             "name": name,
             "topic": {"title": title, "description": description},
+            "iterations": iterations,
         }
         llm_names_list = ["Chatgpt", "Trainable", "Random", "Llamafile"]
         llm_name = st.selectbox(
@@ -290,6 +298,7 @@ if load_experiment:
                 keep_default_na=False,
             )
             st.dataframe(df.head(10))
+            st.write("Total Rows: ", df.shape[0])
         else:
             st.write("No dataset selected")
 
@@ -447,8 +456,15 @@ if load_experiment:
             if not db_instance.is_project_exists(project_id):
                 st.error("Experiment not found")
             r = Results(project_id)
-            for k, v in r.get_results().items():
-                st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+            if int(iterations) > 1:
+                for k, v in r.get_results_metadata().items():
+                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                st.write(f"Kappa : {r.get_kappa()}")
+                st.subheader("Moments")
+                st.dataframe(r.get_moment())
+            else:
+                for k, v in r.get_results().items():
+                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
 
 else:
     with col1:
@@ -459,9 +475,14 @@ else:
         description = st.text_area(
             "SR Description", "Reinforcement Learning for Software Engineering"
         )
+        iterations = st.text_input(
+            "Iterations",
+            value=1,
+        )
         data["project"] = {
             "name": name,
             "topic": {"title": title, "description": description},
+            "iterations": iterations,
         }
 
         llm_name = st.selectbox(
@@ -586,6 +607,7 @@ else:
                 keep_default_na=False,
             )
             st.dataframe(df.head(10))
+            st.write("Total Rows: ", df.shape[0])
         else:
             st.write("No dataset selected")
 
@@ -674,5 +696,12 @@ else:
                 if not db_instance.is_project_exists(project_id):
                     st.error("Experiment not found")
                 r = Results(project_id)
-                for k, v in r.get_results().items():
-                    st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                if int(iterations) > 1:
+                    for k, v in r.get_results_metadata().items():
+                        st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")
+                    st.write(f"Kappa : {r.get_kappa()}")
+                    st.subheader("Moments")
+                    st.dataframe(r.get_moment())
+                else:
+                    for k, v in r.get_results().items():
+                        st.write(f"{' '.join(k.split('_')).capitalize()}: {v}")

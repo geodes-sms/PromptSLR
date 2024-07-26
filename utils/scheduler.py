@@ -41,6 +41,7 @@ class Scheduler:
         )
         self.rate_limit = 50
         self.max_retries = 5
+        self.iterations = int(self.config["project"]["iterations"])
         self.vectorizer_parameters = {"min_count": 3, "workers": 4}
         self.trainable_parameters = {
             "seed": (
@@ -92,29 +93,30 @@ class Scheduler:
             raise ValueError(f"Model {self.config['llm']['name']} not supported")
 
     def schedule(self):
-        if self.config["llm"]["hyperparams"]["isTrainable"]:
-            self.run_trainable()
-        else:
-            retries = 0
-            # while (
-            #     not (self.db_connector.is_error_present(self.project_id))
-            #     and retries < self.max_retries
-            # ):
-            while retries < self.max_retries:
-                # TODO: Add a retry mechanism and fix loop for error handling
-                print("Retries: ", retries)
-                if (
-                    not self.db_connector.is_error_present(self.project_id)
-                    and retries > 0
-                ):
-                    break
-                elif retries == 0:
-                    self.run()
-                else:
-                    self.run(retries=retries)
-                retries += 1
+        for iter in range(self.iterations):
+            if self.config["llm"]["hyperparams"]["isTrainable"]:
+                self.run_trainable(iter)
+            else:
+                retries = 0
+                # while (
+                #     not (self.db_connector.is_error_present(self.project_id))
+                #     and retries < self.max_retries
+                # ):
+                while retries < self.max_retries:
+                    # TODO: Add a retry mechanism and fix loop for error handling
+                    print("Retries: ", retries)
+                    if (
+                        not self.db_connector.is_error_present(self.project_id)
+                        and retries > 0
+                    ):
+                        break
+                    elif retries == 0:
+                        self.run(iter=iter)
+                    else:
+                        self.run(iter=iter, retries=retries)
+                    retries += 1
 
-    def run(self, retries=None):
+    def run(self, iter, retries=None):
         requests = 0
         counts = 0
         responses = []
@@ -157,6 +159,7 @@ class Scheduler:
                         "TokenUsed": (
                             int(answer.token_used) if answer.token_used else None
                         ),
+                        "Iteration": iter,
                     }
                 )
             except Exception as e:
@@ -172,6 +175,7 @@ class Scheduler:
                         "Reason": None,
                         "Confidence": None,
                         "TokenUsed": None,
+                        "Iteration": iter,
                     }
                 )
         if not retries or retries == 0:
@@ -181,7 +185,7 @@ class Scheduler:
             self.db_connector.db.llmdecisions.update_many(llm_decisions, {})
             self.db_connector.db.llmdecisions.update_many(llm_errors, {})
 
-    def run_trainable(self):
+    def run_trainable(self, iter):
         articles = self.dataset.get_articles()
         print(len(articles))
         llm_decisions = []
@@ -223,6 +227,7 @@ class Scheduler:
                         "TokenUsed": (
                             int(answer.token_used) if answer.token_used else None
                         ),
+                        "Iteration": iter,
                     }
                 )
             except Exception as e:
@@ -238,6 +243,7 @@ class Scheduler:
                         "Reason": None,
                         "Confidence": None,
                         "TokenUsed": None,
+                        "Iteration": iter,
                     }
                 )
             self.progress_bar.progress(count / len(articles))

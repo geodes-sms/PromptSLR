@@ -1,31 +1,21 @@
+import numpy as np
 from utils.db_connector import DBConnector
+import pandas as pd
 
 
-class Results:
-    def __init__(self, project_id: str):
-        self.db_connector = DBConnector()
-        self.project_id = project_id
-        # get from params
-        self.exp_iter = 1
+class BaseResults:
+    def __init__(self):
+        self.tp = 0
+        self.fp = 0
+        self.tn = 0
+        self.fn = 0
+        self.total = 0
 
-        self.tp = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "TP"}
-        )
-        self.fp = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "FP"}
-        )
-        self.tn = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "TN"}
-        )
-        self.fn = self.db_connector.db.llmdecisions.count(
-            where={"ProjectID": self.project_id, "Decision": "FN"}
-        )
-        if self.exp_iter > 1:
-            self.tp = self.tp / self.exp_iter
-            self.fp = self.fp / self.exp_iter
-            self.tn = self.tn / self.exp_iter
-            self.fn = self.fn / self.exp_iter
-        print(self.tp, self.fp, self.tn, self.fn)
+    def set_result_values(self, tp: int, fp: int, tn: int, fn: int):
+        self.tp = tp
+        self.fp = fp
+        self.tn = tn
+        self.fn = fn
         self.total = self.tp + self.fp + self.tn + self.fn
 
     def get_accuracy(self):
@@ -152,6 +142,7 @@ class Results:
         """
         return {
             "completed_articles": self.get_completed(),
+            "iterations": self.iterations,
             "articles_with_error": self.get_error(),
             "true_positive": self.tp,
             "false_positive": self.fp,
@@ -183,11 +174,144 @@ class Results:
         """
         Get the number of articles that errored.
         """
+        raise NotImplementedError
+
+
+class Results(BaseResults):
+    def __init__(self, project_id: int):
+        self.db_connector = DBConnector()
+        self.project_id = project_id
+        self.iterations = self.db_connector.get_project_iterations(self.project_id)
+        self.moments = []
+        super().__init__()
+        for iter in range(self.iterations):
+            print(iter)
+            tp = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "TP", "Iteration": iter}
+            )
+            fp = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "FP", "Iteration": iter}
+            )
+            tn = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "TN", "Iteration": iter}
+            )
+            fn = self.db_connector.db.llmdecisions.count(
+                where={"ProjectID": project_id, "Decision": "FN", "Iteration": iter}
+            )
+            self.set_result_values(tp, fp, tn, fn)
+            self.moments.append(self.get_results())
+
+    def get_error(self):
         return self.db_connector.db.llmdecisions.count(
             where={"ProjectID": self.project_id, "Error": True}
         )
 
+    def get_moment(self):
+        """
+        Get the moment of the model.
+        """
+        tmp = {}
+        tmp["Metric"] = []
+        tmp["mean"] = []
+        tmp["std"] = []
+        tmp["median"] = []
+        tmp["IQR"] = []
+        tmp["skewness"] = []
+        tmp["kurtosis"] = []
+        for k in self.get_moment_metric_names():
+            data = [float(i[k]) for i in self.moments]
+            tmp["Metric"].append(k)
+            tmp["mean"].append(np.mean(data))
+            tmp["std"].append(np.std(data))
+            tmp["median"].append(np.median(data))
+            tmp["IQR"].append(np.percentile(data, 75) - np.percentile(data, 25))
+            tmp["skewness"].append(pd.Series(data).skew())
+            tmp["kurtosis"].append(pd.Series(data).kurtosis())
 
-class TrainableResults(Results):
-    def __init__(self, project_id: str):
-        super().__init__(project_id)
+        return pd.DataFrame(tmp)
+
+    def get_moment_metric_names(self):
+        return [
+            "true_positive",
+            "false_positive",
+            "true_negative",
+            "false_negative",
+            "accuracy",
+            "precision",
+            "recall",
+            "f1_score",
+            "specificity",
+            "mcc",
+            "balanced_accuracy",
+            "miss_rate",
+            "f2_score",
+            "wss",
+            "wss@95",
+            "npv",
+            "g_mean",
+            "general_performance_score",
+        ]
+
+    def get_results_metadata(self):
+        return {
+            "completed_articles": self.get_completed(),
+            "iterations": self.iterations,
+            "articles_with_error": self.get_error(),
+        }
+
+    def get_moment_values_df(self):
+        return pd.DataFrame(self.moments)
+
+    def get_kappa(self):
+        """
+        The Fleiss Kappa of the articles completed by this model.
+        pi = (Include^2 + Exclude^2 - n) / (n * (n - 1))
+        p_include = Sum(Include) / (n * N)
+        p_exclude = Sum(Exclude) / (n * N)
+        p_mean = pi.mean()
+        p_e = p_include^2 + p_exclude^2
+        kappa = (p_mean - p_e) / (1 - p_e)
+        """
+
+        # get include and exclude decisions
+        article_keys = self.db_connector.db.llmdecisions.find_many(
+            where={"ProjectID": self.project_id},
+            distinct=["ArticleKey"],
+        )
+        unique_article_keys = [i.ArticleKey for i in article_keys]
+        includes = self.db_connector.db.llmdecisions.group_by(
+            by=["ArticleKey"],
+            where={"ProjectID": self.project_id, "Decision": {"in": ["TP", "FP"]}},
+            count=True,
+        )
+
+        excludes = self.db_connector.db.llmdecisions.group_by(
+            by=["ArticleKey"],
+            where={"ProjectID": self.project_id, "Decision": {"in": ["TN", "FN"]}},
+            count=True,
+        )
+        include_dict = {
+            include["ArticleKey"]: include["_count"]["_all"] for include in includes
+        }
+        exclude_dict = {
+            exclude["ArticleKey"]: exclude["_count"]["_all"] for exclude in excludes
+        }
+        final_includes_counts = [
+            include_dict.get(key, 0) for key in unique_article_keys
+        ]
+        final_excludes_counts = [
+            exclude_dict.get(key, 0) for key in unique_article_keys
+        ]
+        N = len(unique_article_keys)
+        n = self.iterations
+        pi = (
+            np.array(final_includes_counts) ** 2
+            + np.array(final_excludes_counts) ** 2
+            - n
+        ) / (n * (n - 1))
+        p_include = sum(final_includes_counts) / (n * N)
+        p_exclude = sum(final_excludes_counts) / (n * N)
+        p_mean = pi.mean()
+        p_e = p_include**2 + p_exclude**2
+        kappa = (p_mean - p_e) / (1 - p_e)
+        return kappa

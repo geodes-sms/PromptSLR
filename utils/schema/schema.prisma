@@ -21,6 +21,7 @@ model Users {
 model Projects {
   ProjectID        String            @id
   Name             String
+  Iteration        Int
   TopicTitle       String?
   TopicDescription String?
   ContextTokens    Int?
@@ -102,6 +103,7 @@ model LLMDecisions {
   Decision   String
   Error      Boolean
   Retries    Int
+  Iteration  Int
   RawOutput  String?
   Reason     String?
   Confidence Float?

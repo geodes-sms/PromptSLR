@@ -29,6 +29,7 @@ class Experiments:
                 if "description" in self.config["project"]["topic"]
                 else None
             ),
+            iterations=self.config["project"]["iterations"],
         )
         self.db_connector.create_llm(
             self.project_id,

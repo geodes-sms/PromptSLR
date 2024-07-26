@@ -41,7 +41,7 @@ def get_results_df(project_ids, metrics=None):
                 "WSS": result.get_wss(),
                 "WSS@95": result.get_wss(recall=0.95),
                 "NPV": result.get_npv(),
-                "G-Mean": result.get_g_mean(),
+                "G Mean": result.get_g_mean(),
                 "General Performance Score": result.get_gps(),
             }
         )
@@ -49,98 +49,126 @@ def get_results_df(project_ids, metrics=None):
     return df
 
 
-st.title("Experiment Analyser")
+def get_multiple_iterations_df(project_id):
+    result = Results(project_id)
+    df = result.get_moment_values_df()
+    return df
+
+
+st.title("📈 Experiment Analyser")
 st.header("Choose the experiment you want to analyse")
 experiment = st.multiselect(
     "Experiment",
     [f"{value} - {key}" for key, value in db_connector.get_projects().items()],
 )
-project_lables, project_ids = zip(*[project.split(" - ") for project in experiment])
+if experiment:
+    project_lables, project_ids = zip(*[project.split(" - ") for project in experiment])
 
-st.subheader("Choose the metrics you want to analyse")
-metrics = st.multiselect(
-    "Metrics",
-    [
-        "Completed Articles",
-        "Articles with Error",
-        "True Positive",
-        "False Positive",
-        "True Negative",
-        "False Negative",
-        "Accuracy",
-        "Precision",
-        "Recall",
-        "F1 Score",
-        "Specificity",
-        "MCC",
-        "Balanced Accuracy",
-        "Miss Rate",
-        "F2 Score",
-        "WSS",
-        "WSS@95",
-        "NPV",
-        "G-Mean",
-        "General Performance Score",
-    ],
-)
-
-st.subheader("Choose the plot you want to see")
-plot = st.selectbox("Plot", ["Bar", "Line", "Pie", "Scatter", "Radial"], index=0)
-
-if plot == "Bar":
-    st.subheader("Choose the x and y axis")
-    x_axis = st.selectbox("X-Axis", metrics, index=0)
-    y_axis = st.selectbox("Y-Axis", metrics, index=1)
-    df = get_results_df(project_ids)
-    fig = px.bar(df, x=x_axis, y=y_axis, hover_name=project_lables)
-    st.plotly_chart(fig)
-
-elif plot == "Line":
-    st.subheader("Choose the x and y axis")
-    x_axis = st.selectbox("X-Axis", metrics, index=0)
-    y_axis = st.selectbox("Y-Axis", metrics, index=1)
-    df = get_results_df(project_ids)
-    fig = px.line(df, x=x_axis, y=y_axis, hover_name=project_lables)
-    st.plotly_chart(fig)
-
-elif plot == "Pie":
-    st.subheader("Choose the values")
-    values = st.multiselect("Values", metrics)
-    df = get_results_df(project_ids)
-    fig = px.pie(df.T, values=values)
-    st.plotly_chart(fig)
-
-elif plot == "Scatter":
-    st.subheader("Choose the x and y axis")
-    x_axis = st.selectbox("X-Axis", metrics, index=0)
-    y_axis = st.selectbox("Y-Axis", metrics, index=1)
-    df = get_results_df(project_ids)
-    fig = px.scatter(df, x=x_axis, y=y_axis, hover_name=project_lables)
-    st.plotly_chart(fig)
-
-elif plot == "Radial":
-    st.subheader("Choose the values")
-    values = st.multiselect("Values", metrics)
-    df = get_results_df(project_ids, metrics=values)
-    df = df.drop(columns=[c for c in df.columns if c not in metrics])
-    df = df.T
-    df.columns = project_lables
-    df["metrics"] = df.index
-    df = df.melt(id_vars="metrics", var_name="Experiment Name", value_name="value")
-    fig = px.line_polar(
-        df,
-        r="value",
-        theta="metrics",
-        line_close=True,
-        markers=True,
-        hover_name="Experiment Name",
-        color="Experiment Name",
-        color_discrete_sequence=px.colors.qualitative.Plotly,
+    st.subheader("Choose the metrics you want to analyse")
+    metrics = st.multiselect(
+        "Metrics",
+        [
+            "Completed Articles",
+            "Articles with Error",
+            "True Positive",
+            "False Positive",
+            "True Negative",
+            "False Negative",
+            "Accuracy",
+            "Precision",
+            "Recall",
+            "F1 Score",
+            "Specificity",
+            "MCC",
+            "Balanced Accuracy",
+            "Miss Rate",
+            "F2 Score",
+            "WSS",
+            "WSS@95",
+            "NPV",
+            "G Mean",
+            "General Performance Score",
+        ],
     )
-    st.plotly_chart(fig)
 
-# stackplot
+    st.subheader("Choose the plot you want to see")
+    plot = st.selectbox(
+        "Plot", ["Bar", "Line", "Pie", "Scatter", "Radial", "Boxplot"], index=0
+    )
+    if metrics and plot:
+        if plot == "Bar":
+            st.subheader("Choose the x and y axis")
+            x_axis = st.selectbox("X-Axis", metrics, index=0)
+            if len(metrics) > 1:
+                y_axis = st.selectbox("Y-Axis", metrics, index=1)
+                df = get_results_df(project_ids)
+                fig = px.bar(df, x=x_axis, y=y_axis, hover_name=project_lables)
+                st.plotly_chart(fig)
+            else:
+                st.warning("Please select more than one metric to plot a bar chart")
 
-# bubble chart
+        elif plot == "Line":
+            st.subheader("Choose the x and y axis")
+            x_axis = st.selectbox("X-Axis", metrics, index=0)
+            if len(metrics) > 1:
+                y_axis = st.selectbox("Y-Axis", metrics, index=1)
+                df = get_results_df(project_ids)
+                fig = px.line(df, x=x_axis, y=y_axis, hover_name=project_lables)
+                st.plotly_chart(fig)
+            else:
+                st.warning("Please select more than one metric to plot a line chart")
 
-# box plot
+        elif plot == "Pie":
+            st.subheader("Choose the values")
+            values = st.multiselect("Values", metrics)
+            df = get_results_df(project_ids)
+            df = df.drop(columns=[c for c in df.columns if c not in values])
+            df = df.T
+            df.columns = project_lables
+            fig = px.pie(
+                df,
+                values=project_lables[0],
+                names=df.index,
+                title=f"Values for {project_lables[0]}",
+            )
+            st.plotly_chart(fig)
+
+        elif plot == "Scatter":
+            st.subheader("Choose the x and y axis")
+            x_axis = st.selectbox("X-Axis", metrics, index=0)
+            if len(metrics) > 1:
+                y_axis = st.selectbox("Y-Axis", metrics, index=1)
+                df = get_results_df(project_ids)
+                fig = px.scatter(df, x=x_axis, y=y_axis, hover_name=project_lables)
+                st.plotly_chart(fig)
+            else:
+                st.warning("Please select more than one metric to plot a scatter chart")
+
+        elif plot == "Radial":
+            df = get_results_df(project_ids)
+            df = df.drop(columns=[c for c in df.columns if c not in metrics])
+            df = df.T
+            df.columns = project_lables
+            df["metrics"] = df.index
+            df = df.melt(
+                id_vars="metrics", var_name="Experiment Name", value_name="value"
+            )
+            fig = px.line_polar(
+                df,
+                r="value",
+                theta="metrics",
+                line_close=True,
+                markers=True,
+                hover_name="Experiment Name",
+                color="Experiment Name",
+                color_discrete_sequence=px.colors.qualitative.Plotly,
+            )
+            st.plotly_chart(fig)
+
+        # box plot
+        elif plot == "Boxplot":
+            # y_axis = st.selectbox("Y-Axis", metrics, index=1)
+            df = get_multiple_iterations_df(project_ids[0])
+            for i in [i.lower().replace(" ", "_") for i in metrics]:
+                fig = px.box(df, y=i)
+                st.plotly_chart(fig)
