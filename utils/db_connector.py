@@ -124,6 +124,7 @@ class DBConnector:
         references: str = None,
         reviewerCount: int = None,
         venue: str = None,
+        isShot: bool = None,
     ):
         articles = tx.articles.create(
             {
@@ -143,6 +144,7 @@ class DBConnector:
                 "ReviewerCount": reviewerCount,
                 "ScreenedDecision": screenedDecision,
                 "Venue": venue,
+                "IsShot": isShot,
             }
         )
         return articles
@@ -281,8 +283,16 @@ class DBConnector:
             where={
                 "DatasetID": d_id,
                 "ScreenedDecision": ("Included" if positive else "Excluded"),
+                "IsShot": True,
             }
         )
+        if len(articles) < count or len(articles) == 0:
+            articles = self.db.articles.find_many(
+                where={
+                    "DatasetID": d_id,
+                    "ScreenedDecision": ("Included" if positive else "Excluded"),
+                }
+            )
         articles = random.sample(articles, count)
         for article in articles:
             self.db.projectshots.create(
@@ -371,7 +381,6 @@ class DBConnector:
         return decision is not None
 
     def get_error_decision(self, projectID: str) -> List[LLMDecisions] | None:
-        # TODO: Fix for excluding fixed errors
         decision = self.db.llmdecisions.find_many(
             where={
                 "ProjectID": projectID,

@@ -89,6 +89,7 @@ model Articles {
   InclusionCriteria String?
   ExclusionCriteria String?
   GeneratedSummary  String?
+  IsShot            Boolean?
   ReviewerCount     Int?
   DatasetID         String
   LLMDecisions      LLMDecisions[]

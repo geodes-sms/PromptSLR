@@ -98,12 +98,8 @@ class Scheduler:
                 self.run_trainable(iter)
             else:
                 retries = 0
-                # while (
-                #     not (self.db_connector.is_error_present(self.project_id))
-                #     and retries < self.max_retries
-                # ):
                 while retries < self.max_retries:
-                    # TODO: Add a retry mechanism and fix loop for error handling
+
                     print("Retries: ", retries)
                     is_error_present = self.db_connector.is_error_present(
                         self.project_id
