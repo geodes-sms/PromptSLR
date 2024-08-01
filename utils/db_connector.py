@@ -381,7 +381,7 @@ class DBConnector:
         return decision
 
     def is_error_present(self, projectID: str) -> bool:
-        return self.get_error_decision(projectID) is not None
+        return len(self.get_error_decision(projectID)) > 0
 
     def get_project_iterations(self, projectID: str):
         project = self.db.projects.find_first(

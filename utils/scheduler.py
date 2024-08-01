@@ -105,10 +105,11 @@ class Scheduler:
                 while retries < self.max_retries:
                     # TODO: Add a retry mechanism and fix loop for error handling
                     print("Retries: ", retries)
-                    if (
-                        not self.db_connector.is_error_present(self.project_id)
-                        and retries > 0
-                    ):
+                    is_error_present = self.db_connector.is_error_present(
+                        self.project_id
+                    )
+                    print("Error Present: ", is_error_present)
+                    if (not is_error_present) and retries > 0:
                         break
                     elif retries == 0:
                         self.run(iter=iter)
@@ -171,8 +172,8 @@ class Scheduler:
 
                 existing_decision = decision_map.get(article.Key)
                 if existing_decision:
-                    decision_data["DecisionID"] = existing_decision["DecisionID"]
-                    decision_data["Retries"] = existing_decision.get("Retries", 0)
+                    decision_data["DecisionID"] = existing_decision.DecisionID
+                    decision_data["Retries"] = existing_decision.Retries + 1
                 llm_decisions.append(decision_data)
 
             except Exception as e:
