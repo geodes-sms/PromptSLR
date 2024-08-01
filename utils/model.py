@@ -524,11 +524,6 @@ class LlamaFile(LanguageModel):
                     if "default" in self.parameters["llm"]["hyperparams"]
                     else 0
                 ),
-                max_tokens=(
-                    self.parameters["llm"]["hyperparams"]["default"]["maxTokens"]
-                    if "default" in self.parameters["llm"]["hyperparams"]
-                    else 4096
-                ),
             )
             self.answer = Output(response.choices[0].message.model_dump()["content"])
             self.answer.decision = self.answer.get_decision(

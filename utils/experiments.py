@@ -1,6 +1,8 @@
 from utils.datasets import Datasets
 from utils.db_connector import DBConnector
+from utils.promptconfig import PromptConfig
 from utils.scheduler import Scheduler
+from utils.template_engine import TemplateEngine
 
 
 class Experiments:
@@ -54,21 +56,32 @@ class Experiments:
                     key,
                     str(value),
                 )
-        self.datatsets = Datasets(config=self.config, project_id=self.project_id)
+        self.datasets = Datasets(config=self.config, project_id=self.project_id)
         if not self.db_connector.is_dataset_exists(self.config["dataset"]["name"]):
-            self.datatsets.create_dataset()
-            self.datatsets.load_data()
+            self.datasets.create_dataset()
+            self.datasets.load_data()
 
         self.db_connector.create_project_dataset(
             self.project_id,
             self.db_connector.get_datasetid(self.config["dataset"]["name"]),
         )
-
-        self.db_connector.create_configurations(self.project_id, self.config)
+        prompt_config = PromptConfig(self.config, self.datasets)
+        self.templateEngine = TemplateEngine()
+        self.context = self.templateEngine.render(promptConfig=prompt_config)
+        self.db_connector.create_configurations(
+            self.project_id,
+            self.config,
+            renderdPrompt=self.context,
+        )
 
     def init_experiment(self):
         self.scheduler = Scheduler(
-            self.config, self.project_id, self.datatsets, self.progress_bar
+            self.config,
+            self.project_id,
+            self.datasets,
+            self.progress_bar,
+            self.context,
+            self.templateEngine.get_tokens(),
         )
         self.scheduler.schedule()
 

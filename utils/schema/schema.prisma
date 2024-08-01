@@ -65,10 +65,11 @@ model Dataset {
 }
 
 model Configurations {
-  ConfigurationID Int      @id @default(autoincrement())
-  ProjectID       String
-  ConfigJson      String
-  Project         Projects @relation(fields: [ProjectID], references: [ProjectID])
+  ConfigurationID       Int      @id @default(autoincrement())
+  ProjectID             String
+  ConfigJson            String
+  RenderedPromptContext String
+  Project               Projects @relation(fields: [ProjectID], references: [ProjectID])
 }
 
 model Articles {
@@ -87,6 +88,7 @@ model Articles {
   Mode              String?
   InclusionCriteria String?
   ExclusionCriteria String?
+  GeneratedSummary  String?
   ReviewerCount     Int?
   DatasetID         String
   LLMDecisions      LLMDecisions[]

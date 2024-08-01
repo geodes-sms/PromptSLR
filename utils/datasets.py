@@ -78,10 +78,10 @@ class Datasets:
 
     def get_articles(self, retries=None):
         # get all the articles
-        self.articles = self.db_connector.get_task_articles(
+        self.articles, self.error_decisions = self.db_connector.get_task_articles(
             self.project_id, retries=retries
         )
-        return self.articles
+        return self.articles, self.error_decisions
 
     def get_trainable_datapath(self):
         return os.path.join(self.data_dir, f"{self.config['dataset']['name']}.csv")

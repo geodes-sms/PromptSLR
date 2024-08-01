@@ -63,7 +63,7 @@ How confident are you about your answer on a scale of 0-10?
 Give answer in JSON as formatted below:
 {
     "decision": "INCLUDE"
-    {% if json.configurations.output.reason %}
+    {% if json.configurations.output.reasoning %}
     ,"reason": "This is relevant to topic"
     {% endif %}
     {% if json.configurations.output.confidence %}

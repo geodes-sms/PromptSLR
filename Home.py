@@ -212,7 +212,7 @@ if load_experiment:
             default_params = {"temperature": temp, "maxTokens": max_token}
             api_key = None
 
-        elif llm_name == "Chatgpt":
+        elif "gpt" in llm_name:
             api_key = st.text_input("api_key", value=config["llm"]["apikey"])
             temp = st.text_input(
                 "Temprature",
@@ -487,7 +487,28 @@ else:
 
         llm_name = st.selectbox(
             "Classifier Family",
-            ["Chatgpt", "Trainable", "Random", "Llamafile"],
+            [
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4-turbo",
+                "gpt-4",
+                "gpt-4-32k",
+                "gpt-3.5-turbo",
+                "gpt-3.5-turbo-16k",
+                "gpt-4-turbo-preview",
+                "gpt-4-vision-preview",
+                "gpt-4-turbo-2024-04-09",
+                "gpt-4-0314",
+                "gpt-4-32k-0314",
+                "gpt-4-32k-0613",
+                "gpt-3.5-turbo-0301",
+                "gpt-3.5-turbo-16k-0613",
+                "gpt-3.5-turbo-1106",
+                "gpt-3.5-turbo-0613",
+                "Trainable",
+                "Random",
+                "Llamafile",
+            ],
             key="llm_name",
         )
         if llm_name == "Trainable":
@@ -539,10 +560,10 @@ else:
             default_params = {"temperature": temp, "maxTokens": max_token}
             api_key = None
 
-        elif llm_name == "Chatgpt":
+        elif "gpt" in llm_name:
             api_key = st.text_input("api_key")
-            temp = st.text_input("Temprature", "0.1")
-            max_token = st.text_input("Max Tokens", "100")
+            temp = float(st.text_input("Temprature", "0.1"))
+            max_token = int(st.text_input("Max Tokens", "100"))
             st.subheader("Additional Parameters")
             # Button to add a new key-value pair
             if st.button("Add"):
