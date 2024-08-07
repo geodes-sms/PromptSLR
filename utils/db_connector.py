@@ -149,8 +149,48 @@ class DBConnector:
         )
         return articles
 
-    def create_many_articles(self, articles: list):
-        self.db.articles.create_many(articles)
+    def create_article_dict(
+        self,
+        key: str,
+        title: str,
+        doi: str,
+        screenedDecision: str,
+        datasetID: str,
+        abstract: str = None,
+        authors: str = None,
+        bibtex: str = None,
+        exclusionCriteria: str = None,
+        inclusionCriteria: str = None,
+        finalDecision: str = None,
+        mode: str = None,
+        keywords: str = None,
+        references: str = None,
+        reviewerCount: int = None,
+        venue: str = None,
+        isShot: bool = None,
+    ):
+        return {
+            "BibtexKey": key,
+            "Title": title,
+            "Abstract": abstract,
+            "DOI": doi,
+            "Authors": authors,
+            "Bibtex": bibtex,
+            "DatasetID": datasetID,
+            "ExclusionCriteria": exclusionCriteria,
+            "InclusionCriteria": inclusionCriteria,
+            "FinalDecision": finalDecision,
+            "Mode": mode,
+            "Keywords": keywords,
+            "References": references,
+            "ReviewerCount": reviewerCount,
+            "ScreenedDecision": screenedDecision,
+            "Venue": venue,
+            "IsShot": isShot,
+        }
+
+    def create_many_articles(self, tx, articles: list):
+        articles = tx.articles.create_many(articles)
 
     def create_llmdecision(
         self,

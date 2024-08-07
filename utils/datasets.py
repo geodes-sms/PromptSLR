@@ -31,10 +31,10 @@ class Datasets:
             keep_default_na=False,
         )
         print(self.df.shape)
-        with self.db_connector.db.tx() as tx:
-            for i in self.df.itertuples():
-                self.db_connector.create_article(
-                    tx=tx,
+        articles = []
+        for i in self.df.itertuples():
+            articles.append(
+                self.db_connector.create_article_dict(
                     key=str(i.key),
                     abstract=str(i.abstract),
                     title=str(i.title),
@@ -46,6 +46,9 @@ class Datasets:
                     datasetID=self.dataset.DatasetID,
                     isShot=bool(i.is_shot),
                 )
+            )
+        with self.db_connector.db.tx() as tx:
+            self.db_connector.create_many_articles(tx, articles)
 
     def get_posisitve_shots(self):
         self.positiveShots = self.db_connector.get_shots(
