@@ -39,8 +39,8 @@ class Scheduler:
                 "ContextTokens": context_tokens,
             },
         )
-        self.rate_limit = 500
-        self.max_retries = 5
+        self.rate_limit = 200
+        self.max_retries = 10
         self.iterations = int(self.config["project"]["iterations"])
         self.vectorizer_parameters = {"min_count": 3, "workers": 4}
         self.trainable_parameters = {
