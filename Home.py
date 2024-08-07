@@ -679,7 +679,7 @@ else:
         reason = st.checkbox("Reason", key="reason")
         confidence = st.checkbox("Confidence", key="confidence")
 
-        linient = st.checkbox("Linient", key="linient")
+        linient = st.checkbox("Linient", key="linient", value=True)
 
         data["configurations"] = {
             "features": features,
