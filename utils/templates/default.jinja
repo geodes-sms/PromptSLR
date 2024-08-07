@@ -1,79 +1,65 @@
-##	TITLE Section
-I am screening papers for a systematic literature review. The topic of the systematic review is {{ json.project.topic.title }}.
-## DESCRIPTION Section
-{% if json.project.topic.description %}
-Description of the systematic literature review is {{ json.project.topic.description }}
-{% endif %}The study should focus exclusively on this topic.
-
-## POSITIVE SHOTS
-{% if "shots" in json.configurations and json.configurations.shots.positive > 0 %}
-I give {{ json.configurations.shots.positive }} examples that should be included.
-
-{% for article in data.positiveShots %}
-{% for k, v in article.items() %}
+{#TITLE Section#}
+You are screening papers for a systematic literature review. The topic of the systematic review is {{json.project.topic.title}}.
+{#DESCRIPTION Section#}
+{% if json.project.topic.description or json.project.topic.description != "" -%}
+Description of the systematic literature review is {{json.project.topic.description}}
+{% endif -%} The study should focus exclusively on this topic.
+{#POSITIVE SHOTS#}
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
 {{k | upper}}: {{v}}
-{% endfor %}
-
-{% endfor %}
-{% endif %}
-
-## NEGATIVE SHOTS
-{% if "shots" in json.configurations and json.configurations.shots.negative > 0 %}
-I give {{ json.configurations.shots.negative }} examples that should be excluded.
-
-{% for article in data.negativeShots%}
-{% for k, v in article.items() %}
+{%+ endfor %}{% endfor %}{% endif %}
+{#NEGATIVE SHOTS#}
+{% if "shots" in json.configurations and json.configurations.shots.negative > 0 +%}
+I give {{json.configurations.shots.negative}} examples that should be excluded.
+{%+ for article in data.negativeShots %}
+{%+ for k, v in article.items() %}
 {{k | upper}}: {{v}}
-{% endfor %}
-
-{% endfor %}
-{% endif %}
-
-## INCLUSION CRITERIA
-{% if "selectionCriteria" in json.configurations and json.configurations.selectionCriteria.inclusion %}
-Include if {{ json.configurations.selectionCriteria.inclusion.condition[0] }} of the following criteria are true.
-{% for criterion in json.configurations.selectionCriteria.inclusion.criteria %}
-{{ loop.index }}: {{ criterion }}
-{% endfor %}
-{% endif %}
-## EXCLUSION CRITERIA
-{% if "selectionCriteria" in json.configurations and json.configurations.selectionCriteria.exclusion %}
-Exclude if {{ json.configurations.selectionCriteria.inclusion.condition[0] }} of the following criteria are true.
-{% for criterion in json.configurations.selectionCriteria.inclusion.criteria %}
-{{ loop.index }}: {{ criterion }}
-{% endfor %}
-{% endif %}
+{%+ endfor %}{% endfor %}{% endif %}
+{#INCLUSION CRITERIA#}
+{% if json.configurations.selection.positive.criteria +%}
+Include if {{json.configurations.selection.positive.condition[0]}} of the following criteria are true.
+{%+ for criterion in json.configurations.selection.positive.criteria %}
+{{loop.index}}: {{criterion}}
+{%+ endfor %}{% endif %}
+{#EXCLUSION CRITERIA#}
+{% if json.configurations.selection.negative.criteria +%}
+Exclude if {{json.configurations.selection.negative.condition[0]}} of the following criteria are true.
+{%+ for criterion in json.configurations.selection.negative.criteria %}
+{{loop.index}}: {{criterion}}
+{%+ endfor %}{% endif %}
 
 Decide if the article should be included or excluded from the systematic review.
 
-## FEATURES
-I give the {{ json.configurations.features | join(', ') | upper}} as input.
+{#FEATURES#}
+I give the {{json.configurations.features | join(', ') | upper}} as input.
 
-## OUTPUTS
-Only Answer {%if json.configurations.output.classes == 2%}INCLUDE or EXCLUDE {%elif json.configurations.output.classes == 3%}INCLUDE, EXCLUDE or UNKNOWN {%elif json.configurations.output.classes == 4%}INCLUDE, MAYBE_INCLUDE, EXCLUDE or MAYBE_EXCLUDE {%elif json.configurations.output.classes == 5%}INCLUDE, MAYBE_INCLUDE, EXCLUDE, MAYBE_EXCLUDE or UNKNOWN {%endif%}.
+{#OUTPUTS#}
+Only Answer {% if json.configurations.output.classes == 2 -%}
+INCLUDE or EXCLUDE
+{%- elif json.configurations.output.classes == 3 -%}
+INCLUDE, EXCLUDE or UNKNOWN
+{%- elif json.configurations.output.classes == 4 -%}
+INCLUDE, MAYBE_INCLUDE, EXCLUDE or MAYBE_EXCLUDE
+{%- elif json.configurations.output.classes == 5 -%}
+INCLUDE, MAYBE_INCLUDE, EXCLUDE, MAYBE_EXCLUDE or UNKNOWN
+{%- endif %}.
 
-{% if json.configurations.output.reason %}
-Give the reason of your answer.
-{% endif %}
-
-{% if json.configurations.output.confidence %}
-How confident are you about your answer on a scale of 0-10?
-{% endif %}
+{%- if json.configurations.output.reason %} Give the reason of your answer. {% endif %}
+{%- if json.configurations.output.confidence %} How confident are you about your answer on a scale of 0-10? {% endif %}
 
 Give answer in JSON as formatted below:
 {
     "decision": "INCLUDE"
-    {% if json.configurations.output.reasoning %}
-    ,"reason": "This is relevant to topic"
-    {% endif %}
-    {% if json.configurations.output.confidence %}
-    ,"confidence": 8
-    {% endif %}
-}
+    {%- if json.configurations.output.reasoning %},"reason": "This is relevant to topic"{% endif %}
+    {%- if json.configurations.output.confidence %},"confidence": 8{% endif %}
 
-## LENIENCY
-{% if json.configurations.linient %}
+}
+{#LENIENCY#}
+{% if json.configurations.linient -%}
 Be lenient. I prefer including paper by mistake rather than excluding them by mistake.
-{% else %}
+{%- else -%}
 Be strict. I do not prefer including paper by mistake
-{% endif %}
+{%- endif %}

@@ -10,7 +10,6 @@ class TemplateEngine:
             loader=jinja2.FileSystemLoader(
                 os.path.join(os.path.dirname(__file__), "templates")
             ),
-            line_comment_prefix="##",
             autoescape=True,
             trim_blocks=True,
             lstrip_blocks=True,
