@@ -58,6 +58,17 @@ def delete_pair(index):
     st.session_state.key_value_pairs.pop(index)
 
 
+def get_llm_name(config):
+    if config["llm"]["name"].capitalize() == "Trainable":
+        return "Trainable"
+    elif config["llm"]["name"].capitalize() == "Random":
+        return "Random"
+    elif config["llm"]["name"].capitalize() == "Llamafile":
+        return "Llamafile"
+    elif "gpt" in config["llm"]["name"].lower():
+        return "Chatgpt"
+
+
 load_experiment = False
 project_id = None
 list_of_experiments = db_instance.get_projects()
@@ -78,6 +89,7 @@ if list_of_experiments:
 col1, col2, col3 = st.columns([2, 3, 2])
 
 if load_experiment:
+    data["llm"] = {}
     with col1:
         st.title("LLM Configurations")
         name = st.text_input("Experiment Name", value=config["project"]["name"])
@@ -109,10 +121,7 @@ if load_experiment:
             llm_names_list,
             key="llm_name",
             index=llm_names_list.index(
-                config["llm"]["name"].capitalize()
-                if config["llm"]["name"].capitalize()
-                in ["Chatgpt", "Random", "Llamafile"]
-                else "Trainable"
+                get_llm_name(config),
             ),
         )
         if llm_name == "Trainable":
