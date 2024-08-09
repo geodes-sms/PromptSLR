@@ -66,7 +66,7 @@ def get_llm_name(config):
     elif config["llm"]["name"].capitalize() == "Llamafile":
         return "Llamafile"
     elif "gpt" in config["llm"]["name"].lower():
-        return "Chatgpt"
+        return config["llm"]["name"]
 
 
 load_experiment = False
@@ -115,7 +115,28 @@ if load_experiment:
             "topic": {"title": title, "description": description},
             "iterations": iterations,
         }
-        llm_names_list = ["Chatgpt", "Trainable", "Random", "Llamafile"]
+        llm_names_list = [
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4-turbo",
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
+            "gpt-4-turbo-preview",
+            "gpt-4-vision-preview",
+            "gpt-4-turbo-2024-04-09",
+            "gpt-4-0314",
+            "gpt-4-32k-0314",
+            "gpt-4-32k-0613",
+            "gpt-3.5-turbo-0301",
+            "gpt-3.5-turbo-16k-0613",
+            "gpt-3.5-turbo-1106",
+            "gpt-3.5-turbo-0613",
+            "Trainable",
+            "Random",
+            "Llamafile",
+        ]
         llm_name = st.selectbox(
             "Classifier Family",
             llm_names_list,

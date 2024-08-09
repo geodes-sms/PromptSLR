@@ -28,7 +28,7 @@ class Scheduler:
         self.config = config
         self.project_id = project_id
         self.dataset = dataset
-        self.progress_bar = progress_bar
+        self.progress_bar = progress_bar or None
         self.db_connector = DBConnector()
         self.context = context
         self.db_connector.db.projects.update(
@@ -39,8 +39,8 @@ class Scheduler:
                 "ContextTokens": context_tokens,
             },
         )
-        self.rate_limit = 200
-        self.max_retries = 10
+        self.rate_limit = 120
+        self.max_retries = 25
         self.iterations = int(self.config["project"]["iterations"])
         self.vectorizer_parameters = {"min_count": 3, "workers": 4}
         self.trainable_parameters = {
@@ -137,8 +137,9 @@ class Scheduler:
                     self.model.api_decide, self.format_article(article), article
                 )
                 responses.append((response, article))
-                self.progress_bar.progress(counts / len(articles))
-                self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
+                if self.progress_bar:
+                    self.progress_bar.progress(counts / len(articles))
+                    self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
                 if requests >= self.rate_limit and isinstance(self.model, ChatGPT):
                     print("Waiting for the rate limit to reset......")
                     time.sleep(60)
@@ -258,6 +259,7 @@ class Scheduler:
                     }
                 )
             except Exception as e:
+
                 llm_errors.append(
                     {
                         "LLMID": self.db_connector.get_llmid(self.project_id),
@@ -273,8 +275,9 @@ class Scheduler:
                         "Iteration": iter,
                     }
                 )
-            self.progress_bar.progress(count / len(articles))
-            self.progress_bar.text(f"Progress: {count}/{len(articles)}")
+            if self.progress_bar:
+                self.progress_bar.progress(count / len(articles))
+                self.progress_bar.text(f"Progress: {count}/{len(articles)}")
         self.db_connector.db.llmdecisions.create_many(llm_decisions)
         self.db_connector.db.llmdecisions.create_many(llm_errors)
         print("Created LLM Decisions")

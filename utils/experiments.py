@@ -11,12 +11,15 @@ class Experiments:
         self.project_id = project_id
         self.config = config
         self.db_connector = DBConnector()
-        self.progress_bar = progress_bar
+        self.progress_bar = progress_bar or None
 
     def init(self):
         if not self.is_experiment_exists():
             self.init_db()
             self.init_experiment()
+            return True
+        else:
+            return False
 
     def is_experiment_exists(self):
         return self.db_connector.is_project_exists(self.project_id)
