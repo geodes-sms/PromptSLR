@@ -150,7 +150,6 @@ class Output(ModelAnswer):
             super().__init__(self.answer, trainable=False)
 
     def parse(self):
-        # TODO: parse the output maybe using regex for answer, reason, and confidence or any combination of these
         try:
             res = self.filter_string.search(self.raw_output)
             if res:

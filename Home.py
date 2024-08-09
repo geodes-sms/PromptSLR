@@ -58,6 +58,17 @@ def delete_pair(index):
     st.session_state.key_value_pairs.pop(index)
 
 
+def get_llm_name(config):
+    if config["llm"]["name"].capitalize() == "Trainable":
+        return "Trainable"
+    elif config["llm"]["name"].capitalize() == "Random":
+        return "Random"
+    elif config["llm"]["name"].capitalize() == "Llamafile":
+        return "Llamafile"
+    elif "gpt" in config["llm"]["name"].lower():
+        return config["llm"]["name"]
+
+
 load_experiment = False
 project_id = None
 list_of_experiments = db_instance.get_projects()
@@ -78,6 +89,7 @@ if list_of_experiments:
 col1, col2, col3 = st.columns([2, 3, 2])
 
 if load_experiment:
+    data["llm"] = {}
     with col1:
         st.title("LLM Configurations")
         name = st.text_input("Experiment Name", value=config["project"]["name"])
@@ -103,16 +115,34 @@ if load_experiment:
             "topic": {"title": title, "description": description},
             "iterations": iterations,
         }
-        llm_names_list = ["Chatgpt", "Trainable", "Random", "Llamafile"]
+        llm_names_list = [
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4-turbo",
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
+            "gpt-4-turbo-preview",
+            "gpt-4-vision-preview",
+            "gpt-4-turbo-2024-04-09",
+            "gpt-4-0314",
+            "gpt-4-32k-0314",
+            "gpt-4-32k-0613",
+            "gpt-3.5-turbo-0301",
+            "gpt-3.5-turbo-16k-0613",
+            "gpt-3.5-turbo-1106",
+            "gpt-3.5-turbo-0613",
+            "Trainable",
+            "Random",
+            "Llamafile",
+        ]
         llm_name = st.selectbox(
             "Classifier Family",
             llm_names_list,
             key="llm_name",
             index=llm_names_list.index(
-                config["llm"]["name"].capitalize()
-                if config["llm"]["name"].capitalize()
-                in ["Chatgpt", "Random", "Llamafile"]
-                else "Trainable"
+                get_llm_name(config),
             ),
         )
         if llm_name == "Trainable":
@@ -212,7 +242,7 @@ if load_experiment:
             default_params = {"temperature": temp, "maxTokens": max_token}
             api_key = None
 
-        elif llm_name == "Chatgpt":
+        elif "gpt" in llm_name:
             api_key = st.text_input("api_key", value=config["llm"]["apikey"])
             temp = st.text_input(
                 "Temprature",
@@ -487,7 +517,28 @@ else:
 
         llm_name = st.selectbox(
             "Classifier Family",
-            ["Chatgpt", "Trainable", "Random", "Llamafile"],
+            [
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4-turbo",
+                "gpt-4",
+                "gpt-4-32k",
+                "gpt-3.5-turbo",
+                "gpt-3.5-turbo-16k",
+                "gpt-4-turbo-preview",
+                "gpt-4-vision-preview",
+                "gpt-4-turbo-2024-04-09",
+                "gpt-4-0314",
+                "gpt-4-32k-0314",
+                "gpt-4-32k-0613",
+                "gpt-3.5-turbo-0301",
+                "gpt-3.5-turbo-16k-0613",
+                "gpt-3.5-turbo-1106",
+                "gpt-3.5-turbo-0613",
+                "Trainable",
+                "Random",
+                "Llamafile",
+            ],
             key="llm_name",
         )
         if llm_name == "Trainable":
@@ -539,10 +590,10 @@ else:
             default_params = {"temperature": temp, "maxTokens": max_token}
             api_key = None
 
-        elif llm_name == "Chatgpt":
+        elif "gpt" in llm_name:
             api_key = st.text_input("api_key")
-            temp = st.text_input("Temprature", "0.1")
-            max_token = st.text_input("Max Tokens", "100")
+            temp = float(st.text_input("Temprature", "0.1"))
+            max_token = int(st.text_input("Max Tokens", "100"))
             st.subheader("Additional Parameters")
             # Button to add a new key-value pair
             if st.button("Add"):
@@ -658,7 +709,7 @@ else:
         reason = st.checkbox("Reason", key="reason")
         confidence = st.checkbox("Confidence", key="confidence")
 
-        linient = st.checkbox("Linient", key="linient")
+        linient = st.checkbox("Linient", key="linient", value=True)
 
         data["configurations"] = {
             "features": features,

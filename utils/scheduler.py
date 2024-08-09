@@ -12,35 +12,35 @@ from utils.model import (
     RandomForest,
     SupportVectorMachine,
 )
-from utils.output import CorrectAnswer, Output
-from utils.promptconfig import PromptConfig
-from utils.template_engine import TemplateEngine
-import csv
 import concurrent.futures
 
 
 class Scheduler:
     def __init__(
-        self, config: dict, project_id: str, dataset: Datasets = None, progress_bar=None
+        self,
+        config: dict,
+        project_id: str,
+        dataset: Datasets = None,
+        progress_bar=None,
+        context: str = None,
+        context_tokens: int = None,
     ):
         self.config = config
         self.project_id = project_id
         self.dataset = dataset
-        self.progress_bar = progress_bar
+        self.progress_bar = progress_bar or None
         self.db_connector = DBConnector()
-        prompt_config = PromptConfig(config, self.dataset)
-        templateEngine = TemplateEngine()
-        self.context = templateEngine.render(promptConfig=prompt_config)
+        self.context = context
         self.db_connector.db.projects.update(
             where={
                 "ProjectID": self.project_id,
             },
             data={
-                "ContextTokens": templateEngine.get_tokens(),
+                "ContextTokens": context_tokens,
             },
         )
-        self.rate_limit = 50
-        self.max_retries = 5
+        self.rate_limit = 120
+        self.max_retries = 25
         self.iterations = int(self.config["project"]["iterations"])
         self.vectorizer_parameters = {"min_count": 3, "workers": 4}
         self.trainable_parameters = {
@@ -98,21 +98,20 @@ class Scheduler:
                 self.run_trainable(iter)
             else:
                 retries = 0
-                # while (
-                #     not (self.db_connector.is_error_present(self.project_id))
-                #     and retries < self.max_retries
-                # ):
                 while retries < self.max_retries:
-                    # TODO: Add a retry mechanism and fix loop for error handling
+
                     print("Retries: ", retries)
-                    if (
-                        not self.db_connector.is_error_present(self.project_id)
-                        and retries > 0
-                    ):
+                    is_error_present = self.db_connector.is_error_present(
+                        self.project_id
+                    )
+                    print("Error Present: ", is_error_present)
+                    if (not is_error_present) and retries > 0:
                         break
                     elif retries == 0:
                         self.run(iter=iter)
                     else:
+                        time.sleep(60)
+                        print("Retrying......")
                         self.run(iter=iter, retries=retries)
                     retries += 1
 
@@ -120,73 +119,102 @@ class Scheduler:
         requests = 0
         counts = 0
         responses = []
-        articles = self.dataset.get_articles(retries=retries)
+        articles, error_decisions = self.dataset.get_articles(retries=retries)
         print(len(articles))
+
+        # Map article keys to existing decisions for quick lookup
+        decision_map = (
+            {err.ArticleKey: err for err in error_decisions} if error_decisions else {}
+        )
+
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.rate_limit
         ) as executor:
             for article in articles:
                 requests += 1
                 counts += 1
-                answer = executor.submit(
+                response = executor.submit(
                     self.model.api_decide, self.format_article(article), article
                 )
-                responses.append(answer)
-                self.progress_bar.progress(counts / len(articles))
-                self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
+                responses.append((response, article))
+                if self.progress_bar:
+                    self.progress_bar.progress(counts / len(articles))
+                    self.progress_bar.text(f"Progress: {counts}/{len(articles)}")
                 if requests >= self.rate_limit and isinstance(self.model, ChatGPT):
                     print("Waiting for the rate limit to reset......")
                     time.sleep(60)
                     requests = 0
+
         llm_decisions = []
         llm_errors = []
-        for response in concurrent.futures.as_completed(responses):
+
+        for future, article in responses:
             try:
-                answer, article = response.result()
-                llm_decisions.append(
-                    {
-                        "LLMID": self.db_connector.get_llmid(self.project_id),
-                        "ArticleKey": article.Key,
-                        "ProjectID": self.project_id,
-                        "Decision": answer.decision,
-                        "Error": False,
-                        "Retries": 0,
-                        "RawOutput": answer.content,
-                        "Reason": answer.reason,
-                        "Confidence": (
-                            float(answer.confidence) if answer.confidence else None
-                        ),
-                        "TokenUsed": (
-                            int(answer.token_used) if answer.token_used else None
-                        ),
-                        "Iteration": iter,
-                    }
-                )
+                answer, _ = future.result()
+                decision_data = {
+                    "LLMID": self.db_connector.get_llmid(self.project_id),
+                    "ArticleKey": article.Key,
+                    "ProjectID": self.project_id,
+                    "Decision": answer.decision,
+                    "Error": False,
+                    "Retries": 0,
+                    "RawOutput": answer.content,
+                    "Reason": answer.reason,
+                    "Confidence": (
+                        float(answer.confidence) if answer.confidence else None
+                    ),
+                    "TokenUsed": int(answer.token_used) if answer.token_used else None,
+                    "Iteration": iter,
+                }
+
+                existing_decision = decision_map.get(article.Key)
+                if existing_decision:
+                    decision_data["DecisionID"] = existing_decision.DecisionID
+                    decision_data["Retries"] = existing_decision.Retries + 1
+                llm_decisions.append(decision_data)
+
             except Exception as e:
-                llm_errors.append(
-                    {
-                        "LLMID": self.db_connector.get_llmid(self.project_id),
-                        "ArticleKey": article.Key,
-                        "ProjectID": self.project_id,
-                        "Decision": e.__str__(),
-                        "Error": True,
-                        "Retries": 0 if not retries else retries,
-                        "RawOutput": None,
-                        "Reason": None,
-                        "Confidence": None,
-                        "TokenUsed": None,
-                        "Iteration": iter,
-                    }
-                )
+                error_data = {
+                    "LLMID": self.db_connector.get_llmid(self.project_id),
+                    "ArticleKey": article.Key,
+                    "ProjectID": self.project_id,
+                    "Decision": str(e),
+                    "Error": True,
+                    "Retries": retries + 1 if retries else 1,
+                    "RawOutput": None,
+                    "Reason": None,
+                    "Confidence": None,
+                    "TokenUsed": None,
+                    "Iteration": iter,
+                }
+
+                existing_decision = decision_map.get(article.Key)
+                if existing_decision:
+                    error_data["DecisionID"] = existing_decision.DecisionID
+                    error_data["Retries"] = existing_decision.Retries + 1
+                llm_errors.append(error_data)
+
         if not retries or retries == 0:
             self.db_connector.db.llmdecisions.create_many(llm_decisions)
             self.db_connector.db.llmdecisions.create_many(llm_errors)
         else:
-            self.db_connector.db.llmdecisions.update_many(llm_decisions, {})
-            self.db_connector.db.llmdecisions.update_many(llm_errors, {})
+            for decision in llm_decisions:
+                if "DecisionID" in decision:
+                    self.db_connector.db.llmdecisions.update_many(
+                        where={"DecisionID": decision["DecisionID"]}, data=decision
+                    )
+                else:
+                    self.db_connector.db.llmdecisions.create(decision)
+            for error in llm_errors:
+                if "DecisionID" in error:
+                    self.db_connector.db.llmdecisions.update_many(
+                        where={"DecisionID": error["DecisionID"]}, data=error
+                    )
+                else:
+                    self.db_connector.db.llmdecisions.create(error)
 
     def run_trainable(self, iter):
-        articles = self.dataset.get_articles()
+        articles, _ = self.dataset.get_articles()
         print(len(articles))
         llm_decisions = []
         llm_errors = []
@@ -231,6 +259,7 @@ class Scheduler:
                     }
                 )
             except Exception as e:
+
                 llm_errors.append(
                     {
                         "LLMID": self.db_connector.get_llmid(self.project_id),
@@ -246,8 +275,9 @@ class Scheduler:
                         "Iteration": iter,
                     }
                 )
-            self.progress_bar.progress(count / len(articles))
-            self.progress_bar.text(f"Progress: {count}/{len(articles)}")
+            if self.progress_bar:
+                self.progress_bar.progress(count / len(articles))
+                self.progress_bar.text(f"Progress: {count}/{len(articles)}")
         self.db_connector.db.llmdecisions.create_many(llm_decisions)
         self.db_connector.db.llmdecisions.create_many(llm_errors)
         print("Created LLM Decisions")
