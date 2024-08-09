@@ -91,11 +91,17 @@ class DBConnector:
         )
         return dataset
 
-    def create_configurations(self, projectID: str, config: dict):
+    def create_configurations(
+        self,
+        projectID: str,
+        config: dict,
+        renderdPrompt: str = None,
+    ):
         configurations = self.db.configurations.create(
             {
                 "ProjectID": projectID,
                 "ConfigJson": json.dumps(config),
+                "RenderedPromptContext": renderdPrompt,
             }
         )
 
@@ -118,6 +124,7 @@ class DBConnector:
         references: str = None,
         reviewerCount: int = None,
         venue: str = None,
+        isShot: bool = None,
     ):
         articles = tx.articles.create(
             {
@@ -137,12 +144,53 @@ class DBConnector:
                 "ReviewerCount": reviewerCount,
                 "ScreenedDecision": screenedDecision,
                 "Venue": venue,
+                "IsShot": isShot,
             }
         )
         return articles
 
-    def create_many_articles(self, articles: list):
-        self.db.articles.create_many(articles)
+    def create_article_dict(
+        self,
+        key: str,
+        title: str,
+        doi: str,
+        screenedDecision: str,
+        datasetID: str,
+        abstract: str = None,
+        authors: str = None,
+        bibtex: str = None,
+        exclusionCriteria: str = None,
+        inclusionCriteria: str = None,
+        finalDecision: str = None,
+        mode: str = None,
+        keywords: str = None,
+        references: str = None,
+        reviewerCount: int = None,
+        venue: str = None,
+        isShot: bool = None,
+    ):
+        return {
+            "BibtexKey": key,
+            "Title": title,
+            "Abstract": abstract,
+            "DOI": doi,
+            "Authors": authors,
+            "Bibtex": bibtex,
+            "DatasetID": datasetID,
+            "ExclusionCriteria": exclusionCriteria,
+            "InclusionCriteria": inclusionCriteria,
+            "FinalDecision": finalDecision,
+            "Mode": mode,
+            "Keywords": keywords,
+            "References": references,
+            "ReviewerCount": reviewerCount,
+            "ScreenedDecision": screenedDecision,
+            "Venue": venue,
+            "IsShot": isShot,
+        }
+
+    def create_many_articles(self, tx, articles: list):
+        articles = tx.articles.create_many(articles)
 
     def create_llmdecision(
         self,
@@ -275,8 +323,16 @@ class DBConnector:
             where={
                 "DatasetID": d_id,
                 "ScreenedDecision": ("Included" if positive else "Excluded"),
+                "IsShot": True,
             }
         )
+        if len(articles) < count or len(articles) == 0:
+            articles = self.db.articles.find_many(
+                where={
+                    "DatasetID": d_id,
+                    "ScreenedDecision": ("Included" if positive else "Excluded"),
+                }
+            )
         articles = random.sample(articles, count)
         for article in articles:
             self.db.projectshots.create(
@@ -289,6 +345,7 @@ class DBConnector:
         return articles
 
     def get_task_articles(self, projectID: str, retries: int = None):
+        error_decisions = None
         shots = self.db.projectshots.find_many(
             where={
                 "ProjectID": projectID,
@@ -308,13 +365,17 @@ class DBConnector:
             articles = self.db.articles.find_many(
                 where={
                     "DatasetID": datasetID,
-                    "Key": {"not_in": [shot.ArticleKey for shot in shots]},
                     "Key": {
-                        "in": [decision.ArticleKey for decision in error_decisions]
+                        "not_in": [
+                            shot.ArticleKey for shot in shots
+                        ],  # Exclude these keys
+                        "in": [
+                            decision.ArticleKey for decision in error_decisions
+                        ],  # Include only these keys
                     },
                 }
             )
-        return articles
+        return articles, error_decisions
 
     def get_projects(self):
         projects = self.db.projects.find_many()
@@ -360,7 +421,6 @@ class DBConnector:
         return decision is not None
 
     def get_error_decision(self, projectID: str) -> List[LLMDecisions] | None:
-        # TODO: Fix for excluding fixed errors
         decision = self.db.llmdecisions.find_many(
             where={
                 "ProjectID": projectID,
@@ -370,7 +430,7 @@ class DBConnector:
         return decision
 
     def is_error_present(self, projectID: str) -> bool:
-        return self.get_error_decision(projectID) is None
+        return len(self.get_error_decision(projectID)) > 0
 
     def get_project_iterations(self, projectID: str):
         project = self.db.projects.find_first(
