@@ -32,7 +32,7 @@ dataset_info = {
 
 def run_experiment(data, dataset_name, experiment_prefix):
     # Construct the full experiment name
-    full_experiment_name = f"{experiment_prefix}-{dataset_name.upper()}"
+    full_experiment_name = f"{experiment_prefix}-{dataset_name.split('_')[0].upper()}"
     data["project"]["name"] = full_experiment_name
     data["dataset"] = {"name": dataset_name}
 
