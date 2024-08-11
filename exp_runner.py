@@ -4,6 +4,8 @@ import pandas as pd
 from uuid import uuid4
 from utils.experiments import Experiments
 
+exp_not_required = ["Std-U0-Cn-Rn-EXn-INn-A-SH0-EXPn-RL4SE"]
+
 dataset_info = {
     "lc_golden": {
         "title": "Domain-specific modeling language composition",
@@ -11,7 +13,7 @@ dataset_info = {
     },
     "rl4se_golden": {
         "title": "Reinforcement learning for software engineering",
-        "description": "",
+        "description": "Reinforcement learning for software engineering",
     },
     "mpm4cps_golden": {
         "title": "Multi-paradigm modeling of cyber–physical systems",
@@ -30,16 +32,22 @@ dataset_info = {
 
 def run_experiment(data, dataset_name, experiment_prefix):
     # Construct the full experiment name
-    full_experiment_name = f"{experiment_prefix}-{dataset_name.split('_')[0].upper()}"
+    full_experiment_name = f"{experiment_prefix}-{dataset_name.upper()}"
     data["project"]["name"] = full_experiment_name
     data["dataset"] = {"name": dataset_name}
 
-    # Update the project title and description based on the dataset
+    # Update the project title and description based on the prefix
     if dataset_name in dataset_info:
         data["project"]["topic"]["title"] = dataset_info[dataset_name]["title"]
-        data["project"]["topic"]["description"] = dataset_info[dataset_name][
-            "description"
-        ]
+
+        if experiment_prefix.startswith("Std"):
+            data["project"]["topic"]["description"] = dataset_info[dataset_name][
+                "description"
+            ]
+        else:
+            data["project"]["topic"][
+                "description"
+            ] = ""  # No description for 'St' prefixed experiments
 
     # Set classes based on U value and confidence based on Cy
     if "U0" in experiment_prefix:
@@ -55,7 +63,9 @@ def run_experiment(data, dataset_name, experiment_prefix):
         data["configurations"]["output"]["confidence"] = True
 
     print(f"Running experiment: {full_experiment_name}")
-
+    if full_experiment_name in exp_not_required:
+        print(f"Experiment {full_experiment_name} is in not required list.")
+        return
     project_id = str(uuid4())
     exp = Experiments(project_id, data, None)
     exp.init()
@@ -71,6 +81,9 @@ def main():
     )
     parser.add_argument("--llm_name", type=str, required=True, help="LLM name")
     parser.add_argument("--api_key", type=str, help="API key for LLM")
+    parser.add_argument("--temprature", type=float, default=float(0), help="Temprature")
+    parser.add_argument("--max_tokens", type=int, default=512, help="Max tokens")
+    parser.add_argument("--url", type=str, help="URL for LLM")
     parser.add_argument(
         "--dataset_dir",
         type=str,
@@ -88,12 +101,15 @@ def main():
         },
         "llm": {
             "name": args.llm_name.lower(),
-            "url": None,
+            "url": args.url or None,
             "apikey": args.api_key or None,
             "hyperparams": {
                 "isTrainable": False,
                 "additional": {},
-                "default": {"temperature": None, "maxTokens": None},
+                "default": {
+                    "temperature": args.temprature,
+                    "maxTokens": args.max_tokens,
+                },
             },
         },
     }
@@ -107,20 +123,17 @@ def main():
     ]
 
     experiment_prefixes = [
+        "St-U0-Cn-Rn-EXn-INn-A-SH0-EXPn",
         "Std-U0-Cn-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U1-Cn-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U2-Cn-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U3-Cn-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U0-Cy-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U1-Cy-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn",
-        "Std-U3-Cy-Rn-EXn-INn-A-SH0-EXPn",
     ]
 
     for dataset in datasets:
+        dataset_path = os.path.join(args.dataset_dir, f"{dataset}.csv")
+        if not os.path.exists(dataset_path):
+            print(f"Dataset {dataset} not found at {dataset_path}")
+            continue
 
-        # Select only the "title" and "abstract" columns
-        selected_features = ["title", "abstract"]
+        selected_features = ["title", "abstract"]  # Columns remain the same
 
         data["configurations"] = {
             "features": selected_features,
@@ -129,7 +142,7 @@ def main():
                 "positive": {"condition": ["any"], "criteria": []},
                 "negative": {"condition": ["any"], "criteria": []},
             },
-            "output": {"classes": 3, "reasoning": False, "confidence": False},
+            "output": {"classes": 2, "reasoning": False, "confidence": False},
             "linient": True,
         }
 
