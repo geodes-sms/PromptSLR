@@ -125,8 +125,15 @@ def run_experiment(data, dataset_name, experiment_prefix):
                 "description"
             ]
 
-    # Set classes based on U value (already modified to U0)
-    data["configurations"]["output"]["classes"] = 2
+        # Set classes based on U value and confidence based on Cy
+    if "U0" in experiment_prefix:
+        data["configurations"]["output"]["classes"] = 2
+    elif "U1" in experiment_prefix:
+        data["configurations"]["output"]["classes"] = 3
+    elif "U2" in experiment_prefix:
+        data["configurations"]["output"]["classes"] = 4
+    elif "U3" in experiment_prefix:
+        data["configurations"]["output"]["classes"] = 5
 
     # Enable confidence if "Cy" is present
     if "Cy" in modified_prefix:
