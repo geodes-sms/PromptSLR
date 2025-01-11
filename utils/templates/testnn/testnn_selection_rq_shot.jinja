@@ -1,0 +1,26 @@
+You are an expert in conducting a systematic literature review (SLR) on testing and verifying neural-network-based safety-critical control software. Cyber-physical systems (CPS) involve networks of embedded systems and strong human-machine interactions. It includes controllers, actuators, and sensors. It contains the decision flow, information flow, and action flow. Safety-critical CPS (SCCPS) is a type of CPS that highlights severe non-functional constraints (e.g., safety and dependability). The failure of SCCPS could result in loss of life or significant damage (e.g., property and environmental damage). A neural network comprises interconnected computation nodes organized into layers. Multi-Layer Perceptron represents a class of feed-forward Neural Networks and consists of an input layer, one or several hidden layers, and an output layer. Convolutional Neural Network is a special multi-layer neural network with convolutional layers that map features with different weight vectors. Deep Neural Networks have multiple hidden layers between the input and output layers. A Neural Network trained offline only learns during development. After training, its weights are fixed, and it will act deterministically. Therefore, static verification methods could be possible. In contrast, online training allows the Neural Network to keep learning and evolving during operation, which requires run-time verification methods. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Exclude If:
+1. The article doesn't have a context in SCCPSs, in general, or a specific application domain?
+2. The article is not aimed at testing/verification approaches for Neural Network-based SCCS?
+3. The article is not aimed at modern Neural Networks?
+
+Evaluate if the article helps answer the research questions:
+1. What are the profiles of the studies focusing on testing and verifying Neural Network-based SCCPSs? 
+2. What approaches and associated tools have been proposed to test and verify Neural Network-based SCCPSs? 
+3. What are the limitations of current studies with respect to testing and verifying Neural Network-based SCCPSs?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

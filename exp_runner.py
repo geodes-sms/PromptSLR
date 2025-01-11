@@ -4,7 +4,10 @@ import pandas as pd
 from uuid import uuid4
 from utils.experiments import Experiments
 
-exp_not_required = []
+exp_not_required = [
+    "Std-U2-Cn-Rn-EXn-INy-AN-SH0-EXPn-MPM4CPS-Final",
+    "Std-U2-Cn-Rn-EXn-INy-AL-SH0-EXPn-LC-FINAL",
+]
 
 # Dataset information with titles and descriptions
 dataset_info = {
@@ -27,10 +30,6 @@ dataset_info = {
     "updatecollabmde_golden": {
         "title": "Collaborative modeling systematic update",
         "description": "techniques where multiple stakeholders collaborate and manage on shared models in model-driven software engineering",
-    },
-    "gamese_golden": {
-        "title": "The consolidation of game software engineering: A systematic literature review of software engineering for industry-scale computer games",
-        "description": "This study evaluates the current state of the art in software engineering for industry-scale computer games identifying gaps and consolidating the magnitude and growth of this field.",
     },
 }
 
@@ -105,13 +104,22 @@ criteria = {
 }
 
 
-def run_experiment(data, dataset_name, experiment_prefix):
+def extract_shots_from_prefix(experiment_prefix):
+    """Extract shot count from the experiment prefix."""
+    if "SH" in experiment_prefix:
+        shot_value = experiment_prefix.split("SH")[1].split("-")[0]
+        shot_count = int(shot_value) if shot_value.isdigit() else 0
+        return shot_count
+    return 0
+
+
+def run_experiment(data, dataset_name, experiment_prefix, template_name="lc/lc_simple.jinja"):
     # Modify the prefix to use U0, Cy, Rn as required
     modified_prefix = (
         experiment_prefix.replace("Ux", "U0").replace("Cx", "Cy").replace("Rx", "Rn")
     )
     full_experiment_name = (
-        f"{modified_prefix}-{dataset_name.split('_')[0].upper()}-FINAL"
+        f"{modified_prefix}-{dataset_name.split('_')[0].upper()}-FINAL-{data['llm']['name'].upper()}"
     )
     data["project"]["name"] = full_experiment_name
     data["dataset"] = {"name": dataset_name}
@@ -125,7 +133,7 @@ def run_experiment(data, dataset_name, experiment_prefix):
                 "description"
             ]
 
-        # Set classes based on U value and confidence based on Cy
+    # Set classes based on U value and confidence based on Cy
     if "U0" in experiment_prefix:
         data["configurations"]["output"]["classes"] = 2
     elif "U1" in experiment_prefix:
@@ -138,6 +146,10 @@ def run_experiment(data, dataset_name, experiment_prefix):
     # Enable confidence if "Cy" is present
     if "Cy" in modified_prefix:
         data["configurations"]["output"]["confidence"] = True
+
+    # Apply shot counts based on SH#
+    shot_count = extract_shots_from_prefix(experiment_prefix)
+    data["configurations"]["shots"]["positive"] = shot_count
 
     # Apply criteria based on EXy and INy in the prefix
     if "EXy" in experiment_prefix:
@@ -168,7 +180,8 @@ def run_experiment(data, dataset_name, experiment_prefix):
         return
 
     project_id = str(uuid4())
-    exp = Experiments(project_id, data, None)
+    print(f"Project ID: {project_id}")
+    exp = Experiments(project_id, data, None, template_name=template_name)
     exp.init()
 
     print(f"Experiment {full_experiment_name} completed.")
@@ -193,6 +206,12 @@ def main():
         default="data",
         help="Directory where datasets are stored",
     )
+    parser.add_argument(
+        "--template_name",
+        type=str,
+        default="lc/lc_simple.jinja",
+        help="Template name for the experiment",
+    )
 
     args = parser.parse_args()
 
@@ -208,7 +227,7 @@ def main():
             "apikey": args.api_key or None,
             "hyperparams": {
                 "isTrainable": False,
-                "additional": {},
+                "additional": {"seed":5},
                 "default": {
                     "temperature": args.temprature,
                     "maxTokens": args.max_tokens,
@@ -218,19 +237,18 @@ def main():
     }
 
     datasets = [
-        "rl4se_golden",
-        "lc_golden",
-        "mobilemde_golden",
-        "mpm4cps_golden",
-        "updatecollabmde_golden",
-        "gamese_golden",
+        #"rl4se_golden",
+        # "lc_golden",
+        # "mobilemde_golden",
+        # "mpm4cps_golden",
+        # "updatecollabmde_golden",
+        "gamesefinal_golden",
+        # "esm2_golden"
+        # "testnn_golden"
     ]
 
     experiment_prefixes = [
-        "Std-U0-Cy-Ry-EXn-INn-A-SH0-EXPn",
-        "Std-U0-Cy-Rn-EXy-INn-A-SH0-EXPn",
-        "Std-U0-Cy-Rn-EXn-INy-AN-SH0-EXPn",
-        "Std-U0-Cy-Rn-EXn-INy-AL-SH0-EXPn",
+       "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-COT",
     ]
 
     for dataset in datasets:
@@ -243,7 +261,7 @@ def main():
 
         data["configurations"] = {
             "features": selected_features,
-            "shots": {"positive": 0, "negative": 0},  # Set all shots to zero
+            "shots": {"positive": 0, "negative": 0},  # Default shot values
             "selection": {
                 "positive": {"condition": ["any"], "criteria": []},
                 "negative": {"condition": ["any"], "criteria": []},
@@ -253,7 +271,7 @@ def main():
         }
 
         for prefix in experiment_prefixes:
-            run_experiment(data, dataset, prefix)
+            run_experiment(data, dataset, prefix, args.template_name)
 
 
 if __name__ == "__main__":

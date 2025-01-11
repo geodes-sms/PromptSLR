@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:1234@localhost:5432/promptslr"
+  url      = "postgres://<user>:<pass>@postgres.iro.umontreal.ca/kumargau?schema=llama33"
 }
 
 generator db {
@@ -134,3 +134,4 @@ model ProjectShots {
 
   @@id([ProjectID, ArticleKey])
 }
+
