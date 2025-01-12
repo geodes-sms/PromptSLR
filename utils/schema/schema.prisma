@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = "postgres://<user>:<pass>@postgres.iro.umontreal.ca/kumargau?schema=llama33"
+  url      = env("DATABASE_URL_DIRO")
 }
 
 generator db {

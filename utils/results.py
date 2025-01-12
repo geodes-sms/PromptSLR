@@ -31,14 +31,21 @@ class BaseResults:
         Precision of the articles completed by this model.
         Precision = TP / (TP + FP)
         """
-        return self.tp / (self.tp + self.fp)
+        try:
+            return self.tp / (self.tp + self.fp)
+        except ZeroDivisionError:
+            return 0
+        # return self.tp / (self.tp + self.fp)
 
     def get_recall(self):
         """
         Recall of the articles completed by this model.
         Recall = TP / (TP + FN)
         """
-        return self.tp / (self.tp + self.fn)
+        try:
+            return self.tp / (self.tp + self.fn)
+        except ZeroDivisionError:
+            return 0
 
     def get_f1_score(self):
         """
@@ -56,7 +63,10 @@ class BaseResults:
         The specificity of the articles completed by this model.
         Specificity = TN / (TN + FP)
         """
-        return self.tn / (self.tn + self.fp)
+        try:
+            return self.tn / (self.tn + self.fp)
+        except ZeroDivisionError:
+            return 0
 
     def get_mcc(self):
         """
@@ -81,7 +91,10 @@ class BaseResults:
         The balanced accuracy rate of the articles completed by this model.
         bAcc = (Recall + Specificity) / 2
         """
-        return (self.get_recall() + self.get_specificity()) / 2
+        try:
+            return (self.get_recall() + self.get_specificity()) / 2
+        except ZeroDivisionError:
+            return 0
 
     def get_miss_rate(self):
         """
@@ -118,7 +131,10 @@ class BaseResults:
         The negative predictive value of the articles completed by this model.
         NPV = TN / (TN + FN)
         """
-        return self.tn / (self.tn + self.fn)
+        try:
+            return self.tn / (self.tn + self.fn)
+        except ZeroDivisionError:
+            return 0
 
     def get_g_mean(self):
         """
@@ -185,7 +201,6 @@ class Results(BaseResults):
         self.moments = []
         super().__init__()
         for iter in range(self.iterations):
-            print(iter)
             tp = self.db_connector.db.llmdecisions.count(
                 where={"ProjectID": project_id, "Decision": "TP", "Iteration": iter}
             )
