@@ -1,0 +1,22 @@
+You are an expert in conducting a systematic literature review (SLR) on software engineering for industry-scale computer games. Game Software Engineering is a branch of Software Engineering that focuses on developing video game applications. These games are electronic games developed to be executed on a computer and developed in industrial practice or for commercial purposes. Thus, we do not consider academic prototypes to be industry-scale computer games. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. How have software engineering research topics in industry-scale computer games changed? 
+2. How have research approaches in industry-scale computer games changed over the years? 
+3. How have empirical research methods in industry-scale computer games changed over the years? 
+4. What is the quality of industry-scale computer game research?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

@@ -1,0 +1,16 @@
+You are an expert in conducting a systematic literature review (SLR) on the implementation of adaptive user interfaces (AUIs) in applications that target chronic diseases or Risk Factors associated with Chronic Diseases. AUIs are interfaces that change to accommodate the user and usage context differences. It is a software artifact that improves its ability to interact with a user by constructing a user model based on partial experience with that user. The UI adjustments occur automatically in response to contextual changes. Chronic diseases are health conditions that are persistent or long-lasting in their effects or diseases that come with time. eHealth encompasses a variety of technologies, including computers, smartphones, and wireless communications, providing avenues for patients to engage with their health. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

@@ -1,0 +1,21 @@
+You are an expert in conducting a systematic literature review (SLR) on collaborative model-driven software engineering (MDSE). Collaborative MDSE consists of methods and techniques where multiple stakeholders manage, collaborate, and are aware of each other’s work on shared models. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. What are the characteristics of collaborative MDSE approaches? 
+2. What are the challenges and shortcomings of existing collaborative MDSE approaches? 
+3. What publication trends can be deduced from the scientific publications about collaborative MDSE approaches over time?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

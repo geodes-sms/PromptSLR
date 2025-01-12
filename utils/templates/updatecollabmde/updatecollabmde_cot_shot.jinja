@@ -1,0 +1,30 @@
+You are an expert in conducting a systematic literature review (SLR) on collaborative model-driven software engineering (MDSE). Collaborative MDSE consists of methods and techniques where multiple stakeholders manage, collaborate, and are aware of each other’s work on shared models. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Follow these steps when making your decisions:
+1. Determine the topic relevance:
+Is the article an MDSE method and does it support collaboration of multiple stakeholders? Are models the primary artifacts of the collaboration process in the article? The article should not discuss only business processes and collaboration practices without proposing a specific method or technique.
+2. Evaluate if the article helps answer the research questions:
+    What are the characteristics of collaborative MDSE approaches? 
+    What are the challenges and shortcomings of existing collaborative MDSE approaches? 
+    What publication trends can be deduced from the scientific publications about collaborative MDSE approaches over time?
+3. Check the type of study: Is the article written in English? 
+The article should not be a secondary/tertiary study (systematic literature reviews, surveys, tutorial papers, long abstract papers, poster papers, editorials, etc.).
+4. Assess the quality of the study: 
+Does the article validate or evaluate the proposed method or technique?
+5. Make a decision: 
+Based on the above criteria, should the article be included in the SLR?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.
