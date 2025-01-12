@@ -17,7 +17,8 @@ class TemplateEngine:
         )
         self.encoder = encoding = tiktoken.get_encoding("cl100k_base")
 
-    def render(self, promptConfig: PromptConfig, template_name: str = "default.jinja"):
+    def render(self, promptConfig: PromptConfig, template_name: str = "lc/lc_simple.jinja"):
+        print(f"Rendering template {template_name}")
         self.renderdTemplate = self.env.get_template(template_name).render(
             json=promptConfig.json, data=promptConfig.data
         )

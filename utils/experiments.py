@@ -7,7 +7,8 @@ from utils.template_engine import TemplateEngine
 
 class Experiments:
 
-    def __init__(self, project_id: str, config: dict, progress_bar=None):
+    def __init__(self, project_id: str, config: dict, progress_bar=None, template_name: str = "lc/lc_simple.jinja"):
+        self.template_name = template_name
         self.project_id = project_id
         self.config = config
         self.db_connector = DBConnector()
@@ -70,7 +71,7 @@ class Experiments:
         )
         prompt_config = PromptConfig(self.config, self.datasets)
         self.templateEngine = TemplateEngine()
-        self.context = self.templateEngine.render(promptConfig=prompt_config)
+        self.context = self.templateEngine.render(promptConfig=prompt_config,template_name=self.template_name)
         self.db_connector.create_configurations(
             self.project_id,
             self.config,
