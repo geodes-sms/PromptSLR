@@ -1,0 +1,19 @@
+You are an expert in conducting a systematic literature review (SLR) on the concept of trust in the world-wide software ecosystem and determine what signifies a trustworthy system, actor, or hub. Software ecosystems are sets of actors that collaboratively serve a market for software and services, typically with an underlying technical platform. The union of all ecosystems creates the worldwide ecosystem. The actors of a software ecosystem include end-users, software producers, package maintainers, and package managers. Trustors generate their trust based on several observed behaviors or performances, where qualitative attributes are primary. The software must be of high quality and meet the trustor’s standards. Software trustworthiness reflects the probability that a software product will experience a security failure at a given time. Security refers to preventing deliberate or accidental attacks. The term “software security failure” describes a flaw discovered by its software provider or the security community. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Follow these steps when making your decisions:
+1. Determine the topic relevance:
+Is the article in the field of software engineering? Is the article published since 1990? 
+2. Evaluate if the article helps answer the research questions:
+How is the concept of software trust and software ecosystem trust defined in literature? What trust factors do end-user organizations consider when selecting software products, software versions, package managers, software producing organizations, and software engineers? 
+3. Check the type of study:
+The article should not be an informal literature or secondary/tertiary study. Is the article written in English? The article should not be incomplete, a short paper, or in the form of abstracts, prefaces, books, or presentation slides.
+4. Make a decision: 
+Based on the above criteria, should the article be included in the SLR?
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.
