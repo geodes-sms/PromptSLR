@@ -7,14 +7,12 @@ Evaluate if the article helps answer the research questions:
 1. What kind of guidance exists in SE literature on model creation?
 
 Exclude if:
-1. The article doesn't clearly mentioned creation of models.
-2. The article does clearly focus on language design/meta modelling.
-3. The article does clearly focus on model transformations.
-4. The article does clearly focus on secondary studies such as SLRs.
-5. The article does clearly focus on controlled experiments or other comparative studies.
-6. The article does clearly focus on descriptive models of a scientific or real-life concept, as opposed to a software system.
-7. The article does clearly focus on architectural styles or design patterns.
-8. The article does clearly focus on AI-based modelling guidance.
+1. The contribution of the article is not about modeling or diagrams.
+2. The article doesn't discuss the properties of modeling languages or compares languages.
+3. The article is not about modelling in software engineering.
+4. The article is about a different domain of computer science, e.g. database models, machine learning models, or neural network models.
+5. The article is not about descriptive models of a scientific or real-life concept, as opposed to a system. For instance, process improvement models such as CMMI, or models of course curricula.
+6. The article focuses on language design/meta-modelling, model transformations, descriptive models of a scientific or real-life concept, as opposed to a software system, architectural styles or design patterns, or AI-based modelling guidance.
 
 You should output your answer in JSON as formatted below:
 {"decision": <ANSWER>, "confidence": <CONFIDENCE>}
