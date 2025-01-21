@@ -244,7 +244,7 @@ class DBConnector:
         return project_dataset
 
     def run_query(self, query: str):
-        result = self.db.execute_raw(query)
+        result = self.db.query_raw(query)
         return result
 
     def get_configurations(self, projectID: str):
