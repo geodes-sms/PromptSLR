@@ -1,0 +1,22 @@
+You are an expert in conducting a systematic literature review (SLR) on security attacks and safety hazards on self-adaptive systems, including mitigation and treatment strategies, as well as the modeling and analysis approaches. A joint analysis of safety and security aspects in cyber-physical systems (CPS) is necessary, particularly to expose security implications on system safety and vice versa. Self-adaptive Systems (SAS) refer to systems that can dynamically respond to changes in the operating environment thereby affecting the system’s structure, behavior or even the system’s logic. Adaptation is what gives SASs the ability to modify their behavior in response to changes within and outside the system. The type of adaptation possible is usually described in terms of self-* properties. Self-protection describes a group of self-managing systems capable of detecting and mitigating security threats at runtime. Self-healing is the ability of a system to return to a functional state after being compromised by an anomalous agent. The MAPE-K loop can be used to implement self-adaptive systems. Systems are attacked by a foreign entity using techniques like Deceptive Interactions, Abuse of Existing Functionality of the System, Data Structure Manipulation, System Resources Manipulation, Injection of Unexpected Items, Employing Probabilistic Techniques, Manipulation of System Timing and State, Collect and Analyze Information, and Circumventing or Subverting Access Control. To keep data secure, the system must ensure confidentiality — prevention of unauthorized disclosure or use of information assets, integrity — prevention of unauthorized modification of information assets, and availability — ensuring authorized access of information assets when required. An internal hazard source can be mechanical or software related, while external hazard sources can relate to human and environmental interaction. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. Which security attacks and safety hazards in the context of self-adaptive systems are described in the literature?
+2. How are security attacks and safety hazards related, and which safety mitigation and treatment strategies exist?
+3. How are models used in the context of security, safety, and self-adaptive systems, and which analysis approaches are utilized?
+4. What open challenges are described in the literature in relation to self-adaptive systems?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

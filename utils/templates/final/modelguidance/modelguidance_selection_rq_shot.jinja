@@ -1,0 +1,27 @@
+You are an expert in conducting a systematic literature review (SLR) on guidelines, styles, or training approaches on creating software and system models in software Engineering. Modeling styles are consistent individual differences in preferred ways of creating and processing software models. Modeling methods in model-based engineering are sets of steps or constraints on how one or multiple models are created. Guidelines are information intended to advise people on how something should be done or what something should be. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. What kind of guidance exists in SE literature on model creation?
+
+Exclude if:
+1. The contribution of the article is not about modeling or diagrams.
+2. The article doesn't discuss the properties of modeling languages or compares languages.
+3. The article is not about modelling in software engineering.
+4. The article is about a different domain of computer science, e.g. database models, machine learning models, or neural network models.
+5. The article is not about descriptive models of a scientific or real-life concept, as opposed to a system. For instance, process improvement models such as CMMI, or models of course curricula.
+6. The article focuses on language design/meta-modelling, model transformations, descriptive models of a scientific or real-life concept, as opposed to a software system, architectural styles or design patterns, or AI-based modelling guidance.
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

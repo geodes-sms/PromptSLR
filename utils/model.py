@@ -505,7 +505,7 @@ class LlamaFile(LanguageModel):
             base_url=self.parameters["llm"]["url"],
         )
 
-        self.name = "LLaMA_CPP"
+        self.name = "llama3.3"
 
     def api_decide(self, content, article=None):
         conversation = [
