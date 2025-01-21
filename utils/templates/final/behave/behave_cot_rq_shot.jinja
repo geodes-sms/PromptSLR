@@ -1,0 +1,28 @@
+You are an expert in conducting a systematic literature review (SLR) on the type of research and evaluation methods in which the agile behavior-driven development (BDD) technique has been used. BDD is an agile technique in which software requirements are specified in a semi-structured natural language using Given-When-Then to express scenarios of expected software behavior or how a user will interact with a software system. It is used to express software requirements in a way that can be understood by all stakeholders. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Follow these steps when making your decisions:
+1. Determine the topic relevance:
+Is the article about BDD? Is testing is performed using a digital twin in the article? Does the digital twin described in the article use a live data coupling? The article should not describe future use of a digital twin. 
+2. Evaluate if the article helps answer the research questions:
+What types of research have been conducted on BDD? What types of contributions have been made by existing research on BDD? What research evaluation methods have been used in BDD research? What themes have been covered in existing BDD research?
+3. Check the type of study:
+The article should not be an informal literature or secondary/tertiary study. Is the article written in English? The article should not present editorials or summaries of conferences. The article should not be a general book chapter that explains what BDD is.
+4. Assess the quality of the study:
+Is the article of high quality that has a sound methodology, clear statement of aims and/or have concrete contributions?
+5. Make a decision: 
+Based on the above criteria, should the article be included in the SLR?
+
+{% if "shots" in json.configurations and json.configurations.shots.positive > 0 +%}
+I give {{json.configurations.shots.positive}} examples that should be included.
+{%+ for article in data.positiveShots %}
+{%+ for k, v in article.items() %}
+{{k | upper}}: {{v}}
+{%+ endfor %}{% endfor %}{% endif %}
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

@@ -1,0 +1,21 @@
+You are an expert in conducting a systematic literature review (SLR) on existing techniques in which digital twins are used to test cyber-physical systems. Cyber-physical systems (CPS) are software-driven systems which interact with the physical world, and must operate dependably, safely, securely, and efficiently and in real-time.  A digital twin is a live digital coupling of the state of a physical asset or process with a virtual representation with a functional output. In this context, a digital twin uses a model that represents the CPS to provide analysis and verification externally to the original system. In white-box modelling, a model is built with physics-based reasoning. White-box models provide visibility of information within the model. They are easily understood by experts and provide explanations as to how an outcome has been derived. In black-box modelling, a model is derived purely from data. They provide visibility of only the input and outputs model and provide no explanation as to how model outcomes are derived. Grey-box models provide visibility of inputs and outputs as well as partial visibility of information within the model. Here, we are interested in testing which is performed on a system by the digital twin of the physical asset under test. Testing techniques include white-box testing (through a detailed investigation into the internal workings of the system under test, black-box testing (focusing on inputs and outputs of the system). And grey-box testing (used when there is some access to the internal structure of the system under test, but it is also supplemented by inputs and outputs). The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Follow these steps when making your decisions:
+1. Determine the topic relevance:
+Is the system under test a CPS in the article? Is testing is performed using a digital twin in the article? Does the digital twin described in the article use a live data coupling? The article should not describe future use of a digital twin. 
+2. Evaluate if the article helps answer the research questions:
+What kind of CPS are digital twins currently being used to test? How are test oracles defined for CPS? What is the distribution of white-box, black-box and grey-box modelling techniques used for digital twins in the context of testing? How are test cases defined and how does this affect test inputs?
+3. Check the type of study:
+Is the article published in a journal or conference proceedings? Is the article written in English?
+4. Assess the quality of the study:
+Does the article describe at least one testing technique? Is the study in the article reproducible? Does the article examine research questions and answer them?
+5. Make a decision: 
+Based on the above criteria, should the article be included in the SLR?
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.
