@@ -1,0 +1,28 @@
+You are an expert in conducting a systematic literature review (SLR) on the reproducibility of research when machine learning algorithms are used to detect code smells. Code smells are patterns in the source code that make it less comprehensible and error-prone (sometimes called antipatterns). Reproducibility means obtaining consistent computational results using the same input data, computational steps, methods, code, and analysis conditions. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. Is the process of creating code smell machine learning models reproducible in the recent scientific studies on code smell detection using AI/ML methods? 
+2. Does the article describe the modeling process in enough detail to reproduce their studies? 
+3. Are reproduction packages published for their studies? 
+4. Is the process of code smell data set acquisition reproducible in the recent scientific studies on code smell detection using AI/ML methods? 
+5. How are projects selected for their data sets? 
+6. How are samples from projects selected for classification? 
+7. How are samples assessed for the occurrence of code smells?
+
+Exclude if:
+1. The article is not related to software engineering.
+2. No code smell/anti-pattern is playing an important part in the study.
+3. The article is not using machine learning techniques.
+4. The article is not focused on code smells/anti-patterns in programming languages.
+5. The article is not focused on code smells/anti-patterns detection using source code.
+6. The article does not focus on techniques for resolving code smells/anti-patterns. 
+7. The article does not focus on using code smells/anti-patterns as predictors of other code or project traits. 
+8. The article focuses on the detection/prediction of code smells/anti-patterns.
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.
