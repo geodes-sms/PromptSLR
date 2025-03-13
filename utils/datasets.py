@@ -40,9 +40,11 @@ class Datasets:
                     title=str(i.title),
                     doi=str(i.doi),
                     mode=str(i.mode),
-                    bibtex=str(i.bibtex) if i.bibtex else None,
+                    bibtex=str(i.bibtex) if hasattr(i, "bibtex") else None,
                     screenedDecision=str(i.decision),
-                    finalDecision=str(i.final_decision) if i.final_decision else None,
+                    finalDecision=(
+                        str(i.final_decision) if hasattr(i, "final_decision") else None
+                    ),
                     exclusionCriteria=str(i.exclusion_criteria),
                     reviewerCount=int(i.reviewer_count),
                     datasetID=self.dataset.DatasetID,
