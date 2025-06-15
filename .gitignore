@@ -208,3 +208,6 @@ pyrightconfig.json
 data/*
 data/
 models/
+extra/
+
+*.txt

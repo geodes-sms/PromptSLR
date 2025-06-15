@@ -1,0 +1,21 @@
+You are an expert in conducting a systematic literature review (SLR) on the reproducibility of research when machine learning algorithms are used to detect code smells. Code smells are patterns in the source code that make it less comprehensible and error-prone (sometimes called antipatterns). Reproducibility means obtaining consistent computational results using the same input data, computational steps, methods, code, and analysis conditions. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Follow these steps when making your decisions:
+1. Determine the topic relevance:
+Is the article related to software engineering? Is at least one code smell/anti-pattern playing an important part in the study? Might it be using machine learning techniques? Does the article focus on code smells/antipatterns in programming languages? Does the article focus on code smells/anti-patterns detection using source code?
+2. Evaluate if the article helps answer the research questions:
+Is the process of creating code smell machine learning models reproducible in the recent scientific studies on code smell detection using AI/ML methods? Does the article describe the modeling process in enough detail to reproduce their studies? Are reproduction packages published for their studies? Is the process of code smell data set acquisition reproducible in the recent scientific studies on code smell detection using AI/ML methods? How are projects selected for their data sets? How are samples from projects selected for classification? How are samples assessed for the occurrence of code smells?
+3. Check the type of study:
+Is the article published in 1999 or later? Is the article written in English? The article is published in a journal, chapter of a book, or conference proceeding, not an editorial, abstract, or technical report.
+4. Assess the quality of the study:
+The article does not focus on techniques for resolving code smells/anti-patterns. The article does not focus on using code smells/anti-patterns as predictors of other code or project traits. The article focuses on the detection/prediction of code smells/anti-patterns.
+5. Make a decision: 
+Based on the above criteria, should the article be included in the SLR?
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.

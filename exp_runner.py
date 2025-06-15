@@ -4,6 +4,9 @@ import pandas as pd
 from uuid import uuid4
 from utils.experiments import Experiments
 from project_data_tmp import criteria, dataset_info
+from dotenv import load_dotenv
+
+load_dotenv()
 
 exp_not_required = [
     "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
@@ -87,10 +90,10 @@ def run_experiment(
         print(f"Experiment {full_experiment_name} is in not required list.")
         return
 
-    # project_id = str(uuid4())
-    # print(f"Project ID: {project_id}")
-    # exp = Experiments(project_id, data, None, template_name=template_name)
-    # exp.init()
+    project_id = str(uuid4())
+    print(f"Project ID: {project_id}")
+    exp = Experiments(project_id, data, None, template_name=template_name)
+    exp.init()
 
     print(f"Experiment {full_experiment_name} completed.")
 
@@ -98,7 +101,11 @@ def run_experiment(
 def template_path_string_builder(dataset_name, experiment_prefix):
     """Build the template path string based on the dataset and experiment prefix."""
     dataset_name = dataset_name.split("_")[0]
-    template_path = f"utils/templates/final/{dataset_name}/{dataset_name}"
+    if "bibtex" in dataset_name:
+        dataset_name.replace("bibtex","")
+
+
+    template_path = f"final/{dataset_name}/{dataset_name}"
     if "SIMPLE" in experiment_prefix:
         template_path += "_simple"
     elif "COT" in experiment_prefix:
@@ -165,24 +172,41 @@ def main():
 
     datasets = [
         # "rl4se_golden",
-        "lc_golden",
+        # "lc_golden",
         # "mobilemde_golden",
-        "mpm4cps_golden",
-        "updatecollabmde_golden",
-        "gamese_golden",
-        "esm2_golden",
-        "testnn_golden",
+        # "mpm4cps_golden",
+        # "updatecollabmde_golden",
+        # "gamese_golden",
+        # "esm2_golden",
+        # "testnn_golden",
+        #        "dtcps_golden",
+        #        "trustse_golden",
+        #        "behave_golden"
+        # "esple_golden",
+        # "secselfadapt_golden",
+        # "smellreprod_golden",
+       # "testnnbibtex_golden",
+       # "smellreprodbibtex_golden"
+        #"updatecollabmdebibtex_golden",
+        #"lcbibtex_golden",
+       "rl4sebibtex_golden",
+        "mpm4cpsbibtex_golden"
     ]
 
     experiment_prefixes = [
-        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SIMPLE-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SIMPLE-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQn-SIMPLE-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQn-SIMPLE-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SELECTION-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SELECTION-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-COT-OLLAMA-FINAL",
-        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-COT-OLLAMA-FINAL",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SIMPLE-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SIMPLE-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQn-SIMPLE-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQn-SIMPLE-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SELECTION-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SELECTION-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-COT-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-COT-OLLAMA-FINAL1",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-COT",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SELECTION",
+        #        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-COT-DEEPSEEKPROMPT",
+        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-SELECTION-BIBTEX",
+        "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQy-COT-BIBTEX",
     ]
 
     for dataset in datasets:
@@ -191,7 +215,7 @@ def main():
             print(f"Dataset {dataset} not found at {dataset_path}")
             continue
 
-        selected_features = ["title", "abstract"]  # Columns remain the same
+        selected_features = ["bibtex"]  # Columns remain the same
 
         data["configurations"] = {
             "features": selected_features,
