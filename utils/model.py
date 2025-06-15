@@ -449,6 +449,8 @@ class ChatGPT(LanguageModel):
         self.name = self.parameters["llm"]["name"]
 
     def api_decide(self, content, article=None):
+        print("Paper content:")
+        print(content)
         conversation = [
             {"role": "system", "content": self.context},
             {
@@ -508,6 +510,8 @@ class LlamaFile(LanguageModel):
         self.name = "llama3.3"
 
     def api_decide(self, content, article=None):
+        print("Paper content:")
+        print(content)
         conversation = [
             {"role": "system", "content": self.context},
             {
