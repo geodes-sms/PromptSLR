@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 exp_not_required = [
-    "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
-    "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQn-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
-    "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQn-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
+    # "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQy-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
+    # "Std-U2-Cy-Rn-EXn-INn-A-SH1-EXPn-RQn-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
+    # "Std-U2-Cy-Rn-EXn-INn-A-SH0-EXPn-RQn-SIMPLE-OLLAMA-FINAL-LC-FINAL-LLAMAFILE",
 ]
 
 
@@ -102,8 +102,7 @@ def template_path_string_builder(dataset_name, experiment_prefix):
     """Build the template path string based on the dataset and experiment prefix."""
     dataset_name = dataset_name.split("_")[0]
     if "bibtex" in dataset_name:
-        dataset_name.replace("bibtex","")
-
+        dataset_name.replace("bibtex", "")
 
     template_path = f"final/{dataset_name}/{dataset_name}"
     if "SIMPLE" in experiment_prefix:
@@ -185,12 +184,12 @@ def main():
         # "esple_golden",
         # "secselfadapt_golden",
         # "smellreprod_golden",
-       # "testnnbibtex_golden",
-       # "smellreprodbibtex_golden"
-        #"updatecollabmdebibtex_golden",
-        #"lcbibtex_golden",
-       "rl4sebibtex_golden",
-        "mpm4cpsbibtex_golden"
+        # "testnnbibtex_golden",
+        # "smellreprodbibtex_golden"
+        # "updatecollabmdebibtex_golden",
+        # "lcbibtex_golden",
+        "rl4sebibtex_golden",
+        "mpm4cpsbibtex_golden",
     ]
 
     experiment_prefixes = [
@@ -215,7 +214,7 @@ def main():
             print(f"Dataset {dataset} not found at {dataset_path}")
             continue
 
-        selected_features = ["bibtex"]  # Columns remain the same
+        selected_features = ["title", "abstract", "key"]  # Columns remain the same
 
         data["configurations"] = {
             "features": selected_features,

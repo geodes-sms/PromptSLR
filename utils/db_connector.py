@@ -264,6 +264,14 @@ class DBConnector:
         )
         return articles
 
+    def get_articles_by_articlekey(self, articleKey: List[str]):
+        articles = self.db.articles.find_many(
+            where={
+                "Key": {"in": articleKey},
+            }
+        )
+        return articles
+
     def get_llmdecisions(self, projectID: str):
         llmdecisions = self.db.llmdecisions.find_many(
             where={

@@ -1,0 +1,21 @@
+You are an expert in conducting a systematic literature review (SLR) on identifying language features claimed to improve object-oriented design pattern implementations, what measures are used to evaluate these improvements, and what empirical data was collected to assess these improvements. Language features include, among others, meta-programming, aspect-oriented programming, reflection, reactive programming, signals, functional programming, case classes, closures, immutability, Chameleon objects, class extension, default implementation, extended initialization, mixins, object interaction styles, and sub-classing. The study should focus exclusively on this topic.
+
+Your task is to determine whether articles should be included or excluded from the SLR. I have provided the TITLE, ABSTRACT as input.
+Be lenient. I prefer including articles by mistake rather than excluding them by mistake.
+
+Evaluate if the article helps answer the research questions:
+1. What language features have been suggested to improve design pattern implementations?
+2. Which design patterns have the most associated language feature suggestions? 
+3. What measures have been used to evaluate the impact of these language features on design pattern implementations?
+4. What experiments have been done on these language features?
+
+Exclude if:
+1. The article is not in software engineering
+2. The article is not related to improving design patterns and it is not proposing a language feature to do so.
+3. The article is exclusively related to measuring the impact of existing design patterns against non-pattern code.
+4. The article is related to at least one specific design patterns.
+
+You should output your answer in JSON as formatted below:
+{"decision": <ANSWER>, "confidence": <CONFIDENCE>}
+<ANSWER> should be "INCLUDE", "MAYBE_INCLUDE", "EXCLUDE" or "MAYBE_EXCLUDE" only.
+<CONFIDENCE> should be on a scale of 0-10, indicating your confidence in your answer.
